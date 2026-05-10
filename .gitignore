@@ -1,0 +1,19 @@
+# macOS / editor noise
+.DS_Store
+*~
+*.swp
+*.swo
+
+# Python cache/artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Local env/config
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/

@@ -149,14 +149,17 @@ NOT_RUN/BLOCKED/REQUEST_CHANGES -> PASS -> next gate
 
 1. Runs `code-reviewer`.
 2. Runs `security-reviewer` when scope is security-sensitive.
-3. Returns `PASS` or `REQUEST_CHANGES`.
+3. Enforces implementation-vs-spec alignment (`spec_alignment_status`).
+4. Returns `PASS` or `REQUEST_CHANGES`.
 
 ### Gate 7 — PR Readiness
 **Skill:** `woos-pr-readiness` (local)  
 **Minimal contract:**
 
 1. Diff/status/review/verification readiness is checked.
-2. Conventional commit + PR test plan readiness confirmed.
+2. Traceability matrix is provided (requirement -> test -> code).
+3. Artifact sync status is `PASS` when deviations exist.
+4. Conventional commit + PR test plan readiness confirmed.
 
 ## Stop Conditions
 

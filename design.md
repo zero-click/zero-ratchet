@@ -11,6 +11,11 @@ Core objective:
 - keep local skills as thin wrappers only where no single ready-made skill exists
 - enforce deterministic progression with hard stop conditions
 
+Design emphasis:
+
+- unattended delivery is the vision, enabled by role-specialized agents and strict gates
+- design principles are first-class: role separation, traceability, deterministic progression, and explicit stop conditions
+
 ## Workflow Topology
 
 ```text

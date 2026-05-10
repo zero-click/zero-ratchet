@@ -1,7 +1,7 @@
 ---
 name: woos-code-review-gate
 description: Independent code/security review gate for Hermes workflow. Uses code-reviewer and security-reviewer where applicable.
-version: 1.1.0
+version: 1.2.0
 author: Hermes Profile
 license: MIT
 ---
@@ -34,6 +34,16 @@ Enforce independent review before PR readiness.
   - `reviewers_used`
   - `code_reviewer_status`
   - `security_reviewer_status` (when required)
+  - `spec_alignment_status: PASS | REQUEST_CHANGES`
+  - `spec_deviation_findings`
+  - `intentional_deviations`
   - `blocking_findings`
 
-Gate passes only when all required reviewers are clear.
+## Spec Alignment Requirements (hard gate)
+
+- Review MUST explicitly compare implementation against linked PRD/design/capability artifacts.
+- Any behavior/interface/data/policy deviation MUST be recorded in `spec_deviation_findings`.
+- If deviation is intentional, add rationale and artifact update status in `intentional_deviations`.
+- If unresolved deviation exists, set `spec_alignment_status: REQUEST_CHANGES`.
+
+Gate passes only when all required reviewers are clear and `spec_alignment_status` is `PASS`.
