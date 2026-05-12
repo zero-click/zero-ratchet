@@ -37,12 +37,6 @@ Minimal contract:
 2. Invoke `dmux-workflows` only for parallel execution.
 3. If `dmux-workflows` is active, use worktree-per-worker with isolated branches.
 
-Core path:
-
-```text
-Run Orchestrator -> Git Workflow -> Requirement Contract -> Research -> PRD Draft -> PRD Review -> Capability Contract -> Feature Design -> Design Review -> TDD -> Implement -> Verify -> Executable Acceptance -> Deviation Control -> Code/Security Review -> PR Readiness -> Workflow Memory Update
-```
-
 Mandatory bootstrap:
 
 1. Invoke `woos-run-orchestrator` first to initialize run state and produce `run_id`.
