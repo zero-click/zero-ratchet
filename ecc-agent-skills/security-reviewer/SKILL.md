@@ -27,11 +27,43 @@ ecc_source_commit: 34d8bf806428c8b1a6d9929a54f76c5667420a42
 3. Flag exploitable issues with severity and remediation guidance.
 4. Return gate-compatible verdict.
 
+Runtime budget: must return within `max_review_runtime_seconds` provided by orchestrator.
+
+## Collaboration Contract
+
+### Role boundary
+
+- Owns: security risk assessment and blocking security verdicts.
+- Must consult: `architect` for architecture-dependent mitigations.
+- Final authority: critical/high security findings severity and pass/fail impact.
+
+### Required review dimensions (must all be covered)
+
+1. Trust boundaries and privilege transitions
+2. Authentication, authorization, and session handling
+3. Input/output validation and injection surfaces
+4. Secret handling and sensitive data exposure
+5. Abuse resistance and auditability
+
+### Completeness self-check (required before returning)
+
+- `all_dimensions_checked: true|false`
+- `critical_high_findings_have_remediation: true|false`
+- `feedback_is_single_pass_complete: true|false`
+- `prior_review_context_checked: true|false`
+
+If any item is `false`, continue review only within remaining runtime budget; if budget is exhausted, return `BLOCKED`.
+
 ## Output Contract
 
 ```text
 STATUS: PASS | REQUEST_CHANGES | NOT_RUN | BLOCKED
 SUMMARY: security verdict
+REVIEW_DIMENSIONS:
+- dimension, status, findings
+COMPLETENESS_CHECK:
+- all_dimensions_checked
+- feedback_is_single_pass_complete
 BLOCKING_FINDINGS:
 - critical/high findings with remediation
 NON_BLOCKING_FINDINGS:

@@ -1,7 +1,7 @@
 ---
 name: woos-development-workflow
-description: Skill-first gated workflow for near-unattended Hermes delivery. Every gate binds to exactly one named skill with a minimal contract.
-version: 1.3.0
+description: Skill-first gated workflow for near-unattended Hermes delivery. Every gate binds to one wrapper skill with a minimal contract and enforced sub-invocations.
+version: 1.12.0
 author: Hermes Profile
 license: MIT
 metadata:
@@ -14,7 +14,15 @@ metadata:
 ## Purpose
 
 Use this workflow for non-trivial software work.  
-Rule: every gate must invoke exactly one named skill, then satisfy that skill's minimal contract.
+Rule: every gate must invoke exactly one **gate wrapper skill**, then satisfy that wrapper's minimal contract.  
+Wrapper-internal mandatory sub-invocations are allowed and required.
+
+## Baseline-First Governance
+
+1. Default all affected domains (UI/backend/database/infra) to mainstream, maintainable, evolvable baselines.
+2. Any below-baseline or outlier decision requires ADR + explicit approval.
+3. Freeze constraints only when user-provided or ADR-approved.
+4. Design/code review gates must fail when deviation lacks ADR+approval evidence.
 
 ## Git Branch/Worktree Policy
 
@@ -29,11 +37,53 @@ Minimal contract:
 2. Invoke `dmux-workflows` only for parallel execution.
 3. If `dmux-workflows` is active, use worktree-per-worker with isolated branches.
 
-Core path:
+Mandatory bootstrap:
+
+1. Invoke `woos-run-orchestrator` first to initialize run state and produce `run_id`.
+2. Review gates MUST NOT run without orchestrator-issued `run_id`.
+
+## Execution Profiles (tiered activation)
+
+Default profile is **Standard**.  
+Use **Lite** for low-risk small changes.  
+Use **Strict** for high-risk, ambiguous, or security-critical scope.
+
+### Lite (small/low-risk)
 
 ```text
-Requirement Contract -> Research -> PRD Draft -> PRD Review -> Capability Contract -> Feature Design -> Design Review -> TDD -> Implement -> Verify -> Executable Acceptance -> Deviation Control -> Code/Security Review -> PR Readiness -> Workflow Memory Update
+Run Orchestrator -> Git Workflow -> Requirement Contract -> Implement -> Verify -> Code/Security Review -> PR Readiness
 ```
+
+Minimal use criteria:
+
+- Limited scope and low coupling
+- No architecture/API contract changes
+- No high-risk security/compliance impact
+
+### Standard (default)
+
+```text
+Run Orchestrator -> Git Workflow -> Requirement Contract -> PRD Draft -> PRD Review -> Feature Design -> Design Review -> Implement -> Verify -> Code/Security Review -> PR Readiness -> Workflow Memory Update
+```
+
+Use when:
+
+- Multi-file or cross-component change
+- Design choices need review
+- Normal feature delivery with moderate risk
+
+### Strict (full hard-gate flow)
+
+```text
+Run Orchestrator -> Git Workflow -> Requirement Contract -> Research -> PRD Draft -> PRD Review -> Capability Contract -> Feature Design -> [API Design Review] -> Design Review -> TDD -> Implement -> Verify -> [Browser QA] -> Executable Acceptance -> Deviation Control -> Code/Security Review -> PR Readiness -> Workflow Memory Update
+```
+
+Use when:
+
+- Security-sensitive or compliance-sensitive scope
+- High uncertainty/ambiguity
+- Significant architecture/data model/API changes
+- Release risk is high and full traceability is required
 
 ## Skill Whitelist
 
@@ -41,6 +91,7 @@ Only these skills are allowed in this workflow:
 
 | Step | Skill | Source |
 |---|---|---|
+| Run Orchestrator | `woos-run-orchestrator` | local |
 | Git Workflow | `git-workflow` | imported |
 | Requirement Contract | `woos-requirement-contract` | local |
 | Research | `search-first` or `deep-research` | imported |
@@ -57,6 +108,8 @@ Only these skills are allowed in this workflow:
 | Browser QA (if frontend) | `browser-qa` | imported |
 | Executable Acceptance | `woos-executable-acceptance-gate` | local |
 | Deviation Control | `woos-deviation-control-gate` | local |
+| Review Context (cross-gate) | `woos-review-context` | local |
+| Agent Decision (on reviewer conflict) | `woos-agent-decision` | local |
 | Code/Security Review | `woos-code-review-gate` | local |
 | PR Readiness | `woos-pr-readiness` | local |
 | Workflow Memory Update | `woos-workflow-memory` | local |
@@ -74,6 +127,8 @@ Local wrapper intent:
 - `woos-run-orchestrator` defines queue/concurrency/timeout/retry controls
 - `woos-human-handoff` defines escalation and recovery protocol
 - `woos-workflow-memory` captures failure and rework patterns
+- `woos-review-context` carries cumulative findings across review gates
+- `woos-agent-decision` resolves reviewer conflicts deterministically
 - `woos-code-review-gate` wraps `code-reviewer` (+ `security-reviewer` when needed)
 - `woos-pr-readiness` wraps `verification-loop`
 
@@ -131,7 +186,10 @@ NOT_RUN/BLOCKED/REQUEST_CHANGES -> PASS -> next gate
 **Minimal contract:**
 
 1. Executes independent PRD review using `planner` + `architect` via the local gate skill.
-2. Returns `PASS` or `REQUEST_CHANGES` with concrete gaps.
+2. Uses `woos-review-context` to load/update cumulative findings.
+3. Uses `woos-agent-decision` when reviewer verdicts conflict.
+4. Returns `PASS` or `REQUEST_CHANGES` with concrete gaps.
+5. Escalates to `woos-human-handoff` when review loop threshold is exceeded.
 
 ### Gate 1.5 — Capability Contract
 **Skill:** `product-capability`  
@@ -147,6 +205,8 @@ NOT_RUN/BLOCKED/REQUEST_CHANGES -> PASS -> next gate
 1. Design artifact exists at `docs/design/<feature>.md` (or repo convention).
 2. Covers architecture, data, interfaces, risk, rollout/rollback.
 3. If API endpoints are defined: API design reviewed against `api-design` patterns.
+4. Baseline/deviation decision fields are complete; deviations include ADR + approval refs.
+5. `unconfirmed_constraints_frozen` must be `false`.
 
 ### Gate 2.1 — API Design Review (conditional)
 **Skill:** `api-design` (imported, optional)  
@@ -168,7 +228,9 @@ NOT_RUN/BLOCKED/REQUEST_CHANGES -> PASS -> next gate
 **Minimal contract:**
 
 1. Executes independent design review using `architect` via local gate skill.
-2. Returns `PASS` or `REQUEST_CHANGES`.
+2. Uses `woos-review-context` to load/update cumulative findings.
+3. Returns `PASS` or `REQUEST_CHANGES`.
+4. Escalates to `woos-human-handoff` when review loop threshold is exceeded.
 
 ### Gate 3 — TDD
 **Skill:** `tdd-workflow`  
@@ -229,8 +291,12 @@ NOT_RUN/BLOCKED/REQUEST_CHANGES -> PASS -> next gate
 
 1. Runs `code-reviewer`.
 2. Runs `security-reviewer` when scope is security-sensitive.
-3. Enforces implementation-vs-spec alignment (`spec_alignment_status`).
-4. Returns `PASS` or `REQUEST_CHANGES`.
+3. Uses `woos-review-context` to load/update cumulative findings.
+4. Uses `woos-agent-decision` when reviewer verdicts conflict.
+5. Enforces implementation-vs-spec alignment (`spec_alignment_status`).
+6. Returns `PASS` or `REQUEST_CHANGES`.
+7. Escalates to `woos-human-handoff` when review loop threshold is exceeded.
+8. Rejects unapproved baseline deviations or frozen unconfirmed constraints.
 
 ### Gate 7 — PR Readiness
 **Skill:** `woos-pr-readiness` (local)  
@@ -257,6 +323,7 @@ Stop and surface blocker when:
 - Required skill unavailable (`BLOCKED`)
 - Gate returns `REQUEST_CHANGES`
 - Ambiguity blocks acceptance criteria definition
+- Review loop threshold exceeded without convergence
 
 ## Runtime Control for Near-Unattended Execution
 
@@ -265,3 +332,18 @@ Use these control skills across all gates:
 - `woos-run-orchestrator`: queue policy, concurrency limits, timeout and retry envelope
 - `woos-failure-state-machine`: deterministic transition after failure (`retry` -> `degrade` -> `human_handoff`)
 - `woos-human-handoff`: escalation trigger, handoff payload, resume conditions
+- `woos-review-context`: cumulative findings and resolution tracking across review gates
+- `woos-agent-decision`: conflict resolution when reviewer outputs disagree
+
+Review context persistence file:
+
+- `<workspace_root>/hep/review-context/<run_id>.yaml`
+- For gated runs, `run_id` is mandatory; if missing, return `BLOCKED`.
+
+Review gates MUST emit machine-readable `enforcement` output that lists required and actually-invoked skills with invocation evidence.
+
+Run orchestration MUST persist and verify:
+
+- `<workspace_root>/hep/runs/<run_id>/run-manifest.yaml`
+- `runs/` and `review-context/` are created by orchestrator at run start when missing.
+- Missing required sections is a `BLOCKED` condition.

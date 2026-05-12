@@ -28,6 +28,8 @@ LOCAL_PROFILE_SKILLS = [
     "woos-run-orchestrator",
     "woos-human-handoff",
     "woos-workflow-memory",
+    "woos-review-context",
+    "woos-agent-decision",
     "woos-code-review-gate",
     "woos-pr-readiness",
     "woos-setup-rules",
@@ -109,10 +111,6 @@ def validate_ecc_path(ecc_path: Path) -> str | None:
         return f"Path does not exist: {ecc_path}"
     if not (ecc_path / "skills").is_dir():
         return f"Missing skills/: {ecc_path}"
-    if not (ecc_path / "mcp-configs" / "mcp-servers.json").is_file():
-        return f"Missing mcp-configs/mcp-servers.json: {ecc_path}"
-    if not (ecc_path / "rules").is_dir():
-        return f"Missing rules/: {ecc_path}"
     return None
 
 
@@ -327,7 +325,7 @@ def main() -> None:
         if interactive_mode:
             print_header()
             print_step("Step 1/5 - ECC repository path")
-            print("Needs: skills/, rules/, mcp-configs/mcp-servers.json")
+            print("Needs: skills/ (rules/ and mcp-configs are only required when syncing those features)")
             while True:
                 ecc_path = Path(prompt_text("ECC repo path")).expanduser()
                 issue = validate_ecc_path(ecc_path)

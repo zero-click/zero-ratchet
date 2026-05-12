@@ -3,7 +3,7 @@
 ## Overview
 
 This profile uses a **skill-first gated workflow** for software delivery.  
-Each workflow node must invoke exactly one named skill (local or imported), satisfy a minimal contract, and emit an explicit gate status.
+Each workflow node must invoke exactly one gate-wrapper skill (local or imported). The wrapper may invoke required sub-skills, must satisfy a minimal contract, and must emit an explicit gate status.
 
 Core objective:
 
@@ -38,6 +38,23 @@ Requirement Contract
   -> Workflow Memory Update
 ```
 
+## Workflow Profiles (Lite / Standard / Strict)
+
+To reduce process overhead while keeping gates reliable, workflow execution is tiered:
+
+1. **Lite** (small/low-risk)
+   - `Run Orchestrator -> Git Workflow -> Requirement Contract -> Implement -> Verify -> Code/Security Review -> PR Readiness`
+2. **Standard** (default)
+   - `Run Orchestrator -> Git Workflow -> Requirement Contract -> PRD Draft -> PRD Review -> Feature Design -> Design Review -> Implement -> Verify -> Code/Security Review -> PR Readiness -> Workflow Memory Update`
+3. **Strict** (full hard-gate)
+   - Full topology in this document, including Research/Capability/TDD/Acceptance/Deviation and conditional API/Browser QA gates; starts with `Run Orchestrator`.
+
+Profile selection policy:
+
+- Lite only when scope is limited and no architecture/API/security high-risk change exists.
+- Standard by default for normal feature work.
+- Strict when uncertainty, security/compliance sensitivity, or release risk is high.
+
 Git mode policy:
 
 - Always run `git-workflow` before meaningful code changes.
@@ -57,6 +74,25 @@ Progression rule:
 ```text
 NOT_RUN/BLOCKED/REQUEST_CHANGES -> PASS -> next gate
 ```
+
+## Collaboration Control Model
+
+Cross-gate collaboration controls are mandatory for review reliability:
+
+- `woos-review-context` must run before/after PRD, design, and code/security review gates.
+- `woos-agent-decision` must run when reviewer outputs conflict.
+- Repeated review loops beyond threshold escalate via `woos-human-handoff`.
+
+## Baseline-First Governance Model
+
+All technical decisions (UI/backend/database/infra) follow one global rule:
+
+1. Default to mainstream, maintainable, evolvable engineering baseline.
+2. Any deviation requires ADR + explicit approval reference.
+3. Unconfirmed constraints must not be frozen into PRD/design.
+4. Design/code review gates must fail if deviation evidence is incomplete.
+
+ADR reference template: `docs/adr/ADR-template.md`
 
 ## Skill Mapping (Node -> Skill)
 
@@ -78,6 +114,8 @@ NOT_RUN/BLOCKED/REQUEST_CHANGES -> PASS -> next gate
 | Browser QA (conditional) | `browser-qa` | imported | Automated UI testing, visual regression, accessibility audit |
 | Executable Acceptance | `woos-executable-acceptance-gate` | local | Validate machine-checkable done criteria |
 | Deviation Control | `woos-deviation-control-gate` | local | Block unresolved implementation-vs-spec drift |
+| Review Context (cross-gate) | `woos-review-context` | local | Load/update cumulative findings across PRD/design/code review gates |
+| Agent Decision (on reviewer conflict) | `woos-agent-decision` | local | Resolve reviewer disagreement with authority + evidence policy |
 | Code/Security Review | `woos-code-review-gate` | local | Invoke code/security reviewers and gate |
 | PR Readiness | `woos-pr-readiness` | local | Final PR readiness with verification visibility |
 | Workflow Memory Update | `woos-workflow-memory` | local | Persist failure/rework patterns and next-run guidance |
@@ -117,6 +155,8 @@ Local wrappers exist only to provide hard-gate orchestration around imported cap
 - `woos-run-orchestrator`
 - `woos-human-handoff`
 - `woos-workflow-memory`
+- `woos-review-context`
+- `woos-agent-decision`
 - `woos-code-review-gate`
 - `woos-pr-readiness`
 
@@ -134,6 +174,9 @@ Wrapper principles:
 3. Any gate returning `REQUEST_CHANGES` must rerun the same gate skill after revisions.
 4. No implementation starts before PRD draft/review and capability contract gates pass.
 5. No PR handoff before verify + code/security review + PR readiness gates pass.
+6. Repeated review loops beyond configured threshold must escalate to `woos-human-handoff`.
+7. Any baseline deviation without ADR+approval is invalid.
+8. Missing run manifest/verifier output is invalid.
 
 ## Artifact Conventions
 

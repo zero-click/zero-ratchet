@@ -1,7 +1,7 @@
 ---
 name: woos-feature-design
 description: Create implementation-ready feature technical design after PRD and capability contract are available.
-version: 1.1.0
+version: 1.2.0
 author: Hermes Profile
 license: MIT
 ---
@@ -28,6 +28,11 @@ Produce a technical design artifact that is precise enough for TDD and implement
 - Output fields (required):
   - `design_owner: architect`
   - `review_dependencies` (e.g., planner for complex scope)
+  - `baseline_compliance_status: PASS | REQUEST_CHANGES`
+  - `deviation_detected: true|false`
+  - `deviation_adr_path` (required when deviation_detected=true)
+  - `approval_ref` (required when deviation_detected=true)
+  - `unconfirmed_constraints_frozen: true|false`
 - Required sections:
   - Overview
   - Architecture
@@ -37,3 +42,12 @@ Produce a technical design artifact that is precise enough for TDD and implement
   - Test strategy
   - Rollout/rollback
   - Risks
+  - Baseline/Deviation Decision Record (cross-domain: UI, backend, database, infra where applicable)
+
+## Baseline and Deviation Rules (hard gate)
+
+1. Default to mainstream, maintainable, evolvable baseline for each affected domain.
+2. Any below-baseline or outlier decision requires ADR at `docs/adr/ADR-*.md`.
+3. Deviation without explicit `approval_ref` MUST return `REQUEST_CHANGES`.
+4. Do not freeze architectural constraints that were not user-provided or ADR-approved.
+5. If `unconfirmed_constraints_frozen=true`, return `REQUEST_CHANGES`.

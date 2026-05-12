@@ -12,6 +12,15 @@
 
 - **无人值守交付是长期愿景**：通过角色化 agent 分工 + 硬门禁，让更多需求在最少人工介入下稳定推进。
 - **设计原则是核心亮点**：它不是单纯的技能打包，而是把角色分离、可确定的 gate 流转、从意图/设计到实现的可追溯评审固化为默认工作方式。
+- **基线优先治理**：默认采用主流、可维护、可演进的工程基线；偏离必须提供 ADR 与明确审批。
+
+## 工作流分层（Lite / Standard / Strict）
+
+为了避免小任务被全流程拖慢，工作流支持三档执行：
+
+1. **Lite**：`Run Orchestrator -> Git Workflow -> Requirement Contract -> Implement -> Verify -> Code/Security Review -> PR Readiness`
+2. **Standard（默认）**：在 Lite 基础上增加 PRD/设计评审与 workflow memory（同样从 `Run Orchestrator` 开始）
+3. **Strict**：完整硬门禁流程（含 research/capability/TDD/acceptance/deviation，以及条件性 API/Browser QA；同样从 `Run Orchestrator` 开始）
 
 ## 安装内容
 
@@ -28,17 +37,21 @@
    - `woos-run-orchestrator`
    - `woos-human-handoff`
    - `woos-workflow-memory`
+   - `woos-review-context`
+   - `woos-agent-decision`
    - `woos-code-review-gate`
    - `woos-pr-readiness`
    - `woos-setup-rules`
 2. 导入 skills：
    - `git-workflow`
-   - `search-first`
+   - `search-first` / `deep-research`（按需升级）
    - `dmux-workflows`
    - `product-capability`
    - `tdd-workflow`
    - `coding-standards`
    - `verification-loop`
+   - `api-design`（REST/GraphQL 设计校验）
+   - `browser-qa`（前端浏览器测试）
 3. agent 适配 skills：
    - `planner`
    - `architect`
@@ -159,3 +172,22 @@ Hermes 的规则路由建议放在项目上下文文件中：
 5. `woos-workflow-memory`：失败与返工模式沉淀
 6. `woos-run-orchestrator`：运行编排（队列/并发/超时/重试）
 7. `woos-human-handoff`：人工接管与恢复协议
+
+## Agent 协作加固
+
+为减少长时间评审循环，新增两项协作控制能力：
+
+1. `woos-review-context`：跨 gate 的共享评审上下文（已解决/待继承问题）
+2. `woos-agent-decision`：reviewer 结论冲突时的确定性决策机制
+
+## ADR 治理要求
+
+- ADR 模板：`docs/adr/ADR-template.md`
+- 设计/代码评审 gate 必须输出并校验：
+  - `baseline_compliance_status`
+  - `deviation_detected`
+  - `deviation_adr_path` 与 `approval_ref`（存在偏离时必填）
+  - `unconfirmed_constraints_frozen=false`
+- 运行结束前必须通过 run manifest 校验：
+  - `<workspace_root>/hep/runs/<run_id>/run-manifest.yaml`
+- `runs/` 与 `review-context/` 目录由 orchestrator 在运行启动时按需创建，不要求预先存在。

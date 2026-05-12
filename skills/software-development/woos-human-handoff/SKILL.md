@@ -1,7 +1,7 @@
 ---
 name: woos-human-handoff
 description: Define explicit escalation, takeover payload, and resume protocol for autonomous workflow failures.
-version: 1.0.0
+version: 1.1.0
 author: Hermes Profile
 license: MIT
 ---
@@ -15,6 +15,7 @@ Standardize when and how autonomous execution escalates to a human operator.
 ## Escalation Triggers
 
 - Retry budget exhausted
+- Review-loop threshold exceeded (`REQUEST_CHANGES` repeats)
 - Critical security or compliance uncertainty
 - Contradictory requirements blocking deterministic output
 - High-risk production-impacting change without confidence
@@ -25,6 +26,7 @@ Standardize when and how autonomous execution escalates to a human operator.
 - `failed_stage`
 - `failure_summary`
 - `attempts_made`
+- `review_rounds_attempted`
 - `artifacts_reviewed`
 - `recommended_next_actions`
 - `resume_conditions`
@@ -41,4 +43,3 @@ Standardize when and how autonomous execution escalates to a human operator.
 - `handoff_required`: boolean
 - `handoff_payload`
 - `resume_decision`
-

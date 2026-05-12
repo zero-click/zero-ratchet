@@ -1,7 +1,7 @@
 ---
 name: woos-failure-state-machine
 description: Define deterministic failure transitions for autonomous workflow runs.
-version: 1.0.0
+version: 1.1.0
 author: Hermes Profile
 license: MIT
 ---
@@ -28,11 +28,13 @@ Prevent stalls and infinite loops by enforcing deterministic post-failure action
 2. Retry limit reached -> `DEGRADED` if safe degraded path exists.
 3. Non-retryable or unsafe degraded path -> `ESCALATED_TO_HUMAN`.
 4. Human approval + recovery plan -> `RESUMED`.
+5. Repeated review loop (`REQUEST_CHANGES` at/above max rounds) -> `ESCALATED_TO_HUMAN`.
 
 ## Required Controls
 
 - `max_retries` per gate
 - `timeout_seconds` per gate
+- `max_review_rounds` per review gate
 - `escalation_conditions`
 - `resume_conditions`
 
@@ -42,4 +44,3 @@ Prevent stalls and infinite loops by enforcing deterministic post-failure action
 - `current_state`
 - `transition_reason`
 - `next_action`
-

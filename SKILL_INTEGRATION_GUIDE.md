@@ -2,6 +2,39 @@
 
 Updated workflow integration of `deep-research`, `api-design`, and `browser-qa` into the `woos-development-workflow`.
 
+## Governance baseline (new)
+
+This profile now applies one global technical governance rule across UI/backend/database/infra:
+
+1. Default to mainstream, maintainable, evolvable engineering baseline.
+2. Any deviation requires ADR + explicit approval reference.
+3. Unconfirmed constraints must not be frozen into PRD/design.
+4. Review gates must output machine-readable baseline/deviation fields.
+
+ADR template path: `docs/adr/ADR-template.md`
+
+## Profile-based activation (new)
+
+To reduce unnecessary process overhead, `woos-development-workflow` now supports:
+
+- **Lite** for small/low-risk changes
+- **Standard** (default) for normal feature work
+- **Strict** for high-risk/high-uncertainty delivery with full hard gates
+
+## Collaboration hardening (new)
+
+To reduce repeated `REQUEST_CHANGES` loops, the workflow now also uses:
+
+- `woos-review-context` for cumulative cross-gate findings
+- `woos-agent-decision` for deterministic reviewer conflict resolution
+
+Review gates (`woos-prd-review-gate`, `woos-design-review-gate`, `woos-code-review-gate`) now require:
+
+1. Loading prior review context before reviewer invocation
+2. One-pass complete findings across required dimensions
+3. Updating review context with resolved/carry-forward findings
+4. Escalating to `woos-human-handoff` when review rounds exceed threshold
+
 ## New Conditional Skills
 
 ### 1. Deep Research (Research Phase)

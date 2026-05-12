@@ -12,6 +12,7 @@ Skill-first coding profile for Hermes, with:
 
 - **Unattended delivery is the long-term vision**: use role-specialized agents and hard gates so more work can run reliably with minimal human intervention.
 - **Design principles are the core differentiator**: this profile is not just a skill bundle. It enforces role separation, deterministic gate progression, and traceable review from intent/design to final implementation.
+- **Baseline-first governance**: default to mainstream, maintainable, evolvable engineering baselines; deviations require ADR + explicit approval.
 
 ## `woos-development-workflow` flowchart
 
@@ -48,9 +49,21 @@ flowchart TD
   U[planner] -.used by wrapper.- F
   V[architect] -.used by wrapper.- F
   V -.used by wrapper.- I
+  Y[woos-review-context] -.used by wrappers.- F
+  Y -.used by wrappers.- I
+  Y -.used by wrappers.- O
   W[code-reviewer] -.used by wrapper.- O
   X[security-reviewer] -.used by wrapper.- O
+  Z[woos-agent-decision] -.on reviewer conflict.- O
 ```
+
+## Workflow profiles
+
+To avoid over-processing small tasks, the workflow supports three execution profiles:
+
+1. **Lite**: `Run Orchestrator -> Git Workflow -> Requirement Contract -> Implement -> Verify -> Code/Security Review -> PR Readiness`
+2. **Standard (default)**: adds PRD/design review and workflow memory for normal feature delivery
+3. **Strict**: full hard-gate flow (research/capability/TDD/acceptance/deviation + conditional API/Browser QA)
 
 ## What this profile installs
 
@@ -67,6 +80,8 @@ flowchart TD
     - `woos-run-orchestrator`
     - `woos-human-handoff`
     - `woos-workflow-memory`
+    - `woos-review-context`
+    - `woos-agent-decision`
     - `woos-code-review-gate`
     - `woos-pr-readiness`
     - `woos-setup-rules`
@@ -199,3 +214,27 @@ This profile now includes a seven-part foundation for near-unattended delivery:
 5. `woos-workflow-memory` — persistent failure/rework pattern capture
 6. `woos-run-orchestrator` — run queue, concurrency, timeout/retry policy
 7. `woos-human-handoff` — explicit takeover and recovery protocol
+
+## Agent collaboration hardening
+
+To reduce long-running review loops, this profile now adds two collaboration controls:
+
+1. `woos-review-context` — shared cross-gate review context with resolved/carry-forward findings
+2. `woos-agent-decision` — deterministic reviewer conflict resolution before escalation
+
+Review-context records are persisted to:
+
+- `<workspace_root>/hep/review-context/<run_id>.yaml`
+- For gated runs, missing `run_id` is a `BLOCKED` condition.
+- Runtime folders are created lazily by orchestrator; no pre-created `runs/` directory is required.
+
+## ADR governance
+
+- ADR template: `docs/adr/ADR-template.md`
+- Design/code review gates now require:
+  - `baseline_compliance_status`
+  - `deviation_detected`
+  - `deviation_adr_path` + `approval_ref` (when deviation exists)
+  - `unconfirmed_constraints_frozen=false`
+- Run finalization requires verified run manifest:
+  - `<workspace_root>/hep/runs/<run_id>/run-manifest.yaml`
