@@ -62,7 +62,7 @@
    - `api-design`（REST/GraphQL 设计校验）
    - `browser-qa`（前端浏览器测试）
 3. agent 适配 skills：
-   - `planner`
+   - `product-planner`
    - `architect`
    - `code-reviewer`
    - `security-reviewer`

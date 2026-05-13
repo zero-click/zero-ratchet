@@ -27,6 +27,12 @@ Enforce independent review before PR readiness.
 - If required reviewer is unavailable, return `BLOCKED` and stop.
 - Do not replace with self-review or non-whitelisted reviewer.
 
+## Reviewer Isolation (hard gate)
+
+- Each reviewer (`code-reviewer`, `security-reviewer`) MUST be dispatched as a separate agent instance with fresh context (e.g., via task/spawn tool). In-context skill injection where the same LLM session plays the reviewer role is NOT a valid invocation.
+- The dispatched agent receives only the review inputs (current diff, linked artifacts, prior review context). It MUST NOT inherit the implementer's session history or reasoning.
+- `invocation_evidence` MUST include `dispatch_mode: "fresh_context"`. Any other value is invalid and MUST return `BLOCKED`.
+
 ## Contract
 
 - Input: current diff + linked artifacts (PRD/design/capability) + prior review context
@@ -103,6 +109,7 @@ Gate passes only when all required reviewers are clear and `spec_alignment_statu
     "invocation_evidence": [
       {
         "skill": "code-reviewer",
+        "dispatch_mode": "fresh_context",
         "invoked_at": "2026-05-12T22:00:00Z",
         "artifact_ref": "git diff HEAD",
         "output_digest": "sha256:..."

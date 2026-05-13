@@ -46,7 +46,7 @@ flowchart TD
   S[Human Handoff<br/>woos-human-handoff] -.escalation/resume.- R
   T[Parallel lanes when needed<br/>dmux-workflows] -.optional.- K
 
-  U[planner] -.used by wrapper.- F
+  U[product-planner] -.used by wrapper.- F
   V[architect] -.used by wrapper.- F
   V -.used by wrapper.- I
   Y[woos-review-context] -.used by wrappers.- F
@@ -105,7 +105,7 @@ To avoid over-processing small tasks, the workflow supports three execution prof
    - `api-design` (for REST/GraphQL validation)
    - `browser-qa` (for frontend testing)
 3. Agent-adapter skills:
-   - `planner`
+   - `product-planner`
    - `architect`
    - `code-reviewer`
    - `security-reviewer`

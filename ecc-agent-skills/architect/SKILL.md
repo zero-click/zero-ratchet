@@ -35,7 +35,7 @@ Runtime budget: must return within `max_review_runtime_seconds` provided by orch
 ### Role boundary
 
 - Owns: architecture decisions, interface/data model consistency, scalability and operability risks.
-- Must consult: `planner` for dependency and sequencing implications, `security-reviewer` for security-sensitive design risks.
+- Must consult: `product-planner` for dependency and sequencing implications, `security-reviewer` for security-sensitive design risks.
 - Veto authority: high-risk architecture flaws that can cause correctness, safety, or operability failures.
 
 ### Required review dimensions (must all be covered)

@@ -107,7 +107,7 @@ ADR reference template: `docs/adr/ADR-template.md`
 | Research | `search-first` or `deep-research` | imported | Search reusable solutions; optionally validate market/user pain via multi-source research |
 | Parallel Orchestration (when needed) | `dmux-workflows` | imported | Orchestrate parallel lanes with worktree isolation |
 | PRD Draft | `woos-prd-authoring` | local | Produce PRD artifact with testable AC |
-| PRD Review | `woos-prd-review-gate` | local | Invoke planner+architect and return gate status |
+| PRD Review | `woos-prd-review-gate` | local | Invoke product-planner+architect and return gate status |
 | Capability Contract | `product-capability` | imported | Convert PRD intent into implementation contract |
 | Feature Design | `woos-feature-design` | local | Produce technical design artifact |
 | API Design Review (conditional) | `api-design` | imported | Validate REST/GraphQL endpoint design, contracts, auth, pagination |
@@ -140,7 +140,7 @@ ADR reference template: `docs/adr/ADR-template.md`
 
 ### Agent-Adapter Skills (invoked via local gate skills)
 
-- `planner` (PRD review support)
+- `product-planner` (PRD quality review and planning support)
 - `architect` (PRD/design review and design ownership)
 - `code-reviewer` (mandatory code review)
 - `security-reviewer` (required for security-sensitive scope)

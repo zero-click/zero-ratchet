@@ -94,7 +94,7 @@ Good:
 
 Before moving to design/coding, run independent PRD review using:
 
-- `planner` (structure/completeness/testability)
+- `product-planner` (structure/completeness/testability)
 - `architect` (feasibility/boundaries/non-functional risk)
 
 Gate status must be one of:
@@ -118,7 +118,7 @@ After PRD gate passes:
 Use prompts like:
 
 - "Use `woos-prd-authoring` to draft PRD for <feature> and stop at review gate."
-- "Run PRD independent review using planner + architect, return PASS/REQUEST_CHANGES only."
+- "Run PRD independent review using product-planner + architect, return PASS/REQUEST_CHANGES only."
 - "Revise this PRD based on review findings and regenerate acceptance criteria."
 
 ## Quality checklist
@@ -132,4 +132,4 @@ Before marking PRD done:
 - [ ] Critical stories have testable AC
 - [ ] Security/permission concerns are captured
 - [ ] Open questions are listed (not guessed away)
-- [ ] `planner` + `architect` review gate passed
+- [ ] `product-planner` + `architect` review gate passed

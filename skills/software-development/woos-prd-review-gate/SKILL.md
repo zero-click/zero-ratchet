@@ -1,6 +1,6 @@
 ---
 name: woos-prd-review-gate
-description: Independent PRD review gate for Hermes workflow. Executes planner + architect reviews and returns PASS or REQUEST_CHANGES.
+description: Independent PRD review gate for Hermes workflow. Executes product-planner + architect reviews and returns PASS or REQUEST_CHANGES.
 version: 1.6.0
 author: Hermes Profile
 license: MIT
@@ -14,19 +14,25 @@ Run a strict PRD review gate after PRD drafting and before design.
 
 ## Required reviewers
 
-1. `planner`
+1. `product-planner`
 2. `architect`
 
 Both must review the same PRD artifact independently.
 
 ## Required Invocation (hard gate)
 
-- MUST invoke `planner` and `architect`.
+- MUST invoke `product-planner` and `architect`.
 - MUST invoke `woos-review-context` before and after reviewer execution.
-- MUST invoke `woos-agent-decision` if `planner_status` and `architect_status` conflict.
+- MUST invoke `woos-agent-decision` if `product_planner_status` and `architect_status` conflict.
 - If either one is not invoked, return `NOT_RUN` and stop.
 - If either one is unavailable, return `BLOCKED` and stop.
 - Do not replace with self-review or generic reviewer.
+
+## Reviewer Isolation (hard gate)
+
+- Each reviewer MUST be dispatched as a separate agent instance with fresh context (e.g., via task/spawn tool). In-context skill injection where the same LLM session plays the reviewer role is NOT a valid invocation.
+- The dispatched agent receives only the review inputs (PRD artifact, feature context, constraints, prior review context). It MUST NOT inherit the implementer's session history or reasoning.
+- `invocation_evidence` MUST include `dispatch_mode: "fresh_context"`. Any other value is invalid and MUST return `BLOCKED`.
 
 ## Contract
 
@@ -34,8 +40,8 @@ Both must review the same PRD artifact independently.
 - Output status: `PASS` | `REQUEST_CHANGES` | `NOT_RUN` | `BLOCKED`
 - Output content: concrete findings and required edits
 - Output fields (required):
-  - `reviewers_used: [planner, architect]`
-  - `planner_status`
+  - `reviewers_used: [product-planner, architect]`
+  - `product_planner_status`
   - `architect_status`
   - `review_round`
   - `review_dimensions_covered`
@@ -71,12 +77,13 @@ If either reviewer requests changes, gate result is `REQUEST_CHANGES`.
 ```json
 {
   "enforcement": {
-    "required_invocations": ["planner", "architect", "woos-review-context"],
-    "actually_invoked": ["planner", "architect", "woos-review-context"],
+    "required_invocations": ["product-planner", "architect", "woos-review-context"],
+    "actually_invoked": ["product-planner", "architect", "woos-review-context"],
     "missing_invocations": [],
     "invocation_evidence": [
       {
-        "skill": "planner",
+        "skill": "product-planner",
+        "dispatch_mode": "fresh_context",
         "invoked_at": "2026-05-12T22:00:00Z",
         "artifact_ref": "docs/prd/<feature>.md",
         "output_digest": "sha256:..."

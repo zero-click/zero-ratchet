@@ -15,10 +15,16 @@ Produce a technical design artifact that is precise enough for TDD and implement
 ## Required Invocation (hard gate)
 
 - MUST invoke `architect` to produce/revise the design.
-- For high-complexity scope, also invoke `planner` to validate decomposition and sequencing.
+- For high-complexity scope, also invoke `product-planner` to validate decomposition and sequencing.
 - If required invocation is missing, return `NOT_RUN` and stop.
 - If required component is unavailable, return `BLOCKED` and stop.
 - Do not substitute with undocumented ad-hoc design notes.
+
+## Reviewer Isolation (hard gate)
+
+- The `architect` (and `product-planner` when invoked) MUST be dispatched as a separate agent instance with fresh context (e.g., via task/spawn tool). In-context skill injection where the same LLM session plays the reviewer role is NOT a valid invocation.
+- The dispatched agent receives only the design inputs (approved PRD, capability contract, prior context). It MUST NOT inherit the implementer's session history or reasoning.
+- `invocation_evidence` MUST include `dispatch_mode: "fresh_context"`. Any other value is invalid and MUST return `BLOCKED`.
 
 ## Contract
 
@@ -27,7 +33,7 @@ Produce a technical design artifact that is precise enough for TDD and implement
 - Output status: `PASS` | `REQUEST_CHANGES` | `NOT_RUN` | `BLOCKED`
 - Output fields (required):
   - `design_owner: architect`
-  - `review_dependencies` (e.g., planner for complex scope)
+  - `review_dependencies` (e.g., product-planner for complex scope)
   - `baseline_compliance_status: PASS | REQUEST_CHANGES`
   - `deviation_detected: true|false`
   - `deviation_adr_path` (required when deviation_detected=true)

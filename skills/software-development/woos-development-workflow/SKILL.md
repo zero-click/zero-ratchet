@@ -118,8 +118,8 @@ If a required skill is unavailable, status is `BLOCKED` and the workflow stops.
 
 Local wrapper intent:
 
-- `woos-prd-review-gate` wraps `planner` + `architect`
-- `woos-feature-design` wraps `architect` (and `planner` for complex scope)
+- `woos-prd-review-gate` wraps `product-planner` + `architect`
+- `woos-feature-design` wraps `architect` (and `product-planner` for complex scope)
 - `woos-design-review-gate` wraps `architect`
 - `woos-executable-acceptance-gate` wraps measurable acceptance checks
 - `woos-deviation-control-gate` wraps spec drift blocking policy
@@ -185,7 +185,7 @@ NOT_RUN/BLOCKED/REQUEST_CHANGES -> PASS -> next gate
 **Skill:** `woos-prd-review-gate` (local)  
 **Minimal contract:**
 
-1. Executes independent PRD review using `planner` + `architect` via the local gate skill.
+1. Executes independent PRD review using `product-planner` + `architect` via the local gate skill.
 2. Uses `woos-review-context` to load/update cumulative findings.
 3. Uses `woos-agent-decision` when reviewer verdicts conflict.
 4. Returns `PASS` or `REQUEST_CHANGES` with concrete gaps.
