@@ -8,14 +8,14 @@ metadata:
   hermes:
     tags: [engineering, implementation, tdd, review, pr, stories, sharding]
     stage: 3
-    flow: idea-to-delivery-v2
+    flow: woos-idea-to-delivery-v2
 ---
 
 # Engineering Workflow
 
 ## Purpose
 
-Receive a build handoff from `feature-design-flow` (Stage 2), decompose it into independent stories, and execute each story with TDD, verification, and review. This is **Stage 3** of the idea-to-delivery flow.
+Receive a build handoff from `woos-product-design-flow` (Stage 2), decompose it into independent stories, and execute each story with TDD, verification, and review. This is **Stage 3** of the woos-idea-to-delivery flow.
 
 **Agent:** coding
 

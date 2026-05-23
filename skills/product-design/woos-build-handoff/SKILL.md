@@ -1,5 +1,5 @@
 ---
-name: build-handoff
+name: woos-build-handoff
 description: Package product artifacts (PRD + UI brief) into a single handoff file that a fresh coding agent can use to implement independently. Supports Lite (4-field) and Standard (full) templates. Includes spec versioning, Delta annotations, DCR Protocol, and Git Branch field. Product-focused — technical design is engineering's job.
 version: 3.0.0
 author: Hermes Profile
@@ -8,8 +8,8 @@ metadata:
   hermes:
     tags: [handoff, build, implementation, agent-bridge, delivery, delta]
     related_skills:
-      - product-design-flow
-      - ui-design-brief
+      - woos-product-design-flow
+      - woos-ui-design-brief
       - woos-development-workflow
 ---
 
@@ -29,15 +29,15 @@ Use when:
 
 Skip when:
 
-- PRD is not written yet → run product-design-flow first
+- PRD is not written yet → run woos-product-design-flow first
 - PRD has not passed review → complete review gate first
 
 ## Input Artifacts
 
 | Artifact | Required | Source |
 |----------|----------|--------|
-| PRD | Yes | `product-design-flow` → `docs/prd/<feature>.md` |
-| UI Brief | Optional | `ui-design-brief` → `docs/design/<feature>-ui-brief.md` |
+| PRD | Yes | `woos-product-design-flow` → `docs/prd/<feature>.md` |
+| UI Brief | Optional | `woos-ui-design-brief` → `docs/design/<feature>-ui-brief.md` |
 | Research notes | Optional | `docs/research/<topic>.md` |
 | Idea capture | Optional | `ideas/<slug>/00-idea-capture.md` |
 

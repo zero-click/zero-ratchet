@@ -13,7 +13,7 @@ metadata:
       - woos-prd-review-gate
       - woos-feature-design
       - woos-design-review-gate
-      - build-handoff
+      - woos-build-handoff
       - woos-review-context
       - woos-agent-decision
       - woos-human-handoff
@@ -23,7 +23,7 @@ metadata:
 
 ## Purpose
 
-Orchestrate Stage 2 of the idea-to-delivery pipeline: take a version from the product roadmap, produce a PRD + technical design, and package everything into a Handoff file that a fresh coding agent can work from independently.
+Orchestrate Stage 2 of the woos-idea-to-delivery pipeline: take a version from the product roadmap, produce a PRD + technical design, and package everything into a Handoff file that a fresh coding agent can work from independently.
 
 This skill is the **orchestrator** — it calls sub-skills in sequence, enforces review gates, and ensures the Handoff output is complete.
 
@@ -41,7 +41,7 @@ Use when:
 
 Skip when:
 
-- No roadmap exists → run Stage 1 (`product-discovery`) first
+- No roadmap exists → run Stage 1 (`woos-product-discovery`) first
 - Already have a Handoff file → go straight to Stage 3 (`engineering-workflow`)
 - Pure bugfix with clear scope → use `engineering-workflow` Lite directly
 
@@ -175,7 +175,7 @@ Produce implementation-ready technical design:
 
 ### Step 2.7 — Handoff Packaging
 
-**Skill**: `build-handoff`
+**Skill**: `woos-build-handoff`
 
 Synthesize PRD + Design into a single self-contained Handoff file.
 
@@ -240,7 +240,7 @@ Verify:
 
 ### Step 2L.4 — Package Lite Handoff
 
-**Skill**: `build-handoff` (Lite mode)
+**Skill**: `woos-build-handoff` (Lite mode)
 
 4 fields only:
 1. Mission
@@ -335,7 +335,7 @@ feature-design (this skill)
 ├── Step 2.4: woos-prd-review-gate
 ├── Step 2.5: woos-feature-design
 ├── Step 2.6: woos-design-review-gate
-├── Step 2.7: build-handoff
+├── Step 2.7: woos-build-handoff
 └── Cross-cutting:
     ├── woos-review-context (accumulates findings across gates)
     ├── woos-agent-decision (resolves reviewer conflicts)
