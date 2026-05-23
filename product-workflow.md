@@ -154,6 +154,18 @@ based-on: docs/prd/v1/auth.md
 Every step ≤ 2 files → typically 2–5K tokens of injected knowledge.
 Well within sub-agent limits. No context explosion.
 
+## Output Templates
+
+Templates in `skills/product-design/templates/` define the structure each step must produce:
+
+| Template | Used By |
+|----------|---------|
+| `requirements-template.md` | Step 2 (Requirement Contract) |
+| `prd-template.md` | Step 4 (PRD Authoring) |
+| `readiness-template.md` | Step 9 (Readiness Check) |
+
+**Convention:** When a sub-agent encounters an unknown or unresolved decision, it MUST mark it as `[NEEDS CLARIFICATION: <what is needed>]` rather than inventing an answer. The orchestrator collects these markers and asks the user before proceeding to the next step.
+
 ---
 
 ## Step I/O Declarations

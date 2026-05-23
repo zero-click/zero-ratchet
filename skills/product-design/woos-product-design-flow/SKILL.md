@@ -89,10 +89,11 @@ Read roadmap, extract target version. Confirm with user:
 | **Sub-agent** | ✅ |
 | **Persona** | `references/bmad/personas/pm.toml` |
 | **Knowledge** | `references/bmad/frameworks/prd.md` |
+| **Template** | `templates/requirements-template.md` |
 | **Input** | `docs/product/<project>-roadmap.md` § target version |
 | **Output** | `docs/prd/<version>/<feature>-requirements.md` |
 
-Produce structured requirements:
+Produce structured requirements following the template. Mark uncertain items with `[NEEDS CLARIFICATION: ...]`.
 - Goals and constraints
 - Acceptance criteria (machine-checkable where possible)
 - Non-goals
@@ -133,10 +134,12 @@ Rank requirements by priority using one framework:
 | **Sub-agent** | ✅ |
 | **Persona** | `references/bmad/personas/pm.toml` |
 | **Knowledge** | `references/bmad/frameworks/prd.md` + `references/bmad/templates/prd-template.md` |
+| **Template** | `templates/prd-template.md` |
 | **Input** | `docs/prd/<version>/<feature>-requirements.md` (including Priority Ranking) |
 | **Output** | `docs/prd/<version>/<feature>.md` |
 
-Write full PRD (P0 requirements get full detail, P2 gets brief mention):
+Write full PRD following the template. Mark uncertain items with `[NEEDS CLARIFICATION: ...]`.
+P0 requirements get full detail, P2 gets brief mention:
 - User stories with acceptance criteria
 - Functional and non-functional requirements
 - Edge cases and error handling
