@@ -1,5 +1,5 @@
 ---
-name: ui-design-brief
+name: woos-ui-design-brief
 description: Transform product requirements into a focused UI/UX design brief with screens, flows, visual direction, and optional image-generation concepts. Bridge between product thinking and implementation.
 version: 1.0.0
 author: Hermes Profile
@@ -8,9 +8,9 @@ metadata:
   hermes:
     tags: [ui, ux, design, visual, screens, interface, product-design]
     related_skills:
-      - idea-capture
-      - product-design-flow
-      - build-handoff
+      - woos-idea-capture
+      - woos-product-design-flow
+      - woos-build-handoff
 ---
 
 # UI Design Brief
@@ -166,7 +166,7 @@ If user selects a visual direction:
 
 ## Relation to Product Design Flow
 
-In `product-design-flow`:
+In `woos-product-design-flow`:
 - Runs after PRD is approved (user knows WHAT to build)
 - Runs before Build Handoff packaging (handoff includes UI direction)
 - Optional in Lite mode

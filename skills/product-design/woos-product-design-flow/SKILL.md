@@ -1,6 +1,6 @@
 ---
-name: product-design-flow
-description: "Stage 2 of idea-to-delivery: take a version from the product roadmap and produce PRD + UI direction + build handoff for the coding agent. Focuses on WHAT to build and WHY — technical HOW is deferred to the engineering stage. Runs once per roadmap version."
+name: woos-product-design-flow
+description: "Stage 2 of woos-idea-to-delivery: take a version from the product roadmap and produce PRD + UI direction + build handoff for the coding agent. Focuses on WHAT to build and WHY — technical HOW is deferred to the engineering stage. Runs once per roadmap version."
 version: 3.0.0
 author: Hermes Profile
 license: MIT
@@ -8,14 +8,14 @@ metadata:
   hermes:
     tags: [product, design, prd, handoff, review-gate, ui, analyze]
     stage: 2
-    flow: idea-to-delivery-v2
+    flow: woos-idea-to-delivery-v2
 ---
 
 # Product Design Flow
 
 ## Purpose
 
-Transform one version from the product roadmap into a build-ready product handoff. This is **Stage 2** of the idea-to-delivery flow.
+Transform one version from the product roadmap into a build-ready product handoff. This is **Stage 2** of the woos-idea-to-delivery flow.
 
 Focus: define WHAT to build and WHY. Technical architecture (HOW) is the engineering stage's responsibility.
 
@@ -40,7 +40,7 @@ If running via kanban:
 
 ## Prerequisites
 
-- `docs/product/<project>-roadmap.md` exists (from `product-discovery` or user-provided)
+- `docs/product/<project>-roadmap.md` exists (from `woos-product-discovery` or user-provided)
 
 ## Modes
 
@@ -124,7 +124,7 @@ Self-review or pair-review against:
 
 **[Design Mode]**
 
-**Skill:** `ui-design-brief`
+**Skill:** `woos-ui-design-brief`
 
 When the feature has user-facing interface:
 - Define screens, layouts, key components
@@ -163,7 +163,7 @@ Cross-artifact product consistency check. Run BEFORE packaging the handoff.
 
 **[QA Mode]**
 
-**Skill:** `build-handoff`
+**Skill:** `woos-build-handoff`
 
 Package all product artifacts into a single handoff file that a fresh coding agent can work from independently.
 
@@ -207,7 +207,7 @@ Checklist:
 | L2 | Build Tasks: numbered list of product objectives |
 | L3 | Acceptance Criteria: how to verify each task |
 | L4 | Verification: how to confirm completion |
-| L5 | Package into Lite handoff (4 fields) using `build-handoff` |
+| L5 | Package into Lite handoff (4 fields) using `woos-build-handoff` |
 
 No review gates, no UI brief, no analyze gate. Self-check only.
 
@@ -268,7 +268,7 @@ On completion:
 
 | Situation | Action |
 |-----------|--------|
-| Roadmap missing | Redirect to `product-discovery` first |
+| Roadmap missing | Redirect to `woos-product-discovery` first |
 | Review loops 3x | Ask user for direction |
 | Scope too large for one handoff | Split into multiple handoffs; one per sub-feature |
 | UI brief requested but no interface | Skip Step 5, note in handoff |
@@ -277,5 +277,5 @@ On completion:
 
 | Skill | Purpose |
 |-------|---------|
-| `ui-design-brief` | Step 5 (optional) |
-| `build-handoff` | Step 7 |
+| `woos-ui-design-brief` | Step 5 (optional) |
+| `woos-build-handoff` | Step 7 |

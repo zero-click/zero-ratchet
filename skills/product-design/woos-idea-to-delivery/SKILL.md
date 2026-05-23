@@ -1,5 +1,5 @@
 ---
-name: idea-to-delivery
+name: woos-idea-to-delivery
 description: End-to-end delivery flow from idea capture through PR. Bridges research agent (idea → product design → handoff) and coding agent (technical design → implement → verify → PR). Product side focuses on WHAT/WHY; engineering side focuses on HOW. Includes DCR feedback loop.
 version: 3.0.0
 author: Hermes Profile
@@ -8,11 +8,11 @@ metadata:
   hermes:
     tags: [delivery, idea, prd, design, handoff, review, workflow, end-to-end, dcr]
     related_skills:
-      - idea-capture
-      - product-discovery
-      - product-design-flow
-      - ui-design-brief
-      - build-handoff
+      - woos-idea-capture
+      - woos-product-discovery
+      - woos-product-design-flow
+      - woos-ui-design-brief
+      - woos-build-handoff
       - woos-development-workflow
 ---
 
@@ -115,7 +115,7 @@ DCR → back to Product Side
 
 ```text
 Is it security/compliance sensitive?              → Strict
-Is it a major initiative (multi-feature)?         → Standard (start with product-discovery)
+Is it a major initiative (multi-feature)?         → Standard (start with woos-product-discovery)
 Is it a normal feature?                           → Standard
 Is scope clear, single-purpose, low risk?         → Lite
 Is it a typo/docs fix?                            → No workflow needed
@@ -129,7 +129,7 @@ If unsure, start with Standard. User can override with `GREENLIGHT NEXT STAGE` t
 
 #### Phase 1 — Capture & Interview
 
-**Skill:** `idea-capture`
+**Skill:** `woos-idea-capture`
 
 - Captures raw idea through guided interview
 - Determines scope and urgency
@@ -138,7 +138,7 @@ If unsure, start with Standard. User can override with `GREENLIGHT NEXT STAGE` t
 
 #### Phase 2 — Product Discovery
 
-**Skill:** `product-discovery`
+**Skill:** `woos-product-discovery`
 
 - Research existing landscape
 - Competitive analysis
@@ -150,12 +150,12 @@ If unsure, start with Standard. User can override with `GREENLIGHT NEXT STAGE` t
 
 #### Phase 3 — Product Design Flow
 
-**Skill:** `product-design-flow`
+**Skill:** `woos-product-design-flow`
 
 - Select version scope from roadmap
 - Write requirements + PRD
 - PRD review (self-check or independent)
-- UI Design Brief (optional, via `ui-design-brief`)
+- UI Design Brief (optional, via `woos-ui-design-brief`)
 - Analyze gate (product consistency)
 - Package into handoff
 
@@ -276,11 +276,11 @@ Suggested change to product requirements or UI.
 ```text
 idea-to-delivery (this skill)
 ├── [Product Side — Research Agent]
-│   ├── Phase 1: idea-capture
-│   ├── Phase 2: product-discovery
-│   └── Phase 3: product-design-flow
-│       ├── ui-design-brief (optional)
-│       └── build-handoff
+│   ├── Phase 1: woos-idea-capture
+│   ├── Phase 2: woos-product-discovery
+│   └── Phase 3: woos-product-design-flow
+│       ├── woos-ui-design-brief (optional)
+│       └── woos-build-handoff
 ├── [Engineering Side — Coding Agent]
 │   ├── Phase 4: woos-feature-design + woos-design-review-gate
 │   ├── Phase 5: coding-standards / tdd-workflow

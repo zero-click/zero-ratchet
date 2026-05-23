@@ -1,6 +1,6 @@
 ---
-name: product-discovery
-description: "Stage 1 of idea-to-delivery: transform a raw idea into a structured product roadmap with vision, user personas, versioned scope, constraints, and decision log. Includes idea capture, market research, constitution initialization, and roadmap authoring."
+name: woos-product-discovery
+description: "Stage 1 of woos-idea-to-delivery: transform a raw idea into a structured product roadmap with vision, user personas, versioned scope, constraints, and decision log. Includes idea capture, market research, constitution initialization, and roadmap authoring."
 version: 2.0.0
 author: Hermes Profile
 license: MIT
@@ -8,14 +8,14 @@ metadata:
   hermes:
     tags: [product, discovery, roadmap, planning, research]
     stage: 1
-    flow: idea-to-delivery-v2
+    flow: woos-idea-to-delivery-v2
 ---
 
 # Product Discovery
 
 ## Purpose
 
-Turn a fuzzy idea into an actionable product roadmap. This is **Stage 1** of the idea-to-delivery flow. Run once per project; subsequent versions iterate in Stage 2 (feature-design-flow).
+Turn a fuzzy idea into an actionable product roadmap. This is **Stage 1** of the woos-idea-to-delivery flow. Run once per project; subsequent versions iterate in Stage 2 (woos-product-design-flow).
 
 ## Project Root Requirement
 
@@ -47,7 +47,7 @@ If skipping, go directly to `feature-design-flow` (Stage 2).
 
 ### Step 1: Idea Capture
 
-**Skill:** `idea-capture`
+**Skill:** `woos-idea-capture`
 
 Socratic interview the user (or parse a written idea) to extract:
 - What problem is being solved
@@ -223,7 +223,7 @@ To skip checkpoint (fully autonomous): set `checkpoints: []` in run-manifest.
 On completion, tell the user:
 - Roadmap is ready at `docs/product/<project>-roadmap.md`
 - Architecture overview is at `docs/product/<project>-architecture.md`
-- Next step: pick a version (e.g., V1) and invoke `product-design-flow`
+- Next step: pick a version (e.g., V1) and invoke `woos-product-design-flow`
 
 ## File Layout
 
@@ -256,7 +256,7 @@ On completion, tell the user:
 
 | Skill | Purpose |
 |-------|---------|
-| `idea-capture` | Step 1 |
+| `woos-idea-capture` | Step 1 |
 | `deep-research` | Step 2 |
 | `woos-run-orchestrator` | Step 3 |
 | `woos-product-planning-workflow` | Step 4 |

@@ -1,5 +1,5 @@
 ---
-name: idea-capture
+name: woos-idea-capture
 description: Capture and structure raw ideas through guided interview or quick note. Produces a structured idea document ready for research or PRD pass. Focuses purely on product intent — no technical decisions.
 version: 3.0.0
 author: Hermes Profile
@@ -8,7 +8,7 @@ metadata:
   hermes:
     tags: [idea, capture, interview, product, ideation]
     related_skills:
-      - product-discovery
+      - woos-product-discovery
       - woos-prd-authoring
 ---
 
@@ -25,7 +25,7 @@ This skill focuses exclusively on **product intent**: what problem to solve, for
 Use when:
 
 - User presents a new idea, feature request, or product vision
-- Starting the product-discovery flow at Step 1
+- Starting the woos-product-discovery flow at Step 1
 - Need to clarify scope before committing to a full PRD
 
 Skip when:
