@@ -52,28 +52,28 @@ Step 1: Select Version → extract feature list
 | Step | Name | Sub-agent? | Persona | Output | BMAD Knowledge |
 |------|------|:----------:|---------|--------|----------------|
 | 1 | Select Version Scope | ❌ orchestrator | — | _(version + feature list in run-manifest)_ | _(none)_ |
-| 2 | Requirement Contract | ✅ | pm | `docs/prd/<feature>-requirements.md` | `personas/pm.toml`<br>`frameworks/prd.md` |
+| 2 | Requirement Contract | ✅ | pm | `docs/prd/<project>/<version>/<feature>-requirements.md` | `personas/pm.toml`<br>`frameworks/prd.md` |
 | 3 | Priority Ranking | ✅ | pm | ↑ appends `## Priority Ranking` (P0/P1/P2 + cut-line) | `personas/pm.toml` |
-| 4 | PRD Authoring | ✅ | pm | `docs/prd/<feature>.md` | `frameworks/prd.md`<br>`templates/prd-template.md` |
-| 5 | PRD Review | ✅ | product-planner | `docs/reviews/<feature>-prd-review-rN.md` | `frameworks/validate-prd.md`<br>`templates/prd-validation-checklist.md` |
-| 6 | UI Design Brief (opt-in) | ✅ | ux-designer | `docs/design/<feature>-ui-brief.md` | `personas/ux-designer.toml`<br>`frameworks/ux-design.md` |
-| 6R | UI Brief Review | ✅ | ux-reviewer | `docs/reviews/<feature>-ui-review-rN.md` | `frameworks/ux-validate.md` |
-| 7 | Analyze Gate | ✅ | qa | `docs/handoff/<feature>-vN-analyze-report.md` | `frameworks/implementation-readiness.md` |
-| 8 | Build Handoff | ✅ | pm | `docs/handoff/<feature>-vN.md` | `frameworks/epics-and-stories.md` |
+| 4 | PRD Authoring | ✅ | pm | `docs/prd/<project>/<version>/<feature>.md` | `frameworks/prd.md`<br>`templates/prd-template.md` |
+| 5 | PRD Review | ✅ | product-planner | `docs/reviews/<project>/<version>/<feature>-prd-review-rN.md` | `frameworks/validate-prd.md`<br>`templates/prd-validation-checklist.md` |
+| 6 | UI Design Brief (opt-in) | ✅ | ux-designer | `docs/design/<project>/<version>/<feature>-ui-brief.md` | `personas/ux-designer.toml`<br>`frameworks/ux-design.md` |
+| 6R | UI Brief Review | ✅ | ux-reviewer | `docs/reviews/<project>/<version>/<feature>-ui-review-rN.md` | `frameworks/ux-validate.md` |
+| 7 | Analyze Gate | ✅ | qa | `docs/handoff/<project>/<version>/<feature>-analyze-report.md` | `frameworks/implementation-readiness.md` |
+| 8 | Build Handoff | ✅ | pm | `docs/handoff/<project>/<version>/<feature>.md` | `frameworks/epics-and-stories.md` |
 | 9 | Readiness Check | ❌ orchestrator | — | _(pass/fail in run-manifest)_ | _(none)_ |
-| **10** | **Version Integration Gate** | ✅ | pm | `docs/reviews/<project>-v<N>-integration-report.md` | `frameworks/implementation-readiness.md` |
+| **10** | **Version Integration Gate** | ✅ | pm | `docs/reviews/<project>/<version>/integration-report.md` | `frameworks/implementation-readiness.md` |
 
 **Step 6 trigger:** Orchestrator asks user "Does this feature have UI?" — Yes → run, No → skip 6+6R.
 **Step 10 trigger:** Runs after ALL features pass Step 9. Skipped if only 1 feature in version.
 
 **Stage 2 final deliverables (per feature):**
-- `docs/prd/<feature>-requirements.md` — 需求合约 + 优先级排序
-- `docs/prd/<feature>.md` — 完整 PRD
-- `docs/design/<feature>-ui-brief.md` — UI 方向（如有）
-- ⭐ **`docs/handoff/<feature>-vN.md`** — 最终交付物，coding agent 的唯一输入
+- `docs/prd/<project>/<version>/<feature>-requirements.md` — 需求合约 + 优先级排序
+- `docs/prd/<project>/<version>/<feature>.md` — 完整 PRD
+- `docs/design/<project>/<version>/<feature>-ui-brief.md` — UI 方向（如有）
+- ⭐ **`docs/handoff/<project>/<version>/<feature>.md`** — 最终交付物，coding agent 的唯一输入
 
 **Stage 2 final deliverables (per version):**
-- `docs/reviews/<project>-v<N>-integration-report.md` — 跨 feature 一致性报告
+- `docs/reviews/<project>/<version>/integration-report.md` — 跨 feature 一致性报告
 
 ---
 
@@ -126,16 +126,16 @@ Every step must declare explicit `input` and `output` so the next agent knows ex
 | Step | Input | Output |
 |------|-------|--------|
 | 1 Select Scope | `docs/product/<project>-roadmap.md` | _(confirmed version + feature list — stored in run-manifest)_ |
-| 2 Requirements | `docs/product/<project>-roadmap.md` § target version § feature | `docs/prd/<feature>-requirements.md` |
-| 3 Priority Ranking | `docs/prd/<feature>-requirements.md` | `docs/prd/<feature>-requirements.md` → appends `## Priority Ranking` |
-| 4 PRD Authoring | `docs/prd/<feature>-requirements.md` (含 Priority Ranking) | `docs/prd/<feature>.md` |
-| 5 PRD Review | `docs/prd/<feature>.md` + `docs/prd/<feature>-requirements.md` | `docs/reviews/<feature>-prd-review-rN.md` |
-| 6 UI Brief | `docs/prd/<feature>.md` | `docs/design/<feature>-ui-brief.md` |
-| 6R UI Review | `docs/design/<feature>-ui-brief.md` + `docs/prd/<feature>.md` | `docs/reviews/<feature>-ui-review-rN.md` |
-| 7 Analyze Gate | `docs/prd/<feature>.md` + `docs/design/<feature>-ui-brief.md` (if exists) | `docs/handoff/<feature>-vN-analyze-report.md` |
-| 8 Handoff | `docs/prd/<feature>.md` + `docs/design/<feature>-ui-brief.md` + analyze report | `docs/handoff/<feature>-vN.md` |
-| 9 Readiness | `docs/handoff/<feature>-vN.md` | _(pass/fail — updates run-manifest)_ |
-| **10 Integration** | All `docs/handoff/*-vN.md` for this version | `docs/reviews/<project>-v<N>-integration-report.md` |
+| 2 Requirements | `docs/product/<project>-roadmap.md` § target version § feature | `docs/prd/<project>/<version>/<feature>-requirements.md` |
+| 3 Priority Ranking | `docs/prd/<project>/<version>/<feature>-requirements.md` | ↑ appends `## Priority Ranking` |
+| 4 PRD Authoring | `docs/prd/<project>/<version>/<feature>-requirements.md` (含 Priority Ranking) | `docs/prd/<project>/<version>/<feature>.md` |
+| 5 PRD Review | `docs/prd/<project>/<version>/<feature>.md` + requirements | `docs/reviews/<project>/<version>/<feature>-prd-review-rN.md` |
+| 6 UI Brief | `docs/prd/<project>/<version>/<feature>.md` | `docs/design/<project>/<version>/<feature>-ui-brief.md` |
+| 6R UI Review | UI brief + PRD | `docs/reviews/<project>/<version>/<feature>-ui-review-rN.md` |
+| 7 Analyze Gate | PRD + UI brief (if exists) | `docs/handoff/<project>/<version>/<feature>-analyze-report.md` |
+| 8 Handoff | PRD + UI brief + analyze report | `docs/handoff/<project>/<version>/<feature>.md` |
+| 9 Readiness | `docs/handoff/<project>/<version>/<feature>.md` | _(pass/fail — updates run-manifest)_ |
+| **10 Integration** | All `docs/handoff/<project>/<version>/*.md` | `docs/reviews/<project>/<version>/integration-report.md` |
 
 ---
 

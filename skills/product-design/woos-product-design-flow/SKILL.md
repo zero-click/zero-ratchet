@@ -84,7 +84,7 @@ Read roadmap, extract target version. Confirm with user:
 | **Persona** | `references/bmad/personas/pm.toml` |
 | **Knowledge** | `references/bmad/frameworks/prd.md` |
 | **Input** | `docs/product/<project>-roadmap.md` § target version |
-| **Output** | `docs/prd/<feature>-requirements.md` |
+| **Output** | `docs/prd/<project>/<version>/<feature>-requirements.md` |
 
 Produce structured requirements:
 - Goals and constraints
@@ -101,8 +101,8 @@ Produce structured requirements:
 | **Sub-agent** | ✅ |
 | **Persona** | `references/bmad/personas/pm.toml` |
 | **Knowledge** | _(persona sufficient — ranking is judgment, not methodology)_ |
-| **Input** | `docs/prd/<feature>-requirements.md` |
-| **Output** | `docs/prd/<feature>-requirements.md` → appends `## Priority Ranking` |
+| **Input** | `docs/prd/<project>/<version>/<feature>-requirements.md` |
+| **Output** | `docs/prd/<project>/<version>/<feature>-requirements.md` → appends `## Priority Ranking` |
 
 Rank requirements by priority using one framework:
 
@@ -127,8 +127,8 @@ Rank requirements by priority using one framework:
 | **Sub-agent** | ✅ |
 | **Persona** | `references/bmad/personas/pm.toml` |
 | **Knowledge** | `references/bmad/frameworks/prd.md` + `references/bmad/templates/prd-template.md` |
-| **Input** | `docs/prd/<feature>-requirements.md` (including Priority Ranking) |
-| **Output** | `docs/prd/<feature>.md` |
+| **Input** | `docs/prd/<project>/<version>/<feature>-requirements.md` (including Priority Ranking) |
+| **Output** | `docs/prd/<project>/<version>/<feature>.md` |
 
 Write full PRD (P0 requirements get full detail, P2 gets brief mention):
 - User stories with acceptance criteria
@@ -145,8 +145,8 @@ Write full PRD (P0 requirements get full detail, P2 gets brief mention):
 | **Sub-agent** | ✅ (independent reviewer) |
 | **Persona** | `references/bmad/personas/prd-validator.toml` |
 | **Knowledge** | `references/bmad/frameworks/validate-prd.md` + `references/bmad/templates/prd-validation-checklist.md` |
-| **Input** | `docs/prd/<feature>.md` + `docs/prd/<feature>-requirements.md` |
-| **Output** | `docs/reviews/<feature>-prd-review-rN.md` |
+| **Input** | `docs/prd/<project>/<version>/<feature>.md` + `docs/prd/<project>/<version>/<feature>-requirements.md` |
+| **Output** | `docs/reviews/<project>/<version>/<feature>-prd-review-rN.md` |
 
 **Checklist:**
 
@@ -189,8 +189,8 @@ PASS: X/6 | FAIL: Y/6 → [PASS | REQUEST_CHANGES]
 | **Sub-agent** | ✅ |
 | **Persona** | `references/bmad/personas/ux-designer.toml` |
 | **Knowledge** | `references/bmad/frameworks/ux-design.md` |
-| **Input** | `docs/prd/<feature>.md` |
-| **Output** | `docs/design/<feature>-ui-brief.md` |
+| **Input** | `docs/prd/<project>/<version>/<feature>.md` |
+| **Output** | `docs/design/<project>/<version>/<feature>-ui-brief.md` |
 
 **Skill:** `woos-ui-design-brief`
 
@@ -213,8 +213,8 @@ When the feature has user-facing interface:
 | **Sub-agent** | ✅ (independent reviewer) |
 | **Persona** | `references/bmad/personas/ux-designer.toml` |
 | **Knowledge** | `references/bmad/frameworks/ux-validate.md` |
-| **Input** | `docs/design/<feature>-ui-brief.md` + `docs/prd/<feature>.md` |
-| **Output** | `docs/reviews/<feature>-ui-review-rN.md` |
+| **Input** | `docs/design/<project>/<version>/<feature>-ui-brief.md` + `docs/prd/<project>/<version>/<feature>.md` |
+| **Output** | `docs/reviews/<project>/<version>/<feature>-ui-review-rN.md` |
 
 **Checklist:**
 
@@ -241,8 +241,8 @@ When the feature has user-facing interface:
 | **Sub-agent** | ✅ |
 | **Persona** | _(qa — no BMAD persona needed)_ |
 | **Knowledge** | `references/bmad/frameworks/implementation-readiness.md` |
-| **Input** | `docs/prd/<feature>.md` + `docs/design/<feature>-ui-brief.md` (if exists) |
-| **Output** | `docs/handoff/<feature>-vN-analyze-report.md` |
+| **Input** | `docs/prd/<project>/<version>/<feature>.md` + `docs/design/<project>/<version>/<feature>-ui-brief.md` (if exists) |
+| **Output** | `docs/handoff/<project>/<version>/<feature>-analyze-report.md` |
 
 Cross-artifact consistency check:
 
@@ -267,8 +267,8 @@ Cross-artifact consistency check:
 | **Sub-agent** | ✅ |
 | **Persona** | `references/bmad/personas/pm.toml` |
 | **Knowledge** | `references/bmad/frameworks/epics-and-stories.md` |
-| **Input** | `docs/prd/<feature>.md` + `docs/design/<feature>-ui-brief.md` + analyze report |
-| **Output** | `docs/handoff/<feature>-vN.md` |
+| **Input** | `docs/prd/<project>/<version>/<feature>.md` + `docs/design/<project>/<version>/<feature>-ui-brief.md` + analyze report |
+| **Output** | `docs/handoff/<project>/<version>/<feature>.md` |
 
 **Skill:** `woos-build-handoff`
 
@@ -293,7 +293,7 @@ Package all product artifacts into a single handoff file:
 | | |
 |---|---|
 | **Sub-agent** | ❌ (orchestrator does this directly) |
-| **Input** | `docs/handoff/<feature>-vN.md` |
+| **Input** | `docs/handoff/<project>/<version>/<feature>.md` |
 | **Output** | _(pass/fail — updates run-manifest)_ |
 
 Checklist:
@@ -317,7 +317,7 @@ Checklist:
 | **Sub-agent** | ✅ |
 | **Persona** | `references/bmad/personas/pm.toml` |
 | **Knowledge** | `references/bmad/frameworks/implementation-readiness.md` |
-| **Input** | All `docs/handoff/<feature>-vN.md` for this version |
+| **Input** | All `docs/handoff/<project>/<version>/<feature>.md` for this version |
 | **Output** | `docs/reviews/<project>-v<N>-integration-report.md` |
 
 **Trigger:** Runs once after ALL features in this version pass Step 9.
@@ -366,21 +366,21 @@ stages:
       auth:
         current_step: 9
         steps:
-          2-requirements: { status: done, output: "docs/prd/auth-requirements.md" }
+          2-requirements: { status: done, output: "docs/prd/<project>/v1/auth-requirements.md" }
           3-priority-ranking: { status: done, output: "docs/prd/auth-requirements.md#priority-ranking" }
-          4-prd: { status: done, output: "docs/prd/auth.md" }
+          4-prd: { status: done, output: "docs/prd/<project>/v1/auth.md" }
           5-prd-review: { status: done, round: 1, result: PASS }
           6-ui-brief: { status: skipped }
           6r-ui-review: { status: skipped }
-          7-analyze: { status: done, output: "docs/handoff/auth-v1-analyze-report.md" }
-          8-handoff: { status: done, output: "docs/handoff/auth-v1.md" }
+          7-analyze: { status: done, output: "docs/handoff/<project>/v1/auth-analyze-report.md" }
+          8-handoff: { status: done, output: "docs/handoff/<project>/v1/auth.md" }
           9-readiness: { status: done, result: PASS }
       dashboard:
         current_step: 4
         steps:
-          2-requirements: { status: done, output: "docs/prd/dashboard-requirements.md" }
+          2-requirements: { status: done, output: "docs/prd/<project>/v1/dashboard-requirements.md" }
           3-priority-ranking: { status: done, output: "docs/prd/dashboard-requirements.md#priority-ranking" }
-          4-prd: { status: in_progress, output: "docs/prd/dashboard.md" }
+          4-prd: { status: in_progress, output: "docs/prd/<project>/v1/dashboard.md" }
           # ... remaining pending
     integration:
       status: pending  # runs after all features pass step 9
@@ -429,8 +429,8 @@ At each checkpoint: present summary → wait for user confirmation → proceed o
 ## Handoff to Engineering
 
 On completion:
-- Handoff: `docs/handoff/<feature>-vN.md`
-- Analyze report: `docs/handoff/<feature>-vN-analyze-report.md`
+- Handoff: `docs/handoff/<project>/<version>/<feature>.md`
+- Analyze report: `docs/handoff/<project>/<version>/<feature>-analyze-report.md`
 - Tell user: "Product handoff ready. Engineering stage can begin."
 
 ## Failure Handling
