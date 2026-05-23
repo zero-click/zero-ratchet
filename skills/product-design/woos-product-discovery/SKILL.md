@@ -133,19 +133,46 @@ Synthesize everything into a single roadmap document:
 
 **Reviewer:** Independent sub-agent dispatched in fresh context (product-strategist persona).
 
-Review criteria:
-- Vision is clear and differentiated (not generic)
-- Versioning is logical (V1 is truly minimal, each version builds on prior)
-- Success metrics are measurable and specific
-- Non-goals actually prevent scope creep
-- Decision Log rationale is sound (not circular)
-- Personas are grounded in real user behavior, not assumptions
+**Checklist:**
+
+| # | Criterion | What to check |
+|---|-----------|---------------|
+| R1 | Vision differentiated | Not generic — clearly states what makes this product unique |
+| R2 | Versioning logical | V1 is truly minimal; each version builds on prior without circular deps |
+| R3 | Metrics measurable | Success metrics are specific numbers or observable behaviors |
+| R4 | Non-goals effective | Actually prevent scope creep (not vague disclaimers) |
+| R5 | Decision Log sound | Rationale isn't circular; alternatives are real options considered |
+| R6 | Personas grounded | Based on real user behavior, not hypothetical ideal users |
 
 **Dispatch:** `delegate_task` → fresh context, product-strategist role, read only roadmap + idea-capture.
 
+**Review Findings Output:** `docs/reviews/<project>-roadmap-review-rN.md`
+
+```markdown
+# Roadmap Review — Round N
+
+| # | Criterion | Status | Finding | Fixed? |
+|---|-----------|--------|---------|--------|
+| R1 | Vision differentiated | ✅ PASS | — | — |
+| R2 | Versioning logical | ❌ FAIL | "V1 includes auth + payments — too large for MVP" | ☐ |
+| R3 | Metrics measurable | ❌ FAIL | "DAU target missing a number" | ☐ |
+| R4 | Non-goals effective | ✅ PASS | — | — |
+| R5 | Decision Log sound | ✅ PASS | — | — |
+| R6 | Personas grounded | ❌ FAIL | "Persona assumes all users are technical" | ☐ |
+
+## Summary
+PASS: 3/6 | FAIL: 3/6 → REQUEST_CHANGES
+```
+
+**Flow:**
+1. Reviewer outputs findings with ❌/✅ per criterion
+2. Author agent fixes each ❌ item, marks `Fixed? ☑` in findings file
+3. Re-review: reviewer checks only `Fixed? ☑` rows — verifies fix is adequate
+4. New issues found during re-review → append as new rows
+
 **Results:**
-- **PASS** → proceed to Step 5
-- **REQUEST_CHANGES** → return to Step 4 with specific feedback
+- **PASS** → all criteria ✅ → proceed to Step 5
+- **REQUEST_CHANGES** → return to Step 4, fix per findings checklist
 
 Max 2 rounds. If no convergence → ask user for direction.
 
@@ -204,20 +231,48 @@ System-level risks that affect multiple features.
 
 **Reviewer:** Independent sub-agent dispatched in fresh context (system-architect persona).
 
-Review criteria:
-- Components are coherent and have clear boundaries
-- Communication patterns are consistent (not mixing styles arbitrarily)
-- Data architecture avoids unnecessary coupling between features
-- Shared infrastructure is justified (not over-engineered for V1)
-- Cross-feature dependencies are identified and manageable
-- Technical risks are realistic (not alarmist or dismissive)
-- Architecture supports the roadmap's versioned delivery (V1 can ship without V2's components)
+**Checklist:**
+
+| # | Criterion | What to check |
+|---|-----------|---------------|
+| A1 | Component boundaries | Each component has clear single responsibility, no overlap |
+| A2 | Communication consistency | Patterns are uniform (not mixing REST + gRPC + events without reason) |
+| A3 | Data decoupling | No unnecessary shared state between features |
+| A4 | Infrastructure proportional | Shared infra justified for V1 scope (not over-engineered) |
+| A5 | Dependencies manageable | Cross-feature deps are identified and don't block independent delivery |
+| A6 | Risks realistic | Not alarmist or dismissive; actionable mitigations exist |
+| A7 | Version-aligned | V1 can ship without V2's components being built |
 
 **Dispatch:** `delegate_task` → fresh context, system-architect role, read roadmap + architecture.
 
+**Review Findings Output:** `docs/reviews/<project>-architecture-review-rN.md`
+
+```markdown
+# Architecture Review — Round N
+
+| # | Criterion | Status | Finding | Fixed? |
+|---|-----------|--------|---------|--------|
+| A1 | Component boundaries | ✅ PASS | — | — |
+| A2 | Communication consistency | ❌ FAIL | "Auth uses REST but notifications use WebSocket push without justification" | ☐ |
+| A3 | Data decoupling | ✅ PASS | — | — |
+| A4 | Infrastructure proportional | ❌ FAIL | "Event bus overkill for V1 — only 2 producers" | ☐ |
+| A5 | Dependencies manageable | ✅ PASS | — | — |
+| A6 | Risks realistic | ✅ PASS | — | — |
+| A7 | Version-aligned | ✅ PASS | — | — |
+
+## Summary
+PASS: 5/7 | FAIL: 2/7 → REQUEST_CHANGES
+```
+
+**Flow:**
+1. Reviewer outputs findings with ❌/✅ per criterion
+2. Author agent fixes each ❌ item, marks `Fixed? ☑` in findings file
+3. Re-review: reviewer checks only `Fixed? ☑` rows — verifies fix is adequate
+4. New issues found during re-review → append as new rows
+
 **Results:**
-- **PASS** → proceed to Step 6
-- **REQUEST_CHANGES** → return to Step 5 with specific feedback
+- **PASS** → all criteria ✅ → proceed to Step 6
+- **REQUEST_CHANGES** → return to Step 5, fix per findings checklist
 
 Max 2 rounds. If no convergence → ask user for direction.
 

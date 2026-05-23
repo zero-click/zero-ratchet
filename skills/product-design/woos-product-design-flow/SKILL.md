@@ -109,19 +109,46 @@ Write full PRD:
 
 **Reviewer:** Independent sub-agent dispatched in fresh context (product-planner persona).
 
-Review criteria:
-- All requirements trace back to user value (no "nice to have" disguised as must-have)
-- Acceptance criteria are testable without knowing implementation details
-- Non-goals clearly prevent scope creep
-- Edge cases are covered (not hand-waved)
-- User stories represent real user behavior, not developer convenience
-- No contradictions between requirements
+**Checklist:**
+
+| # | Criterion | What to check |
+|---|-----------|---------------|
+| P1 | Value-traced | Every requirement traces back to user value (no "nice to have" as must-have) |
+| P2 | AC testable | Acceptance criteria verifiable without knowing implementation |
+| P3 | Non-goals effective | Clearly prevent scope creep (specific enough to say "no" to requests) |
+| P4 | Edge cases covered | Not hand-waved — specific scenarios with expected behavior |
+| P5 | Real user behavior | User stories reflect actual usage, not developer convenience |
+| P6 | No contradictions | Requirements don't conflict with each other or non-goals |
 
 **Dispatch:** `delegate_task` → fresh context, product-planner role, read PRD + requirements + roadmap.
 
+**Review Findings Output:** `docs/reviews/<feature>-prd-review-rN.md`
+
+```markdown
+# PRD Review — Round N
+
+| # | Criterion | Status | Finding | Fixed? |
+|---|-----------|--------|---------|--------|
+| P1 | Value-traced | ✅ PASS | — | — |
+| P2 | AC testable | ❌ FAIL | "AC #3 says 'fast enough' — needs specific latency target" | ☐ |
+| P3 | Non-goals effective | ✅ PASS | — | — |
+| P4 | Edge cases covered | ❌ FAIL | "No mention of offline/network-error behavior" | ☐ |
+| P5 | Real user behavior | ✅ PASS | — | — |
+| P6 | No contradictions | ✅ PASS | — | — |
+
+## Summary
+PASS: 4/6 | FAIL: 2/6 → REQUEST_CHANGES
+```
+
+**Flow:**
+1. Reviewer outputs findings with ❌/✅ per criterion
+2. Author agent fixes each ❌ item, marks `Fixed? ☑` in findings file
+3. Re-review: reviewer checks only `Fixed? ☑` rows — verifies fix is adequate
+4. New issues found during re-review → append as new rows
+
 **Results:**
-- **PASS** → proceed to Step 5
-- **REQUEST_CHANGES** → return to Step 3 with specific feedback
+- **PASS** → all criteria ✅ → proceed to Step 5
+- **REQUEST_CHANGES** → return to Step 3, fix per findings checklist
 - 3 rounds without convergence → ask user for direction
 
 **Checkpoint:** If configured, pause here and present PRD summary to user for confirmation.
@@ -149,20 +176,48 @@ When the feature has user-facing interface:
 
 **Reviewer:** Independent sub-agent dispatched in fresh context (ux-reviewer persona).
 
-Review criteria:
-- Every screen maps to at least one user story from the PRD
-- All important states are defined (empty, loading, error, success, first-run)
-- User flows have clear entry/exit points matching PRD flows
-- Visual direction is consistent (not contradictory principles)
-- Accessibility considerations are realistic for the target platform
-- Component inventory covers the screens described (no orphan components)
-- Design principles actually guide decisions (not generic platitudes)
+**Checklist:**
+
+| # | Criterion | What to check |
+|---|-----------|---------------|
+| U1 | Screen coverage | Every screen maps to ≥1 user story from PRD |
+| U2 | States complete | All important states defined (empty, loading, error, success, first-run) |
+| U3 | Flows connected | User flows have clear entry/exit matching PRD flows, no dead ends |
+| U4 | Visual consistency | Design principles don't contradict each other |
+| U5 | Accessibility realistic | A11y targets achievable for the platform and timeline |
+| U6 | Components sufficient | Component inventory covers all screens (no orphans) |
+| U7 | Principles actionable | Design principles guide real decisions (not generic platitudes) |
 
 **Dispatch:** `delegate_task` → fresh context, ux-reviewer role, read UI brief + PRD.
 
+**Review Findings Output:** `docs/reviews/<feature>-ui-review-rN.md`
+
+```markdown
+# UI Brief Review — Round N
+
+| # | Criterion | Status | Finding | Fixed? |
+|---|-----------|--------|---------|--------|
+| U1 | Screen coverage | ✅ PASS | — | — |
+| U2 | States complete | ❌ FAIL | "Settings screen missing error state" | ☐ |
+| U3 | Flows connected | ✅ PASS | — | — |
+| U4 | Visual consistency | ✅ PASS | — | — |
+| U5 | Accessibility realistic | ❌ FAIL | "AAA target unrealistic for V1 timeline — suggest AA" | ☐ |
+| U6 | Components sufficient | ✅ PASS | — | — |
+| U7 | Principles actionable | ✅ PASS | — | — |
+
+## Summary
+PASS: 5/7 | FAIL: 2/7 → REQUEST_CHANGES
+```
+
+**Flow:**
+1. Reviewer outputs findings with ❌/✅ per criterion
+2. Author agent fixes each ❌ item, marks `Fixed? ☑` in findings file
+3. Re-review: reviewer checks only `Fixed? ☑` rows — verifies fix is adequate
+4. New issues found during re-review → append as new rows
+
 **Results:**
-- **PASS** → proceed to Step 6
-- **REQUEST_CHANGES** → return to Step 5 with specific feedback
+- **PASS** → all criteria ✅ → proceed to Step 6
+- **REQUEST_CHANGES** → return to Step 5, fix per findings checklist
 
 Max 2 rounds. If no convergence → ask user for direction.
 
