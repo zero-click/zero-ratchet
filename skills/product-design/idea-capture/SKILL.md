@@ -1,12 +1,12 @@
 ---
 name: idea-capture
-description: Capture and structure raw ideas through guided interview or quick note. Produces a structured idea document ready for PRD or research pass. Includes Constitution detection and creation.
-version: 2.0.0
+description: Capture and structure raw ideas through guided interview or quick note. Produces a structured idea document ready for research or PRD pass. Focuses purely on product intent — no technical decisions.
+version: 3.0.0
 author: Hermes Profile
 license: MIT
 metadata:
   hermes:
-    tags: [idea, capture, interview, product, ideation, constitution]
+    tags: [idea, capture, interview, product, ideation]
     related_skills:
       - product-discovery
       - woos-prd-authoring
@@ -16,9 +16,9 @@ metadata:
 
 ## Purpose
 
-Transform a raw idea or feature request into a structured document that can feed into research, PRD, or directly into implementation (Lite mode).
+Transform a raw idea or feature request into a structured document that can feed into research, PRD, or product planning.
 
-Also responsible for **Constitution detection**: checking if the project has a `.hep/constitution.md` file and offering to create one if it doesn't exist.
+This skill focuses exclusively on **product intent**: what problem to solve, for whom, and what success looks like. It does NOT make technical decisions — those belong in later stages.
 
 ## When to Use
 
@@ -32,58 +32,6 @@ Skip when:
 
 - Idea already has a PRD → go to `woos-prd-authoring` or later phases
 - Pure bugfix with clear reproduction → no capture needed
-
-## Constitution Detection & Creation
-
-**Before starting capture, check for Constitution:**
-
-1. Check if `.hep/constitution.md` exists in the project root
-2. If **exists**: note its presence for handoff reference; proceed with capture
-3. If **NOT exists**:
-   - Ask user: "This project doesn't have a constitution file (`.hep/constitution.md`). Would you like to create one? It captures project-level conventions (tech stack, architecture, coding standards) so handoffs stay focused on what's new."
-   - If yes: extract from project context (scan `package.json`, `pyproject.toml`, `AGENTS.md`, existing code structure)
-   - If no: proceed without constitution; handoffs will include full tech details
-
-**Constitution creation sources (auto-detect from project):**
-
-| Source | Extract |
-|--------|---------|
-| `package.json` / `pyproject.toml` | Language, framework, dependencies |
-| `AGENTS.md` / `CLAUDE.md` / `.cursorrules` | Coding conventions, project rules |
-| Existing directory structure | Architecture patterns |
-| `tsconfig.json` / `wrangler.toml` / etc. | Runtime, deployment platform |
-| `vitest.config` / `pytest.ini` / etc. | Testing framework |
-
-**Constitution template:**
-
-```markdown
-# Project Constitution
-
-## Tech Stack
-- Language: [detected]
-- Runtime: [detected]
-- Framework: [detected]
-- Database: [detected or "N/A"]
-- Deployment: [detected]
-
-## Architecture
-- API style: [detected or ask]
-- Auth: [detected or ask]
-- State: [detected or ask]
-
-## Coding Standards
-- Linter: [detected]
-- Testing: [detected]
-- Commit: Conventional Commits (default) or [detected]
-
-## Baseline Decisions
-- Default ecosystem: [detected — deviations need ADR]
-- [other conventions from AGENTS.md etc.]
-```
-
-**When to skip Constitution creation:**
-- Lite mode and user said no → skip
-- No project directory (pure ideation phase) → defer to later
 
 ## Capture Modes
 
@@ -125,12 +73,10 @@ For: new product features, cross-cutting changes, ideas with unclear scope.
 
 **Process:**
 
-1. Check Constitution (see above)
-2. Run through interview questions one at a time
-3. Capture answers in structured format
-4. Recommend technical defaults (recommend-then-confirm)
-5. User can say `GREENLIGHT NEXT STAGE` to skip remaining questions
-6. Output to `ideas/<slug>/00-idea-capture.md`
+1. Run through interview questions one at a time
+2. Capture answers in structured format
+3. User can say `GREENLIGHT NEXT STAGE` to skip remaining questions
+4. Output to `ideas/<slug>/00-idea-capture.md`
 
 ## Interview Question Bank
 
@@ -154,36 +100,19 @@ Ask sequentially. Skip if user already provided the information unprompted.
 8. **Are there time or resource constraints?** (Deadline, budget, team size)
 9. **Does this need to work on day one, or can it be iterative?** (MVP vs complete)
 
-### Category 4: Technical Context
+### Category 4: Context & Dependencies
 
-10. **Any platform or technology requirements?** (Must work on X, must use Y)
-11. **Are there integration points?** (Third-party services, existing systems)
-12. **Any security or compliance concerns?** (Data sensitivity, access control)
+10. **Are there integration points?** (Third-party services, existing systems)
+11. **Any security or compliance concerns?** (Data sensitivity, access control)
 
 ### Category 5: Quality & Risk
 
-13. **What would make this fail?** (Risks, failure modes, deal-breakers)
-14. **How important is performance?** (Latency, throughput, scale expectations)
-15. **What's the rollback plan if something goes wrong?** (Risk mitigation)
+12. **What would make this fail?** (Risks, failure modes, deal-breakers)
+13. **How will you know this is successful?** (Observable outcomes, metrics)
 
 ## Technical Defaults (Recommend-Then-Confirm)
 
-After capturing answers, suggest sensible defaults:
-
-```text
-"I'd recommend [X] for [domain] because [reason].
- Does that work, or do you have a preference?"
-```
-
-| Domain | Default | Reason |
-|--------|---------|--------|
-| Frontend | Project's existing stack | Consistency |
-| Backend | Project's existing stack | Consistency |
-| Database | Project's existing DB | No migration overhead |
-| Auth | Project's existing auth | No new security surface |
-| Deployment | Project's existing pipeline | No infra changes |
-
-Record overrides in the capture document. If Constitution exists, defaults come from Constitution — only deviations need recording.
+This section has been removed from idea-capture. Technical decisions belong in later stages (feature-design or engineering workflow). Idea capture focuses purely on product intent.
 
 ## Output Format (Full Mode)
 
@@ -195,10 +124,6 @@ YYYY-MM-DD
 
 ## Source
 How did this idea come up?
-
-## Constitution Status
-- `.hep/constitution.md`: exists / not found / created this session
-- Deviations from constitution: [list or "none"]
 
 ## Problem Statement
 Who: [target users]
@@ -222,13 +147,8 @@ Ideal experience: [describe]
 ## Constraints
 - Time: [deadline or "none"]
 - Resources: [team size or "flexible"]
-- Technical: [hard requirements]
+- Dependencies: [integration points or "none"]
 - Security: [concerns or "standard"]
-
-## Technical Defaults
-| Domain | Choice | User Override |
-|--------|--------|---------------|
-| Frontend | [default] | [override or "accepted"] |
 
 ## Risks
 - [risk]: [mitigation or "accepted"]
@@ -237,7 +157,7 @@ Ideal experience: [describe]
 - [unresolved question]
 
 ## Interview Status
-- Questions answered: N/15
+- Questions answered: N/13
 - GREENLIGHT used: yes/no
 ```
 
@@ -245,7 +165,6 @@ Ideal experience: [describe]
 
 - Lite: `ideas/<slug>.md`
 - Full: `ideas/<slug>/00-idea-capture.md` + `ideas/<slug>/README.md`
-- Constitution: `.hep/constitution.md` (project root)
 
 Slug: lowercase, hyphens, max 50 chars, from idea title.
 
@@ -253,9 +172,9 @@ Slug: lowercase, hyphens, max 50 chars, from idea title.
 
 After capture:
 
-1. Lite mode → proceed to PRD (Phase 3)
-2. Full + research needed → Research Pass (Phase 2)
-3. Full + scope clear → PRD (Phase 3)
+1. Lite mode + scope clear → proceed to PRD
+2. Full + research needed → Research Pass
+3. Full + scope clear → PRD
 
 ## Pitfalls
 
@@ -263,5 +182,5 @@ After capture:
 - Don't prescribe architecture — capture requirements, not solutions
 - Don't skip open questions — they feed the research pass
 - Don't write the PRD here — that's `woos-prd-authoring`
-- Don't force Constitution creation on Lite mode — keep it lightweight
-- Don't create Constitution from guesses — use detected project facts, ask for confirmation
+- Don't make technical decisions — those belong in later stages
+- Don't discuss tech stack, frameworks, or databases — stay on product intent

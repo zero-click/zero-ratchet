@@ -73,32 +73,16 @@ Investigate:
 
 **Gate:** Research must cite sources and include a recommendation. If critical unknowns remain, flag them as blockers in the roadmap.
 
-### Step 3: Constitution Initialization
-
-**When:** First time this flow runs for a project. Skip if `.hep/constitution.md` already exists.
-
-Create `.hep/constitution.md` with:
-- Tech stack choices (language, framework, database, deployment)
-- Architecture conventions (monorepo vs multi-repo, API style)
-- Coding standards references
-- Baseline decisions (what's default; deviations require ADR)
-- Team conventions (naming, directory structure, testing requirements)
-
-Source from:
-- Existing codebase (if any)
-- User preferences
-- Research findings from Step 2
-
-### Step 4: Run Initialization
+### Step 3: Run Initialization
 
 **Skill:** `woos-run-orchestrator`
 
 Initialize run state:
 - Create `.hep/runs/<run_id>/run-manifest.yaml`
 - Record run_id for cross-stage traceability
-- 🆕 Set `checkpoints: [stage1-done]` in run-manifest
+- Set `checkpoints: [stage1-done]` in run-manifest
 
-### Step 5: Product Vision & Roadmap
+### Step 4: Product Vision & Roadmap
 
 **Skill:** `woos-product-planning-workflow`
 
@@ -123,7 +107,7 @@ Synthesize everything into a single roadmap document:
 - Core Features: (numbered list)
 - Non-goals: (what's explicitly out of scope)
 - Success Metrics: (how to measure success)
-- Technical Constraints: (from constitution)
+- Technical Constraints: (known from research)
 
 ### V2 — <Expansion Name>
 - Scope: ...
@@ -133,25 +117,72 @@ Synthesize everything into a single roadmap document:
 - ...
 
 ## Constraints
-- Tech stack: (from constitution)
 - Timeline: (if any)
 - Resources: (if any)
+- Known technical constraints: (if any)
 
-## 🆕 Decision Log
+## Decision Log
 | # | Decision | Rationale | Alternatives Considered |
 |---|----------|-----------|------------------------|
 | D1 | (e.g. use SQLite) | (e.g. local-first, zero deploy) | (e.g. PostgreSQL — too heavy) |
-
-## Constitution Reference
-- `.hep/constitution.md`
 ```
 
 **Output:** `docs/product/<project-slug>-roadmap.md`
 
-### Step 6: 🆕 Decision Log Initialization
+### Step 5: System Architecture Overview
+
+After the roadmap is defined, produce a high-level system architecture that spans all planned versions. This prevents per-feature designs from conflicting later.
+
+**Must answer:**
+- What are the major system components/services?
+- How do they communicate? (API, events, shared DB, etc.)
+- What is the data architecture? (storage types, data flow)
+- What cross-feature infrastructure is needed? (auth, queues, event bus, etc.)
+- Which features have architectural coupling and must be co-designed?
+- What are the system-level technical risks?
+
+**Does NOT answer:**
+- Detailed per-feature design (that's Stage 2)
+- Specific code structure or file layout
+- Implementation timeline (that's the roadmap)
+
+**Output:** `docs/product/<project-slug>-architecture.md`
+
+```markdown
+# <Project Name> — System Architecture
+
+## Overview
+High-level system diagram description.
+
+## Components
+| Component | Responsibility | Interfaces |
+|-----------|---------------|------------|
+| ... | ... | ... |
+
+## Data Architecture
+- Storage types and boundaries
+- Data flow between components
+
+## Shared Infrastructure
+- Auth/identity
+- Messaging/events
+- Observability
+
+## Cross-Feature Dependencies
+Which features share components or data, and what coordination is needed.
+
+## Technical Risks
+System-level risks that affect multiple features.
+
+## Architecture Decisions
+| # | Decision | Rationale | Alternatives |
+|---|----------|-----------|-------------|
+| A1 | ... | ... | ... |
+```
+
+### Step 6: Decision Log Initialization
 
 Record key decisions made during discovery in the roadmap's Decision Log:
-- Tech stack choices and why
 - Scope inclusions/exclusions and why
 - Architecture direction and why
 - Market positioning decisions
@@ -169,17 +200,18 @@ This stage has no Lite/Standard split. Either you do product discovery or you sk
 
 If the idea is small enough to not warrant a full discovery, skip directly to `feature-design-flow` Lite mode.
 
-## 🆕 Checkpoint: Stage 1 Completion
+## Checkpoint: Stage 1 Completion
 
-After roadmap is written, **pause and present to user**:
+After roadmap + architecture are written, **pause and present to user**:
 
-1. Output a concise roadmap summary:
+1. Output a concise summary:
    - Vision (1 sentence)
    - V1 scope (bullet list)
+   - Architecture overview (key components)
    - Key risks / open questions
    - Decision Log highlights
 2. **Wait for user confirmation** before proceeding to Stage 2
-3. If user wants changes → return to Step 5 (or Step 1 if fundamental)
+3. If user wants changes → return to relevant step
 4. If user confirms → mark run-manifest `stage1-status: completed`
 
 **Checkpoint behavior is controlled by:** `run-manifest.yaml` → `checkpoints: [stage1-done]`
@@ -190,18 +222,19 @@ To skip checkpoint (fully autonomous): set `checkpoints: []` in run-manifest.
 
 On completion, tell the user:
 - Roadmap is ready at `docs/product/<project>-roadmap.md`
-- Constitution is at `.hep/constitution.md`
-- Next step: pick a version (e.g., V1) and invoke `feature-design-flow`
+- Architecture overview is at `docs/product/<project>-architecture.md`
+- Next step: pick a version (e.g., V1) and invoke `product-design-flow`
 
 ## File Layout
 
 ```text
 <project-root>/
 ├── .hep/
-│   ├── constitution.md
 │   └── runs/<run_id>/run-manifest.yaml
 ├── docs/
-│   ├── product/<project>-roadmap.md     ← main output (with Decision Log)
+│   ├── product/
+│   │   ├── <project>-roadmap.md        ← roadmap output (with Decision Log)
+│   │   └── <project>-architecture.md   ← system architecture output
 │   └── research/<topic>.md
 └── ideas/
     └── <slug>/
@@ -215,9 +248,9 @@ On completion, tell the user:
 |-----------|--------|
 | User can't articulate the idea | Ask simpler questions; offer examples |
 | Research reveals infeasibility | Report findings honestly; suggest alternatives |
-| Constitution conflicts with idea | Flag conflict; suggest ADR or scope change |
 | Run orchestrator unavailable | Proceed without run_id; note in roadmap |
-| User rejects roadmap at checkpoint | Return to Step 5 (or Step 1 if fundamental) |
+| User rejects roadmap at checkpoint | Return to relevant step |
+| Architecture too uncertain | Flag as risk; proceed with assumptions documented |
 
 ## Cross-Stage Skills Used
 
@@ -225,5 +258,6 @@ On completion, tell the user:
 |-------|---------|
 | `idea-capture` | Step 1 |
 | `deep-research` | Step 2 |
-| `woos-product-planning-workflow` | Step 5 |
+| `woos-run-orchestrator` | Step 3 |
+| `woos-product-planning-workflow` | Step 4 |
 | `woos-run-orchestrator` | Step 4 |
