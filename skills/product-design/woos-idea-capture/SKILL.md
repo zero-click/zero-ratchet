@@ -106,17 +106,38 @@ Ask sequentially. Skip if user already provided the information unprompted.
 
 ### Category 4: Context & Dependencies
 
-10. **Are there integration points?** (Third-party services, existing systems)
-11. **Any security or compliance concerns?** (Data sensitivity, access control)
+10. **Does this need to connect to anything that already exists?** (Existing products, data sources, user accounts — NOT tech stack)
+11. **Any security or compliance concerns?** (Data sensitivity, access control, regulatory)
 
 ### Category 5: Quality & Risk
 
 12. **What would make this fail?** (Risks, failure modes, deal-breakers)
 13. **How will you know this is successful?** (Observable outcomes, metrics)
 
-## Technical Defaults (Recommend-Then-Confirm)
+## Handling Technical Preferences
 
-This section has been removed from idea-capture. Technical decisions belong in later stages (feature-design or engineering workflow). Idea capture focuses purely on product intent.
+Users often volunteer technical opinions during capture ("I want to use Go", "let's use SQLite", "no React"). This is natural — but it must NOT become a hard constraint in this phase.
+
+**Rules:**
+
+1. **Do NOT ask** questions about tech stack, frameworks, languages, or databases
+2. **If user volunteers a tech preference** → acknowledge it, then record it in the output under a dedicated `## Technical Preferences (Deferred)` section
+3. **Label clearly** — these are preferences, not decisions. They carry no authority until confirmed in the engineering phase
+4. **Do NOT let preferences leak** into Problem Statement, Vision, Core Behaviors, or Constraints sections
+5. **Do NOT push back** on preferences — just record and defer. No debate in this phase.
+
+**Output format for deferred preferences:**
+
+```markdown
+## Technical Preferences (Deferred)
+
+> ⚠️ These are user preferences expressed during idea capture. They are NOT confirmed
+> technical decisions. They will be evaluated during the engineering phase where trade-offs
+> can be properly assessed.
+
+- "Backend in Go" — user preference, to be evaluated in engineering
+- "SQLite for storage" — user preference, to be evaluated in engineering
+```
 
 ## Output Format (Standard / Strict Mode)
 
@@ -153,6 +174,13 @@ Ideal experience: [describe]
 - Resources: [team size or "flexible"]
 - Dependencies: [integration points or "none"]
 - Security: [concerns or "standard"]
+
+## Technical Preferences (Deferred)
+
+> ⚠️ User preferences only. NOT decisions. Evaluate in engineering phase.
+
+- [preference]: user preference, to be evaluated in engineering
+- (or "None expressed")
 
 ## Risks
 - [risk]: [mitigation or "accepted"]
@@ -198,3 +226,6 @@ Is it obviously trivial? (typo, 1-liner, single obvious change, user explicitly 
 - Don't make technical decisions — those belong in later stages
 - Don't discuss tech stack, frameworks, or databases — stay on product intent
 - Don't auto-select Lite without user confirmation
+- **Don't ASK about tech stack** — if user volunteers preferences, record under "Technical Preferences (Deferred)", never in Constraints
+- **Don't let tech preferences become constraints** — "user wants Go" ≠ "must use Go". Record as preference, defer to engineering phase
+- **Don't debate tech choices** — this phase has no authority to confirm or reject technical decisions
