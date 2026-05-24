@@ -253,14 +253,11 @@ Per story (in dependency order):
 
 ## Enforcement Rules
 
-The workflow enforces deterministic gate progression:
+The workflow includes 3 non-negotiable enforcement rules (E1–E3) learned from production agent failures:
 
-- **G1:** Every gate must PASS before the next begins — no skip
-- **G2:** Gate status is recorded in run-manifest — no "completed in memory only"
-- **G3:** Review gates dispatch fresh sub-agents — no self-review
-- **G4:** Deviations require ADR — no unapproved baseline departures
-- **G5:** Blocked stories don't cascade — failure isolation is mandatory
-- **G6:** 3× failure triggers escalation — no infinite retry loops
+- **E1: Knowledge Injection Protocol** — before dispatching any review sub-agent, the orchestrator MUST read and inject the relevant imported skill content. A sub-agent with only a role name ("you are a code reviewer") produces shallow output. Inject full methodology.
+- **E2: Structured Review Output** — all review gates must produce a findings table (severity, category, finding, location, recommendation) + verdict + evidence. A bare "PASS" or "LGTM" is INVALID and triggers rerun.
+- **E3: Conditional Skill Activation** — conditional skills (browser-qa, e2e-testing, database-migrations, security-review, etc.) have concrete trigger rules. If the trigger is met, activation is MANDATORY. Agent cannot skip based on "judgment".
 
 ## Skill Map
 

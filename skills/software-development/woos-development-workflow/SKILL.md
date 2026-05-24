@@ -112,6 +112,68 @@ If a required skill is unavailable, status is `BLOCKED` and the workflow stops.
 
 Progression rule: `NOT_RUN/BLOCKED/REQUEST_CHANGES → PASS → next gate`
 
+## Enforcement Rules (Non-Negotiable)
+
+These rules prevent known failure modes observed in production agent runs.
+
+### E1: Sub-Agent Knowledge Injection Protocol
+
+Before dispatching ANY review sub-agent (Gate 1R, Gate 7), the orchestrator MUST:
+
+1. Read the relevant imported skill file(s) for that gate
+2. Inject the full skill content into the sub-agent's context/prompt
+3. The sub-agent must receive domain knowledge, not just a role name
+
+**Gate 1R dispatch must include:** full content of `woos-design-review-gate` + `architecture-decision-records`
+**Gate 7 dispatch must include:** full content of `security-review` (+ `production-audit` if applicable)
+
+Skipping this = sub-agent works without methodology = shallow "LGTM" output.
+
+### E2: Structured Review Output Format
+
+All review gates (1R, 7) MUST produce structured findings, not prose verdicts.
+
+**Required output format:**
+
+```markdown
+## Review: <gate name>
+
+### Findings
+| # | Severity | Category | Finding | Location | Recommendation |
+|---|----------|----------|---------|----------|----------------|
+| 1 | critical | security | ... | src/auth.go:42 | ... |
+| 2 | warning  | design   | ... | ... | ... |
+
+### Verdict
+- Status: PASS / REQUEST_CHANGES
+- Blockers: <count>
+- Warnings: <count>
+
+### Evidence
+- Files reviewed: <list>
+- Skills applied: <list>
+- Time spent: <duration>
+```
+
+A review that returns only "PASS" or "Looks good" without the findings table is INVALID. Rerun.
+
+### E3: Conditional Skill Activation Rules
+
+Conditional skills activate based on these concrete triggers (not agent judgment):
+
+| Skill | Triggers When |
+|-------|--------------|
+| `api-design` | Handoff Build Tasks mention REST/GraphQL endpoints, OR design doc defines new API routes |
+| `browser-qa` | Handoff has UI section, OR stories produce `.tsx`/`.vue`/`.svelte`/HTML files |
+| `e2e-testing` | Stories produce integration test files, OR handoff AC reference user flows spanning multiple pages |
+| `database-migrations` | Design doc defines schema changes, OR stories create/modify migration files |
+| `deployment-patterns` | Design doc has rollout/rollback section, OR Strict mode is active |
+| `production-audit` | Strict mode is active, OR handoff flags `security: true` or `compliance: true` |
+| `security-review` | Any story touches auth, input validation, secrets, API endpoints, or payment flows |
+| `codebase-onboarding` | First run on this repository (no prior run-manifest exists) |
+
+**Rule:** If trigger condition is met, activation is MANDATORY, not optional. Agent cannot skip.
+
 ---
 
 ## Gate Definitions
@@ -148,9 +210,11 @@ Progression rule: `NOT_RUN/BLOCKED/REQUEST_CHANGES → PASS → next gate`
 **Minimal contract:**
 
 1. Independent design review using `architect` via local gate skill.
-2. Uses `woos-review-context` to load/update cumulative findings.
-3. Returns `PASS` or `REQUEST_CHANGES`.
-4. Escalates to `woos-human-handoff` when review loop threshold (3 rounds) exceeded.
+2. Sub-agent MUST be injected with `architecture-decision-records` skill content (per E1).
+3. Output MUST follow structured findings format (per E2).
+4. Uses `woos-review-context` to load/update cumulative findings.
+5. Returns `PASS` or `REQUEST_CHANGES`.
+6. Escalates to `woos-human-handoff` when review loop threshold (3 rounds) exceeded.
 
 ### Gate 2 — Story Decomposition
 
@@ -284,13 +348,17 @@ Trace from original PRD through design to implementation and tests.
 **Skill:** `woos-code-review-gate`
 
 1. Dispatch `code-reviewer` in fresh context (no self-review).
-2. If security-sensitive: dispatch `security-reviewer` with `security-review` skill knowledge (auth, input handling, secrets, API endpoints, payment flows).
-3. If Strict mode: verify architecture conformance (component boundaries, data model, API contracts).
-4. Uses `woos-review-context` for cumulative findings.
-5. Uses `woos-agent-decision` when reviewer verdicts conflict.
-6. If applicable: invoke `production-audit` for pre-merge production readiness check.
-7. **PASS** → Gate 8. **REQUEST_CHANGES** → return to Gate 3.
-8. 3 rounds without convergence → `woos-human-handoff`.
+2. Sub-agent MUST be injected with relevant skill content (per E1):
+   - Always: `coding-standards` knowledge
+   - If security-sensitive (per E3 triggers): full `security-review` skill content
+3. If security-sensitive: dispatch `security-reviewer` with `security-review` knowledge.
+4. If Strict mode: verify architecture conformance (component boundaries, data model, API contracts).
+5. If applicable (per E3 triggers): invoke `production-audit` for pre-merge readiness.
+6. Output MUST follow structured findings format (per E2). "LGTM" without findings table = INVALID, rerun.
+7. Uses `woos-review-context` for cumulative findings.
+8. Uses `woos-agent-decision` when reviewer verdicts conflict.
+9. **PASS** → Gate 8. **REQUEST_CHANGES** → return to Gate 3.
+10. 3 rounds without convergence → `woos-human-handoff`.
 
 ### Gate 8 — PR Readiness
 
