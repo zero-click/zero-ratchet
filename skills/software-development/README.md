@@ -1,13 +1,13 @@
 # Software Development Workflow
 
-A gated engineering workflow for AI coding agents. Receives a build handoff from the product design pipeline, decomposes into stories, and delivers a production-ready PR through TDD, review gates, and requirement traceability.
+A gated engineering pipeline for AI coding agents. Receives a build handoff from the product design stage, decomposes into stories, and delivers a production-ready PR through TDD, review gates, and end-to-end requirement traceability.
 
 ## Purpose
 
 This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
 
-- Engineering receives a fully-defined handoff (no product-phase work here)
-- Work is decomposed into independent, verifiable stories
+- Engineering receives a fully-defined handoff — no product-phase work happens here
+- Work is decomposed into independent, verifiable stories with clear DAG ordering
 - Every story is implemented via TDD (RED → GREEN → REFACTOR)
 - Requirements are traced end-to-end: PRD → design → code → test
 - Design issues flow back to product via DCR (Design Change Request)
@@ -16,7 +16,7 @@ This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
 
 1. Ensure a build handoff exists at `docs/handoff/<version>/<feature>.md`
 2. The agent activates `woos-development-workflow` (entry point skill)
-3. The workflow auto-selects Lite/Standard/Strict based on handoff complexity
+3. The workflow auto-selects Lite/Standard/Strict based on handoff content
 4. Follow the gated flow — each gate must PASS before the next begins
 
 **Prerequisite:** Product design pipeline must have completed. No handoff = BLOCKED.
@@ -54,7 +54,7 @@ This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
                                  │
                   ┌──────────────▼──────────────┐
                   │  Gate 2: Story Decomposition │
-                  │  Break handoff into 3-8      │
+                  │  Break handoff into 3–8      │
                   │  independent stories (DAG)   │
                   └──────────────┬──────────────┘
                                  │
@@ -70,7 +70,7 @@ This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
                   │  └─────────┬──────────────┘  │
                   │            │                  │
                   │    PASS → next story          │
-                  │    FAIL 3x → mark blocked     │
+                  │    FAIL 3× → mark blocked     │
                   └──────────────┬──────────────┘
                                  │
                   ┌──────────────▼──────────────┐
@@ -102,7 +102,7 @@ This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
                   └──────────────┬──────────────┘
                                  │
                   ┌──────────────▼──────────────┐
-                  │  Workflow Memory Update      │
+                  │  Post: Workflow Memory       │
                   │  Capture patterns for reuse  │
                   └──────────────┬──────────────┘
                                  │
@@ -123,43 +123,47 @@ This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
 
 **What:** Validate the build handoff from product pipeline.
 
-- Confirm file exists at `docs/handoff/<version>/<feature>.md`
+- Confirm file at `docs/handoff/<version>/<feature>.md`
 - Verify required sections: Mission, Requirements, AC, User Flows, Build Tasks, Verification Plan
 - Record handoff version in run-manifest for traceability
-- If handoff missing → BLOCKED, redirect to product pipeline
+- If first time on this codebase: invoke `codebase-onboarding` for analysis
+- Output: validated handoff reference in run-manifest
 
 ### Gate 1 — Feature Design
 
-**What:** Produce the technical design artifact.
+**What:** Produce the technical design artifact based on handoff.
 
 - **Skill:** `woos-feature-design`
-- Output: `docs/design/<feature>.md`
 - Covers: architecture, data model, interfaces, risk, rollout/rollback
-- Baseline/deviation fields must be complete
-- If Strict mode + API endpoints: triggers API Design Review (`api-design`)
+- If API endpoints: reference `api-design` patterns
+- If database changes: reference `database-migrations` strategy
+- If deployment needed: reference `deployment-patterns` for rollout/rollback
+- Deviations from baseline captured via `architecture-decision-records`
+- Output: `docs/design/<feature>.md`
 
 ### Gate 1R — Design Review
 
-**What:** Independent review of the design.
+**What:** Independent review of the design by a fresh architect agent.
 
 - **Skill:** `woos-design-review-gate`
-- Dispatches `architect` in fresh context (no self-review)
 - Uses `woos-review-context` for cumulative findings
 - Escalates to `woos-human-handoff` after 3 failed rounds
+- Output: PASS or REQUEST_CHANGES with specific feedback
 
 ### Gate 2 — Story Decomposition
 
 **What:** Break the handoff into independent, verifiable stories.
 
-- Built-in orchestrator procedure (no separate skill)
+- Built-in orchestrator procedure
 - Each story covers 1–3 related Build Tasks
 - Stories form a DAG (dependency order)
-- Output: `.hep/runs/<run_id>/stories/story-NNN.md`
+- Each story is independently verifiable
 - Target: 3–8 stories per feature
+- Output: `.hep/runs/<run_id>/stories/story-NNN.md`
 
 ### Gate 3 — Story Execution Loop
 
-**What:** Execute each story with TDD and verification.
+**What:** Execute each story with TDD, implementation, and verification.
 
 Per story (in dependency order):
 
@@ -170,6 +174,11 @@ Per story (in dependency order):
 | 3.3 Verify | `verification-loop` | Tests + lint + type check |
 | 3.4 Story AC | built-in | Per-story acceptance check |
 
+**Conditional skills activated within Gate 3:**
+- `database-migrations` — when story touches schema
+- `e2e-testing` — when story needs Playwright integration tests
+- `browser-qa` — when story includes UI changes
+
 **Failure isolation:** A blocked story does NOT block independent stories. Blocked stories retry after others complete; if still stuck → DCR.
 
 ### Gate 4 — Executable Acceptance
@@ -179,7 +188,7 @@ Per story (in dependency order):
 - **Skill:** `woos-executable-acceptance-gate`
 - Maps ALL handoff AC to executable checks
 - Missing automation = blocker
-- PASS → proceed. REQUEST_CHANGES → back to Gate 3.
+- Output: PASS → proceed. REQUEST_CHANGES → back to Gate 3.
 
 ### Gate 5 — Deviation Control
 
@@ -195,17 +204,18 @@ Per story (in dependency order):
 
 - Built-in procedure (reads PRD + design + implementation)
 - Produces traceability table: `PRD AC → Design Spec → Code → Test → Status`
-- Classifications: ✅ Aligned, ⚠️ Deviated (with rationale), ❌ Missing, 🆕 Added
-- Output: `docs/handoff/<feature>-traceability.md`
+- Classifications: ✅ Aligned, ⚠️ Deviated (rationale required), ❌ Missing, 🆕 Added
 - Zero ❌ required for PASS
+- Output: `docs/handoff/<feature>-traceability.md`
 
 ### Gate 7 — Code/Security Review
 
 **What:** Independent code review in fresh context.
 
 - **Skill:** `woos-code-review-gate`
-- Dispatches `code-reviewer` (+ `security-reviewer` if sensitive)
+- Dispatches `code-reviewer` (+ `security-reviewer` with `security-review` knowledge if sensitive)
 - If Strict: also checks architecture conformance
+- If applicable: invokes `production-audit` for pre-merge readiness
 - Uses `woos-agent-decision` for reviewer conflicts
 - 3 rounds without convergence → `woos-human-handoff`
 
@@ -217,6 +227,7 @@ Per story (in dependency order):
 - All tests pass, lint clean, no unlinked TODOs
 - Traceability matrix (requirement → test → code)
 - Conventional commit messages
+- PR description includes: story summary, test plan, blocked stories
 - Creates PR via `gh pr create`
 
 ### Post — Workflow Memory
@@ -225,7 +236,7 @@ Per story (in dependency order):
 
 - **Skill:** `woos-workflow-memory`
 - Records: failures, rework causes, story decomposition quality, DCR outcomes
-- Persists reusable guidance
+- Persists reusable guidance for next run
 
 ## Three Execution Modes
 
@@ -235,28 +246,21 @@ Per story (in dependency order):
 | **Standard** | Multi-file, moderate risk (default) | All 9 gates | Full story loop |
 | **Strict** | Security-sensitive, high uncertainty | All + API Review + Browser QA + Arch Conformance | Full story loop |
 
-**Mode is determined by handoff complexity**, not chosen manually.
+**Mode is determined by handoff content**, not chosen manually:
+- Lite handoff (4 sections) → Lite mode
+- Full handoff (13 sections) → Standard mode
+- Full handoff + security/compliance flags → Strict mode
 
-## DCR (Design Change Request)
+## Enforcement Rules
 
-When engineering discovers a design issue that can't be resolved within scope:
+The workflow enforces deterministic gate progression:
 
-1. Write `docs/feedback/<feature>-dcr.md` (issue, impact, proposed fix, priority)
-2. Stop work on affected stories
-3. Continue with unaffected stories
-4. Product pipeline receives DCR, fixes, and re-issues updated handoff
-
-## Failure Handling
-
-| Situation | Action |
-|-----------|--------|
-| Handoff missing | BLOCKED → redirect to product pipeline |
-| Single story fails 3× | Mark blocked, continue others |
-| Build/test fails 2× | `woos-systematic-debugging` |
-| Review fails 3× | `woos-human-handoff` escalation |
-| Design issue found | DCR → back to product |
-| Overall timeout | `woos-failure-state-machine` (retry → degrade → escalate) |
-| All stories blocked | `woos-human-handoff` — fundamental design issue |
+- **G1:** Every gate must PASS before the next begins — no skip
+- **G2:** Gate status is recorded in run-manifest — no "completed in memory only"
+- **G3:** Review gates dispatch fresh sub-agents — no self-review
+- **G4:** Deviations require ADR — no unapproved baseline departures
+- **G5:** Blocked stories don't cascade — failure isolation is mandatory
+- **G6:** 3× failure triggers escalation — no infinite retry loops
 
 ## Skill Map
 
@@ -273,11 +277,11 @@ When engineering discovers a design issue that can't be resolved within scope:
 | `woos-pr-readiness` | Gate 8 — PR creation and verification |
 | `woos-workflow-memory` | Post — persistent pattern capture |
 | `woos-run-orchestrator` | Infrastructure — run queue, concurrency, timeout |
-| `woos-failure-state-machine` | Infrastructure — retry/degrade/escalation transitions |
+| `woos-failure-state-machine` | Infrastructure — retry/degrade/escalation |
 | `woos-human-handoff` | Infrastructure — escalation and recovery |
 | `woos-review-context` | Infrastructure — cumulative cross-gate findings |
 | `woos-agent-decision` | Infrastructure — reviewer conflict resolution |
-| `woos-systematic-debugging` | Infrastructure — structured debugging on repeated failures |
+| `woos-systematic-debugging` | Infrastructure — structured debugging on failures |
 | `woos-setup-rules` | Utility — project rule routing setup |
 
 ### Imported Skills (from ECC)
@@ -293,7 +297,7 @@ When engineering discovers a design issue that can't be resolved within scope:
 | `e2e-testing` | Gate 3 (conditional) | Playwright E2E patterns, Page Object Model |
 | `security-review` | Gate 7 | Security checklist: auth, input, secrets, API, payments |
 | `architecture-decision-records` | Gate 1 + cross-gate | Structured ADR capture for deviations |
-| `database-migrations` | Gate 3 (conditional) | Zero-downtime schema changes, rollback strategies |
+| `database-migrations` | Gate 3 (conditional) | Zero-downtime schema changes, rollback |
 | `deployment-patterns` | Gate 1, Gate 8 | CI/CD, Docker, rollback, production readiness |
 | `production-audit` | Gate 7 (conditional) | Pre-merge production readiness audit |
 | `codebase-onboarding` | Gate 0 (first run) | Codebase analysis and onboarding guide |
@@ -312,6 +316,86 @@ When engineering discovers a design issue that can't be resolved within scope:
 7. **Fresh-context reviews** — no self-review; dispatched in clean sub-agent context
 8. **Baseline-first governance** — deviations require ADR + approval
 
+## ECC Knowledge Architecture
+
+This workflow draws its engineering methodology from [ECC](https://github.com/anthropics/courses/tree/master/prompt_engineering) (Everything Claude Code) — a curated library of domain-specific skills. Unlike the product side (which uses BMAD personas/frameworks/templates), the engineering side uses **imported skill files** as its knowledge layer.
+
+### Knowledge Categories
+
+#### Core Methodology (always active)
+
+Skills that define HOW engineering work is done, active in every Standard/Strict run:
+
+| Skill | Knowledge Provided | Gate |
+|-------|-------------------|------|
+| `tdd-workflow` | TDD discipline: RED before GREEN, cycle stall detection, refactor patterns | 3.1 |
+| `coding-standards` | Convention enforcement, minimal changes, no silent failures | 3.2 |
+| `verification-loop` | Multi-layer verification: lint → type → test → build | 3.3 |
+| `git-workflow` | Branch strategy, conventional commits, PR flow | Bootstrap |
+
+#### Security & Compliance (Gate 7)
+
+Skills that provide security domain knowledge for review gates:
+
+| Skill | Knowledge Provided |
+|-------|-------------------|
+| `security-review` | Authentication patterns, input validation, secrets handling, API security, payment flow security, OWASP checklist |
+| `production-audit` | Pre-merge production readiness: error handling, logging, monitoring, graceful degradation |
+
+#### Architecture & Design (Gate 1)
+
+Skills that provide design methodology and decision capture:
+
+| Skill | Knowledge Provided |
+|-------|-------------------|
+| `api-design` | REST/GraphQL conventions: resource naming, status codes, pagination, error format, rate limiting |
+| `architecture-decision-records` | ADR structure, when to capture, context/decision/consequences format |
+| `deployment-patterns` | CI/CD pipelines, Docker patterns, health checks, rollback strategies, blue-green/canary |
+| `database-migrations` | Zero-downtime migrations, rollback plans, data backfill, ORM patterns (Prisma, Django, etc.) |
+
+#### Testing (Gate 3)
+
+Skills that provide testing methodology beyond unit tests:
+
+| Skill | Knowledge Provided |
+|-------|-------------------|
+| `e2e-testing` | Playwright patterns, Page Object Model, test isolation, CI/CD integration, flaky test strategies |
+| `browser-qa` | Visual regression, accessibility (WCAG AA), Core Web Vitals, responsive breakpoints |
+
+#### Research & Context (any gate)
+
+Skills that provide information-gathering capability:
+
+| Skill | Knowledge Provided |
+|-------|-------------------|
+| `search-first` | Quick targeted research, reference lookup |
+| `deep-research` | Multi-source deep investigation for complex problems |
+| `codebase-onboarding` | Codebase analysis: architecture map, entry points, conventions, patterns |
+
+### Gate × Knowledge Matrix
+
+| Gate | Core | Security | Architecture | Testing | Research |
+|------|------|----------|-------------|---------|----------|
+| **0: Handoff Intake** | — | — | — | — | `codebase-onboarding` |
+| **1: Feature Design** | — | — | `api-design`, `architecture-decision-records`, `deployment-patterns`, `database-migrations` | — | `deep-research` |
+| **1R: Design Review** | — | — | — | — | — |
+| **2: Story Decomposition** | — | — | — | — | — |
+| **3: Story Loop** | `tdd-workflow`, `coding-standards`, `verification-loop` | — | `database-migrations` | `e2e-testing`, `browser-qa` | `search-first` |
+| **4: Acceptance** | `verification-loop` | — | — | — | — |
+| **5: Deviation Control** | — | — | `architecture-decision-records` | — | — |
+| **6: Traceability** | — | — | — | — | — |
+| **7: Code Review** | — | `security-review`, `production-audit` | — | — | — |
+| **8: PR Readiness** | `git-workflow` | — | `deployment-patterns` | — | — |
+
+## DCR (Design Change Request)
+
+When engineering discovers a design issue that can't be resolved within scope:
+
+1. Write `docs/feedback/<feature>-dcr.md` (issue, impact, proposed fix, priority)
+2. Stop work on affected stories
+3. Continue with unaffected stories
+4. Product pipeline receives DCR, fixes, and re-issues updated handoff
+
 ## File Layout
 
 ```
@@ -327,6 +411,7 @@ When engineering discovers a design issue that can't be resolved within scope:
 │   ├── handoff/<version>/<feature>.md ← INPUT (from product)
 │   ├── prd/<feature>.md               ← read for traceability
 │   ├── design/<feature>.md            ← Gate 1 output
+│   ├── adr/                           ← ADR captures
 │   ├── feedback/<feature>-dcr.md      ← DCR output (back to product)
 │   └── handoff/<feature>-traceability.md ← Gate 6 output
 └── (implementation files)
