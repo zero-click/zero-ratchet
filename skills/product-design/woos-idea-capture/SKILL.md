@@ -177,8 +177,8 @@ Slug: lowercase, hyphens, max 50 chars, from idea title.
 After capture is complete, assess complexity:
 
 ```text
-Is it obviously trivial? (typo, 1-liner, single obvious change, user said "简单改个东西")
-  → Yes → Propose Lite to user: "这个看起来比较简单，建议走 Lite 模式直接出 handoff，同意吗？"
+Is it obviously trivial? (typo, 1-liner, single obvious change, user explicitly says it's simple)
+  → Yes → Propose Lite to user: "This looks straightforward. I suggest Lite mode — go directly to handoff. Agree?"
            → User confirms → `woos-product-design-flow` Lite
            → User says no  → proceed to Discovery
   → No  → proceed to `woos-product-discovery` (research needed)

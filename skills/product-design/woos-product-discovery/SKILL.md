@@ -314,15 +314,15 @@ After all steps done, this is a **hard gate** — you MUST NOT proceed to Stage 
 1. Output the **full content** of `docs/product/<project>-roadmap.md`
 2. Output the **full content** of `docs/product/<project>-architecture.md`
 3. State the inferred mode as a fact (not a question):
-   - Roadmap contains multiple features for this version → "将使用 Strict 模式（多 feature 版本）"
-   - Roadmap contains a single feature → "将使用 Standard 模式（单 feature）"
-4. Ask: "请审阅以上 roadmap 和 architecture。满意后请说「开始拆 PRD」，如有修改意见可以直接告诉我。"
+   - Roadmap contains multiple features for this version → "Will use Strict mode (multi-feature version)"
+   - Roadmap contains a single feature → "Will use Standard mode (single feature)"
+4. Ask: "Please review the roadmap and architecture above. If satisfied, say 'start PRD' to proceed. If you have changes, let me know."
 
 **Rules:**
 - Show the COMPLETE file contents, not summaries
 - Mode is stated, not asked — it's determined by roadmap content
 - If user disagrees with mode inference, respect their override
-- Do NOT proceed until user explicitly says "开始拆 PRD" or equivalent
+- Do NOT proceed until user explicitly says "start PRD" or equivalent
 - If user has questions or wants changes → make changes → re-present full files → wait again
 - This gate CANNOT be skipped by `checkpoints: []` — it is always mandatory
 

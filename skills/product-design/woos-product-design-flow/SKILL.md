@@ -110,7 +110,7 @@ All file paths (`docs/`) are relative to a **project root directory** which MUST
 ## Prerequisites
 
 - `docs/product/<project>-roadmap.md` exists (from Stage 1)
-- **🚦 Human Approval Gate has passed** — user has reviewed full roadmap + architecture and explicitly said "开始拆 PRD" or equivalent. If you're invoking this skill and the user hasn't approved yet, STOP and go back to present the files.
+- **🚦 Human Approval Gate has passed** — user has reviewed full roadmap + architecture and explicitly said "start PRD" or equivalent. If you're invoking this skill and the user hasn't approved yet, STOP and go back to present the files.
 
 ## Modes
 

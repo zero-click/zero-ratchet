@@ -132,9 +132,9 @@ Decision 2: Inferred from roadmap content
 ```
 
 **Key principles:**
-- **Lite branches at Capture** — if the idea is obviously small (typo, 1-liner, user says "简单改个东西"), propose Lite immediately. Requires user confirmation.
+- **Lite branches at Capture** — if the idea is obviously small (typo, 1-liner, user says it's simple), propose Lite immediately. Requires user confirmation.
 - **Standard/Strict is NOT a "choice"** — it's determined by what's in the roadmap. Multi-feature version = Strict. Single feature = Standard. No need to ask.
-- **Human Gate confirms content, not mode** — the user reviews roadmap + architecture and says "开始拆 PRD". Mode is stated as a fact ("这是单 feature，使用 Standard 模式"), not presented as a question.
+- **Human Gate confirms content, not mode** — the user reviews roadmap + architecture and says "start PRD". Mode is stated as a fact ("Single feature, using Standard mode"), not presented as a question.
 
 ## Phase Definitions
 
@@ -160,7 +160,7 @@ Decision 2: Inferred from roadmap content
 - System architecture overview → **Architecture Review Gate** (independent sub-agent)
 - Output: `docs/product/<project>-roadmap.md` + `docs/product/<project>-architecture.md`
 
-**🚦 Human Approval Gate:** After Discovery completes, present FULL roadmap + architecture files to user. State inferred mode. Do NOT proceed to Phase 3 until user explicitly approves (e.g., "开始拆 PRD").
+**🚦 Human Approval Gate:** After Discovery completes, present FULL roadmap + architecture files to user. State inferred mode. Do NOT proceed to Phase 3 until user explicitly approves (e.g., "start PRD").
 
 **Lite: skipped** (Lite branch goes directly from Capture to Phase 3 Lite).
 

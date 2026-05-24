@@ -38,14 +38,14 @@ This workflow enforces structured product thinking before code is written. It en
                         │              │
               ┌─────────▼──┐   ┌───────▼──────────────┐
               │ User says  │   │   Phase 2: Discovery  │
-              │ "确认 Lite" │   │ (woos-product-discovery)│
-              └─────┬──────┘   └───────────┬───────────┘
-                    │                      │
+              │"confirm    │   │ (woos-product-discovery)│
+              │  Lite"     │   └───────────┬───────────┘
+              └─────┬──────┘               │
                     │          ┌────────────▼────────────┐
                     │          │  🚦 Human Approval Gate │
                     │          │  Show full roadmap +    │
                     │          │  architecture, wait for │
-                    │          │  "开始拆 PRD"            │
+                    │          │  "start PRD"            │
                     │          └────────────┬────────────┘
                     │                      │
                     │          Mode inferred from roadmap:
