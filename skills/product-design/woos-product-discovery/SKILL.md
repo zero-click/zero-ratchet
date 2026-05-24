@@ -313,33 +313,28 @@ After all steps done, this is a **hard gate** — you MUST NOT proceed to Stage 
 **Present to user:**
 1. Output the **full content** of `docs/product/<project>-roadmap.md`
 2. Output the **full content** of `docs/product/<project>-architecture.md`
-3. **Recommend an execution mode** with rationale:
-   ```
-   Is it a multi-feature version release?                → Strict
-   Is it security/compliance sensitive?                  → Strict
-   Is it high-uncertainty or UX-heavy?                   → Strict
-   Is it a normal single feature?                        → Standard
-   Is scope clear, single-purpose, low risk?             → Lite
-   ```
-4. Ask: "请审阅以上 roadmap 和 architecture。我建议使用 [X] 模式（原因：...）。满意后请说「开始拆 PRD」并确认模式，如有修改意见可以直接告诉我。"
+3. State the inferred mode as a fact (not a question):
+   - Roadmap contains multiple features for this version → "将使用 Strict 模式（多 feature 版本）"
+   - Roadmap contains a single feature → "将使用 Standard 模式（单 feature）"
+4. Ask: "请审阅以上 roadmap 和 architecture。满意后请说「开始拆 PRD」，如有修改意见可以直接告诉我。"
 
 **Rules:**
 - Show the COMPLETE file contents, not summaries
-- Mode recommendation must include a 1-sentence rationale
-- Do NOT proceed until user explicitly approves BOTH the content AND the mode
+- Mode is stated, not asked — it's determined by roadmap content
+- If user disagrees with mode inference, respect their override
+- Do NOT proceed until user explicitly says "开始拆 PRD" or equivalent
 - If user has questions or wants changes → make changes → re-present full files → wait again
-- If user wants a different mode → use their choice, no argument
 - This gate CANNOT be skipped by `checkpoints: []` — it is always mandatory
 
-Wait for user approval → record confirmed mode in run-manifest → mark `stages.product-discovery.status: completed`
+Wait for user approval → record mode in run-manifest → mark `stages.product-discovery.status: completed`
 
 ## Handoff
 
 On completion (after human approval):
 - Roadmap: `docs/product/<project>-roadmap.md`
 - Architecture: `docs/product/<project>-architecture.md`
-- Confirmed mode: recorded in `run-manifest.yaml`
-- Next: invoke `woos-product-design-flow` (Stage 2) in the confirmed mode
+- Mode: recorded in `run-manifest.yaml` (inferred from roadmap)
+- Next: invoke `woos-product-design-flow` (Stage 2)
 
 ## Failure Handling
 

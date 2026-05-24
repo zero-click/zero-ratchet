@@ -167,18 +167,27 @@ Ideal experience: [describe]
 
 ## File Locations
 
-- Lite: `ideas/<slug>.md`
-- Standard / Strict: `ideas/<slug>/00-idea-capture.md`
+- Quick Note (trivial): `ideas/<slug>.md`
+- Guided Interview: `ideas/<slug>/00-idea-capture.md`
 
 Slug: lowercase, hyphens, max 50 chars, from idea title.
 
-## Handoff to Next Phase
+## After Capture — Lite Branch Decision
 
-After capture:
+After capture is complete, assess complexity:
 
-1. Lite mode + scope clear → `woos-product-design-flow` Lite (brief PRD → handoff)
-2. Standard / Strict + research needed → `woos-product-discovery` (Stage 1)
-3. Standard / Strict + scope clear → `woos-product-design-flow` Standard/Strict (Stage 2)
+```text
+Is it obviously trivial? (typo, 1-liner, single obvious change, user said "简单改个东西")
+  → Yes → Propose Lite to user: "这个看起来比较简单，建议走 Lite 模式直接出 handoff，同意吗？"
+           → User confirms → `woos-product-design-flow` Lite
+           → User says no  → proceed to Discovery
+  → No  → proceed to `woos-product-discovery` (research needed)
+```
+
+**Rules:**
+- Lite is a PROPOSAL, not a default. User must confirm.
+- If there are open questions, risks, or dependencies → NOT trivial → Discovery.
+- When in doubt, proceed to Discovery. Lite is only for the obviously simple.
 
 ## Pitfalls
 
@@ -188,3 +197,4 @@ After capture:
 - Don't write the PRD here — that's handled in `woos-product-design-flow`
 - Don't make technical decisions — those belong in later stages
 - Don't discuss tech stack, frameworks, or databases — stay on product intent
+- Don't auto-select Lite without user confirmation
