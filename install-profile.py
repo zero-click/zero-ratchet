@@ -15,14 +15,19 @@ from typing import Any
 import yaml
 
 
-LOCAL_PROFILE_SKILLS = [
-    "woos-product-planning-workflow",
+LOCAL_PRODUCT_DESIGN_SKILLS = [
+    "woos-idea-to-delivery",
+    "woos-idea-capture",
+    "woos-product-discovery",
+    "woos-product-design-flow",
+    "woos-ui-design-brief",
+    "woos-build-handoff",
+]
+
+LOCAL_SOFTWARE_DEV_SKILLS = [
     "woos-development-workflow",
-    "woos-prd-authoring",
-    "woos-prd-review-gate",
     "woos-feature-design",
     "woos-design-review-gate",
-    "woos-requirement-contract",
     "woos-executable-acceptance-gate",
     "woos-failure-state-machine",
     "woos-deviation-control-gate",
@@ -33,6 +38,7 @@ LOCAL_PROFILE_SKILLS = [
     "woos-agent-decision",
     "woos-code-review-gate",
     "woos-pr-readiness",
+    "woos-systematic-debugging",
     "woos-setup-rules",
 ]
 
@@ -48,7 +54,6 @@ ECC_SKILLS = [
     "search-first",
     "deep-research",
     "dmux-workflows",
-    "product-capability",
     "tdd-workflow",
     "coding-standards",
     "verification-loop",
@@ -254,13 +259,18 @@ def sync_profile_rules(profile_root: Path, ecc_path: Path) -> None:
 
 
 def install_core_skills(script_dir: Path, profile_root: Path, ecc_path: Path) -> None:
+    (profile_root / "skills" / "product-design").mkdir(parents=True, exist_ok=True)
     (profile_root / "skills" / "software-development").mkdir(parents=True, exist_ok=True)
     (profile_root / "skills" / "ecc-import").mkdir(parents=True, exist_ok=True)
     (profile_root / "skills" / "ecc-agent-skills").mkdir(parents=True, exist_ok=True)
 
-    for skill in LOCAL_PROFILE_SKILLS:
+    for skill in LOCAL_PRODUCT_DESIGN_SKILLS:
+        copy_dir(script_dir / "skills" / "product-design" / skill, profile_root / "skills" / "product-design" / skill)
+        print(f"  ✓ product-design skill: {skill}")
+
+    for skill in LOCAL_SOFTWARE_DEV_SKILLS:
         copy_dir(script_dir / "skills" / "software-development" / skill, profile_root / "skills" / "software-development" / skill)
-        print(f"  ✓ local skill: {skill}")
+        print(f"  ✓ software-dev skill: {skill}")
 
     for skill in ECC_SKILLS:
         copy_dir(ecc_path / "skills" / skill, profile_root / "skills" / "ecc-import" / skill)

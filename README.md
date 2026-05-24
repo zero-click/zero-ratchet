@@ -1,7 +1,5 @@
 # hermes-ecc-profile
 
-[中文说明 / Chinese README](./README.zh-CN.md)
-
 Skill-first coding profile for Hermes — a complete idea-to-delivery pipeline with role-specialized agents, hard gates, and traceable review at every stage.
 
 ## Vision
@@ -28,7 +26,7 @@ Skill-first coding profile for Hermes — a complete idea-to-delivery pipeline w
 │                   Software Development Stage                     │
 │               (skills/software-development/)                     │
 │                                                                 │
-│  Design → Implement → Verify → Review → PR                     │
+│  Design → Stories → TDD Loop → Review → Trace → PR             │
 │                                                                 │
 │  Entry: woos-development-workflow                                │
 │  Modes: Lite / Standard / Strict                                │
@@ -56,55 +54,46 @@ See [`skills/product-design/README.md`](./skills/product-design/README.md) for f
 
 ## Software Development Stage
 
-**Entry skill:** `woos-development-workflow`
+**Entry skill:** `woos-development-workflow` (v2.0.0)
 
 ```mermaid
 flowchart TD
   A[Run Orchestrator<br/>woos-run-orchestrator] --> B[Git Workflow<br/>git-workflow]
-  B --> C[Requirement Contract<br/>woos-requirement-contract]
-  C --> D[Research<br/>search-first or deep-research]
-  D --> E[PRD Draft<br/>woos-prd-authoring]
-  E --> F[PRD Review Gate<br/>woos-prd-review-gate]
-  F --> G[Capability Contract<br/>product-capability]
-  G --> H[Feature Design<br/>woos-feature-design]
-  H --> H1{Has API?}
-  H1 -->|Yes| H2[API Design Review<br/>api-design]
-  H1 -->|No| I
-  H2 --> I[Design Review Gate<br/>woos-design-review-gate]
-  I --> J[TDD<br/>tdd-workflow]
-  J --> K[Implement<br/>coding-standards]
-  K --> L[Verify<br/>verification-loop]
-  L --> L1{Has UI?}
-  L1 -->|Yes| L2[Browser QA<br/>browser-qa]
-  L1 -->|No| M
-  L2 --> M[Executable Acceptance<br/>woos-executable-acceptance-gate]
-  M --> N[Deviation Control<br/>woos-deviation-control-gate]
-  N --> O[Code/Security Review Gate<br/>woos-code-review-gate]
-  O --> P[PR Readiness<br/>woos-pr-readiness]
-  P --> Q[Workflow Memory Update<br/>woos-workflow-memory]
+  B --> C[Gate 0: Handoff Intake]
+  C --> D[Gate 1: Feature Design<br/>woos-feature-design]
+  D --> D1{Has API?}
+  D1 -->|Yes| D2[API Design Review<br/>api-design]
+  D1 -->|No| E
+  D2 --> E[Gate 1R: Design Review<br/>woos-design-review-gate]
+  E --> F[Gate 2: Story Decomposition]
+  F --> G[Gate 3: Story Execution Loop]
+  G --> G1[3.1 TDD<br/>tdd-workflow]
+  G1 --> G2[3.2 Implement<br/>coding-standards]
+  G2 --> G3[3.3 Verify<br/>verification-loop]
+  G3 --> G4{Story AC?}
+  G4 -->|PASS| G5[Next Story]
+  G4 -->|FAIL 3x| G6[Mark Blocked]
+  G5 --> H
+  G6 --> H
+  H[Gate 4: Executable Acceptance<br/>woos-executable-acceptance-gate]
+  H --> I[Gate 5: Deviation Control<br/>woos-deviation-control-gate]
+  I --> J[Gate 6: Requirement Traceability]
+  J --> K[Gate 7: Code/Security Review<br/>woos-code-review-gate]
+  K --> L[Gate 8: PR Readiness<br/>woos-pr-readiness]
+  L --> M[Workflow Memory<br/>woos-workflow-memory]
 
-  R[Failure State Machine<br/>woos-failure-state-machine] -.controls all stages.- A
-  R -.retry/degrade/escalate.- O
-  R2[Systematic Debugging<br/>woos-systematic-debugging] -.activates on repeated failures.- R
-  S[Human Handoff<br/>woos-human-handoff] -.escalation/resume.- R
-  T[Parallel lanes when needed<br/>dmux-workflows] -.optional.- K
-
-  U[product-planner] -.used by wrapper.- F
-  V[architect] -.used by wrapper.- F
-  V -.used by wrapper.- I
-  Y[woos-review-context] -.used by wrappers.- F
-  Y -.used by wrappers.- I
-  Y -.used by wrappers.- O
-  W[code-reviewer] -.used by wrapper.- O
-  X[security-reviewer] -.used by wrapper.- O
-  Z[woos-agent-decision] -.on reviewer conflict.- O
+  N[woos-failure-state-machine] -.retry/degrade/escalate.- A
+  O[woos-systematic-debugging] -.on repeated failures.- G
+  P[woos-human-handoff] -.escalation.- N
+  Q[woos-review-context] -.cross-gate findings.- E
+  Q -.cross-gate findings.- K
 ```
 
-**Development workflow profiles:**
+**Execution profiles:**
 
-1. **Lite**: Run Orchestrator → Git → Requirement Contract → Implement → Verify → Code/Security Review → PR
-2. **Standard (default)**: adds PRD/design review and workflow memory
-3. **Strict**: full hard-gate flow (research/capability/TDD/acceptance/deviation + conditional API/Browser QA)
+1. **Lite**: Handoff Intake → Implement → Verify → Code Review → PR
+2. **Standard (default)**: Full gate flow with story decomposition, traceability, and DCR
+3. **Strict**: Standard + API Design Review + Browser QA + Architecture Conformance
 
 ## Feedback Loop (DCR)
 
@@ -131,38 +120,6 @@ Optional:
 python3 install-profile.py --ecc-path /path/to/ecc --profile-root ~/.hermes/profiles/coding --install-soul
 ```
 
-Backup options:
-
-```bash
-# custom backup path
-python3 install-profile.py --backup-dir ~/.hermes/profiles/coding.backup.manual
-
-# skip backup (not recommended)
-python3 install-profile.py --no-backup
-```
-
-MCP sync options:
-
-```bash
-# sync recommended MCP servers into <profile>/config.yaml (default interactive: yes)
-python3 install-profile.py --sync-mcp
-
-# skip MCP sync
-python3 install-profile.py --no-sync-mcp
-```
-
-Rules sync options:
-
-```bash
-# sync ECC rule groups into <profile>/rules/ecc-import
-python3 install-profile.py --sync-rules
-
-# skip rules sync
-python3 install-profile.py --no-sync-rules
-```
-
-`./install-profile.sh` remains as a thin wrapper to `python3 install-profile.py`.
-
 Installed layout (default profile root: `~/.hermes/profiles/coding`):
 
 - `skills/product-design/*` (product workflow skills)
@@ -175,16 +132,16 @@ Installed layout (default profile root: `~/.hermes/profiles/coding`):
 
 Seven-part foundation for near-unattended delivery:
 
-1. `woos-requirement-contract` — structured requirement intake
+1. `woos-run-orchestrator` — run queue, concurrency, timeout/retry
 2. `woos-executable-acceptance-gate` — machine-checkable done criteria
 3. `woos-failure-state-machine` — deterministic retry/degrade/escalation
 4. `woos-deviation-control-gate` — implementation-vs-spec drift blocking
 5. `woos-workflow-memory` — persistent failure/rework pattern capture
-6. `woos-run-orchestrator` — run queue, concurrency, timeout/retry
-7. `woos-human-handoff` — explicit takeover and recovery protocol
+6. `woos-human-handoff` — explicit takeover and recovery protocol
+7. `woos-review-context` — cumulative cross-gate findings
 
 ## ADR Governance
 
 - ADR template: `docs/adr/ADR-template.md`
 - Design/code review gates require: `baseline_compliance_status`, `deviation_detected`, `deviation_adr_path`
-- Run finalization requires verified run manifest: `<workspace_root>/hep/runs/<run_id>/run-manifest.yaml`
+- Run finalization requires verified run manifest: `<workspace_root>/.hep/runs/<run_id>/run-manifest.yaml`
