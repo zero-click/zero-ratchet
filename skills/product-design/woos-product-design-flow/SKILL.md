@@ -32,25 +32,22 @@ Before executing ANY step, you MUST output this block in the conversation:
 ┌─────────────────────────────────────────────────────┐
 │ 🛫 PRE-FLIGHT: Step <N> — <Name>                    │
 ├─────────────────────────────────────────────────────┤
-│ Persona:    <file path> → reading...                │
-│ Knowledge:  <file path(s)> → reading...             │
+│ Persona:    <file path> (exists? ✅/❌)              │
+│ Framework:  <file path(s)> (exists? ✅/❌)           │
 │ Template:   <file path or "none">                   │
 │ Input:      <file path(s)>                          │
 │ Output:     <file path>                             │
 ├─────────────────────────────────────────────────────┤
-│ ✅ Persona loaded: <line count> lines               │
-│ ✅ Knowledge loaded: <line count> lines             │
-│ ✅ Template loaded: <line count> lines / N/A        │
-├─────────────────────────────────────────────────────┤
-│ Dispatching sub-agent with injected context...      │
+│ Dispatch mode: PULL (sub-agent self-loads context)  │
+│ Context Receipt required: YES                       │
 └─────────────────────────────────────────────────────┘
 ```
 
 **Rules:**
-- If you cannot produce this block → you have NOT read the files → STOP and read them
-- The line counts prove you actually read the files (not faking it)
+- Verify persona/framework files EXIST before dispatching (orchestrator checks path validity)
 - After this block, the NEXT action must be dispatching a sub-agent (not doing the work yourself)
 - If you catch yourself writing PRD/requirements/review content instead of dispatching → STOP, you are violating P0
+- After sub-agent returns, verify its response starts with a valid CONTEXT RECEIPT
 
 ### P1: Orchestrator Does NOT Create Content
 
@@ -58,16 +55,58 @@ You MUST NOT write requirements, PRDs, reviews, UI briefs, or handoff content yo
 
 **Self-check:** If you are writing more than 3 sentences of domain content (not orchestration bookkeeping), you are doing the sub-agent's job. Stop. Dispatch instead.
 
-### P2: No Step Merging
+### P2: Sub-agent Dispatch Format (Pull Model)
+
+The orchestrator provides **paths and instructions** — the sub-agent **self-loads context** by reading files itself.
+
+**Dispatch prompt structure:**
+
+```
+## Required Context (READ THESE FILES FIRST)
+
+Before doing anything, read these files in full:
+- Persona: <file path> (defines who you are and how you think)
+- Framework: <file path(s)> (defines your methodology — follow it step by step)
+- Template: <file path or "none"> (defines your output structure)
+
+## Context Receipt (MANDATORY)
+
+After reading, start your response with this block:
+
+CONTEXT RECEIPT:
+- Persona: <name from file> | key principle: <quote one core principle>
+- Framework: <name> | steps: <list step/phase names>
+- Template: <loaded/N/A>
+
+If you cannot fill this → you failed to read the files → STOP and report error.
+
+## Task
+<step-specific instructions>
+
+## Input Files
+<paths to read for task content>
+
+## Output
+Write your output to: <exact file path>
+Format: follow the template structure if one was provided.
+```
+
+**Orchestrator MUST NOT:**
+- Summarize persona/framework content in the prompt (let sub-agent read originals)
+- Do the sub-agent's task "to help" (that violates P1)
+- Skip the Context Receipt requirement
+
+### P3: No Step Merging
 
 Each step produces its own output file. You MUST NOT combine steps (e.g., writing requirements + PRD in one pass). Each step is a separate sub-agent dispatch with a separate output.
 
-### P3: Output Validation Gate
+### P4: Output Validation Gate
 
 After EVERY step, before advancing to the next, verify:
 1. Output file EXISTS at the declared path
 2. Output file contains ALL required sections (check H2 headings)
-3. If validation fails → re-dispatch the step, do NOT proceed
+3. **Context Receipt present** — sub-agent response starts with valid CONTEXT RECEIPT block
+4. If validation fails → re-dispatch the step, do NOT proceed
 
 **Required sections by step:**
 
@@ -77,7 +116,7 @@ After EVERY step, before advancing to the next, verify:
 | Step 4 (PRD) | `## Background`, `## User Personas`, `## Functional Requirements`, `## Non-Functional Requirements`, `## User Flows`, `## Edge Cases`, `## Non-Goals`, `## Success Metrics` |
 | Step 9 (Readiness) | `## Checklist`, `## Verdict` |
 
-### P4: Review Prompt Must Include Full Checklist
+### P5: Review Prompt Must Include Full Checklist
 
 When dispatching a review sub-agent, include the COMPLETE checklist table in the prompt. The reviewer must check ALL criteria, not just "look for issues."
 
@@ -89,13 +128,13 @@ Do NOT skip rows. Do NOT give blanket passes.
 If any ❌ → result is REQUEST_CHANGES.
 ```
 
-### P5: No Silent Step Skipping
+### P6: No Silent Step Skipping
 
 If a step fails → FIX and retry, do NOT skip. Legitimately skippable steps:
 - Step 6 (UI Brief) — only if user confirms "no UI"
 - Step 10 (Integration) — only if single feature
 
-### P6: Review Cannot Self-Validate
+### P7: Review Cannot Self-Validate
 
 The same agent that authored a document MUST NOT review it. Reviews always use a fresh sub-agent dispatch with independent context.
 
