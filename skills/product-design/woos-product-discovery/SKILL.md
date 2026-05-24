@@ -149,8 +149,8 @@ If skipping → go directly to `woos-product-design-flow` (Stage 2).
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/analyst.toml` |
-| **Knowledge** | `references/bmad/templates/brief-template.md` |
+| **Persona** | `references/persona-analyst.md` |
+| **Knowledge** | `references/template-brief-template.md` |
 | **Input** | _(user conversation)_ |
 | **Output** | `ideas/<slug>/00-idea-capture.md` |
 | **Side effect** | Creates `.hep/runs/<run_id>/run-manifest.yaml` (state tracking begins here) |
@@ -172,8 +172,8 @@ After capture, the orchestrator initializes the run manifest.
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/analyst.toml` |
-| **Knowledge** | `references/bmad/frameworks/customer-pain-points.md` |
+| **Persona** | `references/persona-analyst.md` |
+| **Knowledge** | `references/framework-customer-pain-points.md` |
 | **Input** | `ideas/<slug>/00-idea-capture.md` |
 | **Output** | `ideas/<slug>/00-idea-capture.md` → appends `## Problem Validation` |
 
@@ -209,8 +209,8 @@ Before investing in research, validate the problem is worth solving.
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/analyst.toml` |
-| **Knowledge** | `references/bmad/frameworks/market-research.md` + `references/bmad/frameworks/competitive-analysis.md` |
+| **Persona** | `references/persona-analyst.md` |
+| **Knowledge** | `references/framework-market-research.md` + `references/framework-competitive-analysis.md` |
 | **Input** | `ideas/<slug>/00-idea-capture.md` (full, including Problem Validation) |
 | **Output** | `docs/research/<topic>.md` |
 
@@ -229,8 +229,8 @@ Investigate:
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/pm.toml` |
-| **Knowledge** | `references/bmad/frameworks/create-prd.md` |
+| **Persona** | `references/persona-pm.md` |
+| **Knowledge** | `references/framework-create-prd.md` |
 | **Input** | `ideas/<slug>/00-idea-capture.md` + `docs/research/<topic>.md` |
 | **Output** | `docs/product/<project>-roadmap.md` |
 
@@ -249,8 +249,8 @@ Synthesize into a roadmap document containing:
 | | |
 |---|---|
 | **Sub-agent** | ✅ (independent reviewer) |
-| **Persona** | `references/bmad/personas/prd-validator.toml` |
-| **Knowledge** | `references/bmad/frameworks/validate-prd.md` + `references/bmad/templates/prd-validation-checklist.md` |
+| **Persona** | `references/persona-prd-validator.md` |
+| **Knowledge** | `references/framework-validate-prd.md` + `references/template-prd-validation-checklist.md` |
 | **Input** | `docs/product/<project>-roadmap.md` + `ideas/<slug>/00-idea-capture.md` |
 | **Output** | `docs/reviews/<project>-roadmap-review-rN.md` |
 
@@ -293,8 +293,8 @@ PASS: X/6 | FAIL: Y/6 → [PASS | REQUEST_CHANGES]
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/architect.toml` |
-| **Knowledge** | `references/bmad/frameworks/create-architecture.md` |
+| **Persona** | `references/persona-architect.md` |
+| **Knowledge** | `references/framework-create-architecture.md` |
 | **Input** | `docs/product/<project>-roadmap.md` + user technical preferences (from idea-capture, if any) |
 | **Output** | `docs/product/<project>-architecture.md` |
 
@@ -325,8 +325,8 @@ Produce high-level system architecture spanning all planned versions:
 | | |
 |---|---|
 | **Sub-agent** | ✅ (independent reviewer) |
-| **Persona** | `references/bmad/personas/architect.toml` |
-| **Knowledge** | `references/bmad/frameworks/architecture-validation.md` |
+| **Persona** | `references/persona-architect.md` |
+| **Knowledge** | `references/framework-architecture-validation.md` |
 | **Input** | `docs/product/<project>-architecture.md` + `docs/product/<project>-roadmap.md` |
 | **Output** | `docs/reviews/<project>-architecture-review-rN.md` |
 

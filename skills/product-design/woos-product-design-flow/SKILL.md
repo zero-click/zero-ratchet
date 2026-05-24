@@ -234,8 +234,8 @@ Read roadmap, extract target version. Confirm with user:
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/pm.toml` |
-| **Knowledge** | `references/bmad/frameworks/prd.md` |
+| **Persona** | `references/persona-pm.md` |
+| **Knowledge** | `references/framework-prd.md` |
 | **Template** | `templates/requirements-template.md` |
 | **Input** | `docs/product/<project>-roadmap.md` § target version |
 | **Output** | `docs/prd/<version>/<feature>-requirements.md` |
@@ -255,7 +255,7 @@ Produce structured requirements following the template. Mark uncertain items wit
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/pm.toml` |
+| **Persona** | `references/persona-pm.md` |
 | **Knowledge** | _(persona sufficient — ranking is judgment, not methodology)_ |
 | **Input** | `docs/prd/<version>/<feature>-requirements.md` |
 | **Output** | `docs/prd/<version>/<feature>-requirements.md` → appends `## Priority Ranking` |
@@ -281,8 +281,8 @@ Rank requirements by priority using one framework:
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/pm.toml` |
-| **Knowledge** | `references/bmad/frameworks/prd.md` + `references/bmad/templates/prd-template.md` |
+| **Persona** | `references/persona-pm.md` |
+| **Knowledge** | `references/framework-prd.md` + `references/template-prd-template.md` |
 | **Template** | `templates/prd-template.md` |
 | **Input** | `docs/prd/<version>/<feature>-requirements.md` (including Priority Ranking) |
 | **Output** | `docs/prd/<version>/<feature>.md` |
@@ -303,8 +303,8 @@ P0 requirements get full detail, P2 gets brief mention:
 | | |
 |---|---|
 | **Sub-agent** | ✅ (independent reviewer) |
-| **Persona** | `references/bmad/personas/prd-validator.toml` |
-| **Knowledge** | `references/bmad/frameworks/validate-prd.md` + `references/bmad/templates/prd-validation-checklist.md` |
+| **Persona** | `references/persona-prd-validator.md` |
+| **Knowledge** | `references/framework-validate-prd.md` + `references/template-prd-validation-checklist.md` |
 | **Input** | `docs/prd/<version>/<feature>.md` + `docs/prd/<version>/<feature>-requirements.md` + `docs/product/<project>-architecture.md` |
 | **Output** | `docs/reviews/<version>/<feature>-prd-review-rN.md` |
 
@@ -379,8 +379,8 @@ PASS: X/6 | FAIL: Y/6 → [PASS | REQUEST_CHANGES]
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/ux-designer.toml` |
-| **Knowledge** | `references/bmad/frameworks/ux-design.md` |
+| **Persona** | `references/persona-ux-designer.md` |
+| **Knowledge** | `references/framework-ux-design.md` |
 | **Input** | `docs/prd/<version>/<feature>.md` |
 | **Output** | `docs/design/<version>/<feature>-ui-brief.md` |
 
@@ -403,8 +403,8 @@ When the feature has user-facing interface:
 | | |
 |---|---|
 | **Sub-agent** | ✅ (independent reviewer) |
-| **Persona** | `references/bmad/personas/ux-designer.toml` |
-| **Knowledge** | `references/bmad/frameworks/ux-validate.md` |
+| **Persona** | `references/persona-ux-designer.md` |
+| **Knowledge** | `references/framework-ux-validate.md` |
 | **Input** | `docs/design/<version>/<feature>-ui-brief.md` + `docs/prd/<version>/<feature>.md` |
 | **Output** | `docs/reviews/<version>/<feature>-ui-review-rN.md` |
 
@@ -432,7 +432,7 @@ When the feature has user-facing interface:
 |---|---|
 | **Sub-agent** | ✅ |
 | **Persona** | _(qa — no BMAD persona needed)_ |
-| **Knowledge** | `references/bmad/frameworks/implementation-readiness.md` |
+| **Knowledge** | `references/framework-implementation-readiness.md` |
 | **Input** | `docs/prd/<version>/<feature>.md` + `docs/design/<version>/<feature>-ui-brief.md` (if exists) |
 | **Output** | `docs/handoff/<version>/<feature>-analyze-report.md` |
 
@@ -457,8 +457,8 @@ Cross-artifact consistency check:
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/pm.toml` |
-| **Knowledge** | `references/bmad/frameworks/epics-and-stories.md` |
+| **Persona** | `references/persona-pm.md` |
+| **Knowledge** | `references/framework-epics-and-stories.md` |
 | **Input** | `docs/prd/<version>/<feature>.md` + `docs/design/<version>/<feature>-ui-brief.md` + analyze report |
 | **Output** | `docs/handoff/<version>/<feature>.md` |
 
@@ -520,8 +520,8 @@ Checklist:
 | | |
 |---|---|
 | **Sub-agent** | ✅ |
-| **Persona** | `references/bmad/personas/pm.toml` |
-| **Knowledge** | `references/bmad/frameworks/implementation-readiness.md` |
+| **Persona** | `references/persona-pm.md` |
+| **Knowledge** | `references/framework-implementation-readiness.md` |
 | **Input** | **ALL documents for this version** (see Input Scope below) |
 | **Output** | `docs/reviews/<version>/integration-report.md` |
 
