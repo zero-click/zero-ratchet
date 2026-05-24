@@ -159,7 +159,7 @@ This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
 - Stories form a DAG (dependency order)
 - Each story is independently verifiable
 - Target: 3–8 stories per feature
-- Output: `.hep/runs/<run_id>/stories/story-NNN.md`
+- Output: `docs/stories/<feature>/story-NNN.md`
 
 ### Gate 3 — Story Execution Loop
 
@@ -402,15 +402,16 @@ When engineering discovers a design issue that can't be resolved within scope:
 <project-root>/
 ├── .hep/
 │   ├── runs/<run_id>/
-│   │   ├── run-manifest.yaml          ← gate progress tracking
-│   │   └── stories/
-│   │       ├── story-001.md           ← generated stories
-│   │       └── ...
+│   │   └── run-manifest.yaml          ← gate progress tracking
 │   └── review-context/<run_id>.yaml   ← cumulative findings
 ├── docs/
 │   ├── handoff/<version>/<feature>.md ← INPUT (from product)
 │   ├── prd/<feature>.md               ← read for traceability
 │   ├── design/<feature>.md            ← Gate 1 output
+│   ├── stories/<feature>/             ← Gate 2 output
+│   │   ├── story-001.md
+│   │   ├── story-002.md
+│   │   └── ...
 │   ├── adr/                           ← ADR captures
 │   ├── feedback/<feature>-dcr.md      ← DCR output (back to product)
 │   └── handoff/<feature>-traceability.md ← Gate 6 output

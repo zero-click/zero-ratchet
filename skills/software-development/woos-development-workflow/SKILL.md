@@ -180,7 +180,7 @@ Parse handoff and decompose into independent stories. Each story is a self-conta
 ## Status: pending
 ```
 
-**Output:** `.hep/runs/<run_id>/stories/story-001.md`, `story-002.md`, ...
+**Output:** `docs/stories/<feature>/story-001.md`, `story-002.md`, ...
 
 **Rules:**
 - Each story covers 1–3 related Build Tasks from the handoff
@@ -422,7 +422,7 @@ Persistence:
 
 - Run manifest: `<workspace_root>/.hep/runs/<run_id>/run-manifest.yaml`
 - Review context: `<workspace_root>/.hep/review-context/<run_id>.yaml`
-- Stories: `<workspace_root>/.hep/runs/<run_id>/stories/`
+- Stories: `<workspace_root>/docs/stories/<feature>/`
 - For gated runs, `run_id` is mandatory; if missing, return `BLOCKED`.
 
 ## File Layout
@@ -431,16 +431,16 @@ Persistence:
 <project-root>/
 ├── .hep/
 │   ├── runs/<run_id>/
-│   │   ├── run-manifest.yaml
-│   │   └── stories/
-│   │       ├── story-001.md
-│   │       ├── story-002.md
-│   │       └── ...
+│   │   └── run-manifest.yaml
 │   └── review-context/<run_id>.yaml
 ├── docs/
 │   ├── handoff/<version>/<feature>.md    ← input (from Stage 2)
 │   ├── prd/<feature>.md                  ← read for traceability
 │   ├── design/<feature>.md               ← output of Gate 1
+│   ├── stories/<feature>/                ← output of Gate 2
+│   │   ├── story-001.md
+│   │   ├── story-002.md
+│   │   └── ...
 │   ├── feedback/<feature>-dcr.md         ← DCR output (back to Stage 2)
 │   └── handoff/<feature>-traceability.md ← traceability output
 └── (implementation files)
