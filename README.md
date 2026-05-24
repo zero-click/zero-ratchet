@@ -2,19 +2,61 @@
 
 [中文说明 / Chinese README](./README.zh-CN.md)
 
-Skill-first coding profile for Hermes, with:
+Skill-first coding profile for Hermes — a complete idea-to-delivery pipeline with role-specialized agents, hard gates, and traceable review at every stage.
 
-- local workflow/gate skills (`woos-*`)
-- imported ECC skills (`skills/ecc-import/*`)
-- agent-adapter skills (`skills/ecc-agent-skills/*`)
-
-## Vision and design highlights
+## Vision
 
 - **Unattended delivery is the long-term vision**: use role-specialized agents and hard gates so more work can run reliably with minimal human intervention.
-- **Design principles are the core differentiator**: this profile is not just a skill bundle. It enforces role separation, deterministic gate progression, and traceable review from intent/design to final implementation.
-- **Baseline-first governance**: default to mainstream, maintainable, evolvable engineering baselines; deviations require ADR + explicit approval.
+- **Design principles are the core differentiator**: this profile enforces role separation, deterministic gate progression, and traceable review from idea to merged PR.
+- **Baseline-first governance**: default to mainstream, maintainable, evolvable baselines; deviations require ADR + explicit approval.
 
-## `woos-development-workflow` flowchart
+## Two-Stage Pipeline
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Product Design Stage                          │
+│                  (skills/product-design/)                        │
+│                                                                 │
+│  Idea → Capture → Discovery → 🚦 Human Gate → PRD → Handoff   │
+│                                                                 │
+│  Entry: woos-idea-to-delivery                                   │
+│  Modes: Lite / Standard / Strict                                │
+└────────────────────────────┬────────────────────────────────────┘
+                             │  Build Handoff (file-based contract)
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   Software Development Stage                     │
+│               (skills/software-development/)                     │
+│                                                                 │
+│  Design → Implement → Verify → Review → PR                     │
+│                                                                 │
+│  Entry: woos-development-workflow                                │
+│  Modes: Lite / Standard / Strict                                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key boundary:** Product defines WHAT/WHY. Engineering decides HOW. The handoff file is the contract between stages.
+
+## Product Design Stage
+
+See [`skills/product-design/README.md`](./skills/product-design/README.md) for full details.
+
+**Skills:**
+
+| Skill | Role |
+|-------|------|
+| `woos-idea-to-delivery` | Entry point — umbrella orchestrator, tier routing |
+| `woos-idea-capture` | Phase 1 — idea interview and structuring |
+| `woos-product-discovery` | Phase 2 — research, roadmap, architecture |
+| `woos-product-design-flow` | Phase 3 — PRD pipeline orchestrator |
+| `woos-ui-design-brief` | UI direction and wireframes |
+| `woos-build-handoff` | Handoff packaging |
+
+**Enforcement:** 7 non-negotiable rules (E1–E7) prevent agents from skipping steps, ignoring templates, or doing shallow reviews.
+
+## Software Development Stage
+
+**Entry skill:** `woos-development-workflow`
 
 ```mermaid
 flowchart TD
@@ -58,59 +100,21 @@ flowchart TD
   Z[woos-agent-decision] -.on reviewer conflict.- O
 ```
 
-## Product-level entry rule
+**Development workflow profiles:**
 
-When the ask is still at roadmap / initiative / product-design level, do not jump directly into implementation. Prefer:
-
-`woos-product-planning-workflow -> choose next slice -> woos-development-workflow`
-
-This BMAD-inspired entry lane adds feature decomposition, delivery phases, and a concrete next slice before engineering gates begin.
-
-## Workflow profiles
-
-To avoid over-processing small tasks, the workflow supports three execution profiles:
-
-1. **Lite**: `Run Orchestrator -> Git Workflow -> Requirement Contract -> Implement -> Verify -> Code/Security Review -> PR Readiness`
-2. **Standard (default)**: adds PRD/design review and workflow memory for normal feature delivery
+1. **Lite**: Run Orchestrator → Git → Requirement Contract → Implement → Verify → Code/Security Review → PR
+2. **Standard (default)**: adds PRD/design review and workflow memory
 3. **Strict**: full hard-gate flow (research/capability/TDD/acceptance/deviation + conditional API/Browser QA)
 
-## What this profile installs
+## Feedback Loop (DCR)
 
-1. Local workflow skills:
-    - `woos-product-planning-workflow`
-    - `woos-development-workflow`
-    - `woos-requirement-contract`
-    - `woos-prd-authoring`
-    - `woos-prd-review-gate`
-    - `woos-feature-design`
-    - `woos-design-review-gate`
-    - `woos-executable-acceptance-gate`
-    - `woos-failure-state-machine`
-    - `woos-deviation-control-gate`
-    - `woos-run-orchestrator`
-    - `woos-human-handoff`
-    - `woos-workflow-memory`
-    - `woos-review-context`
-    - `woos-agent-decision`
-    - `woos-code-review-gate`
-    - `woos-pr-readiness`
-    - `woos-setup-rules`
-   - `woos-systematic-debugging`
-2. Imported skills:
-   - `git-workflow`
-   - `search-first` / `deep-research` (optional upgrade)
-   - `dmux-workflows`
-   - `product-capability`
-   - `tdd-workflow`
-   - `coding-standards`
-   - `verification-loop`
-   - `api-design` (for REST/GraphQL validation)
-   - `browser-qa` (for frontend testing)
-3. Agent-adapter skills:
-   - `product-planner`
-   - `architect`
-   - `code-reviewer`
-   - `security-reviewer`
+When the engineering stage discovers a product assumption is wrong, it issues a **Design Change Request** back to product:
+
+```
+Engineering → docs/feedback/<feature>-dcr.md → Product Design → updated handoff → Engineering resumes
+```
+
+Available in Standard and Strict modes.
 
 ## Install
 
@@ -161,91 +165,26 @@ python3 install-profile.py --no-sync-rules
 
 Installed layout (default profile root: `~/.hermes/profiles/coding`):
 
+- `skills/product-design/*` (product workflow skills)
 - `skills/software-development/*` (local workflow skills)
 - `skills/ecc-import/*` (imported ECC skills)
 - `skills/ecc-agent-skills/*` (agent adapters)
 - `SOUL.md` (only if `--install-soul`)
 
-By default, if the target profile root already exists and is non-empty, the installer creates a timestamped backup before applying changes.
+## Near-Unattended Execution Foundation
 
-## MCP sync behavior
+Seven-part foundation for near-unattended delivery:
 
-When enabled, installer syncs these MCP server configs from ECC `mcp-configs/mcp-servers.json` into `<profile>/config.yaml` under `mcp_servers`:
-
-- `github`
-- `context7`
-- `exa-web-search`
-- `firecrawl`
-- `playwright`
-
-Existing `mcp_servers.<name>` entries in profile config are preserved (not overwritten).
-
-## Upgrade flow (ECC changes)
-
-Agent-adapter skills include source tracking fields:
-
-- `ecc_source_repo`
-- `ecc_source_path`
-- `ecc_source_commit`
-
-When ECC updates, compare the source commit in each adapter skill with current ECC git history. If changed, re-run adapter conversion.
-
-## Rules sync + routing in Hermes
-
-Installer can sync all ECC rule groups into:
-
-- `<profile>/rules/ecc-import/*`
-
-Default exclusion (to avoid workflow conflict with this profile):
-
-- `common/development-workflow.md`
-- `common/agents.md`
-- `common/hooks.md`
-- `README.md`
-- `zh/README.md`
-- `zh/*.md` (translation pack excluded)
-- `*/hooks.md` (hook-oriented rules excluded for Hermes profile sync)
-
-Hermes rule routing should be defined at project level via context files:
-
-- `.hermes.md` / `HERMES.md` (preferred)
-- `AGENTS.md`
-- `.cursorrules` or `.cursor/rules/*.mdc`
-
-For better cross-tool compatibility, `woos-setup-rules` generates/updates `AGENTS.md` by default with language-aware rule routing.
-
-## Near-unattended execution foundation
-
-This profile now includes a seven-part foundation for near-unattended delivery:
-
-1. `woos-requirement-contract` — structured requirement intake contract
+1. `woos-requirement-contract` — structured requirement intake
 2. `woos-executable-acceptance-gate` — machine-checkable done criteria
-3. `woos-failure-state-machine` — deterministic retry/degrade/escalation flow
+3. `woos-failure-state-machine` — deterministic retry/degrade/escalation
 4. `woos-deviation-control-gate` — implementation-vs-spec drift blocking
 5. `woos-workflow-memory` — persistent failure/rework pattern capture
-6. `woos-run-orchestrator` — run queue, concurrency, timeout/retry policy
+6. `woos-run-orchestrator` — run queue, concurrency, timeout/retry
 7. `woos-human-handoff` — explicit takeover and recovery protocol
 
-## Agent collaboration hardening
-
-To reduce long-running review loops, this profile now adds two collaboration controls:
-
-1. `woos-review-context` — shared cross-gate review context with resolved/carry-forward findings
-2. `woos-agent-decision` — deterministic reviewer conflict resolution before escalation
-
-Review-context records are persisted to:
-
-- `<workspace_root>/hep/review-context/<run_id>.yaml`
-- For gated runs, missing `run_id` is a `BLOCKED` condition.
-- Runtime folders are created lazily by orchestrator; no pre-created `runs/` directory is required.
-
-## ADR governance
+## ADR Governance
 
 - ADR template: `docs/adr/ADR-template.md`
-- Design/code review gates now require:
-  - `baseline_compliance_status`
-  - `deviation_detected`
-  - `deviation_adr_path` + `approval_ref` (when deviation exists)
-  - `unconfirmed_constraints_frozen=false`
-- Run finalization requires verified run manifest:
-  - `<workspace_root>/hep/runs/<run_id>/run-manifest.yaml`
+- Design/code review gates require: `baseline_compliance_status`, `deviation_detected`, `deviation_adr_path`
+- Run finalization requires verified run manifest: `<workspace_root>/hep/runs/<run_id>/run-manifest.yaml`

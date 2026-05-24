@@ -1,0 +1,99 @@
+# BMAD Knowledge Sync Configuration
+# Maps BMAD source assets → our skill structure
+# Used by: scripts/sync-bmad-knowledge.sh
+#
+# BMAD source: ../BMAD-METHOD (sibling repo, user keeps it updated via git pull)
+# Target: skills/product-design/*/references/
+
+bmad_root: "../BMAD-METHOD"
+
+# Mapping: which BMAD assets feed which of our skills
+mappings:
+
+  # ─── woos-idea-capture ───
+  woos-idea-capture:
+    personas:
+      - src/bmm-skills/1-analysis/bmad-agent-analyst/customize.toml
+      - src/bmm-skills/1-analysis/bmad-product-brief/customize.toml
+    frameworks:
+      - src/bmm-skills/1-analysis/bmad-product-brief/SKILL.md
+      - src/core-skills/bmad-advanced-elicitation/methods.csv
+    templates:
+      - src/bmm-skills/1-analysis/bmad-product-brief/assets/brief-template.md
+
+  # ─── woos-product-discovery ───
+  woos-product-discovery:
+    personas:
+      - src/bmm-skills/1-analysis/bmad-agent-analyst/customize.toml
+      - src/bmm-skills/2-plan-workflows/bmad-agent-pm/customize.toml
+    frameworks:
+      - src/bmm-skills/1-analysis/research/bmad-market-research/SKILL.md
+      - src/bmm-skills/1-analysis/research/bmad-market-research/steps/step-05-competitive-analysis.md
+      - src/bmm-skills/1-analysis/research/bmad-technical-research/SKILL.md
+      - src/bmm-skills/1-analysis/research/bmad-domain-research/SKILL.md
+      - src/bmm-skills/3-solutioning/bmad-create-architecture/data/domain-complexity.csv
+    templates:
+      - src/bmm-skills/1-analysis/bmad-prfaq/assets/prfaq-template.md
+
+  # ─── woos-product-design-flow (PRD steps) ───
+  woos-product-design-flow:
+    personas:
+      - src/bmm-skills/2-plan-workflows/bmad-agent-pm/customize.toml
+    frameworks:
+      - src/bmm-skills/2-plan-workflows/bmad-create-prd/SKILL.md
+      - src/bmm-skills/2-plan-workflows/bmad-prd/SKILL.md
+    templates:
+      - src/bmm-skills/2-plan-workflows/bmad-prd/assets/prd-template.md
+    rubrics:
+      - src/bmm-skills/2-plan-workflows/bmad-prd/assets/prd-validation-checklist.md
+
+  # ─── woos-ui-design-brief ───
+  woos-ui-design-brief:
+    personas:
+      - src/bmm-skills/2-plan-workflows/bmad-agent-ux-designer/customize.toml
+    frameworks:
+      - src/bmm-skills/2-plan-workflows/bmad-ux/SKILL.md
+      - src/bmm-skills/2-plan-workflows/bmad-ux/references/design-md-spec.md
+    templates:
+      - src/bmm-skills/2-plan-workflows/bmad-ux/assets/key-screens.md
+      - src/bmm-skills/2-plan-workflows/bmad-ux/assets/design-directions.md
+    examples:
+      - src/bmm-skills/2-plan-workflows/bmad-ux/assets/design-example-shadcn.md
+      - src/bmm-skills/2-plan-workflows/bmad-ux/assets/experience-example-shadcn.md
+
+  # ─── Architecture knowledge (feeds woos-product-discovery Step 5) ───
+  woos-architecture-knowledge:
+    target_skill: woos-product-discovery
+    subfolder: architecture
+    personas:
+      - src/bmm-skills/3-solutioning/bmad-agent-architect/customize.toml
+    frameworks:
+      - src/bmm-skills/3-solutioning/bmad-create-architecture/steps/step-03-starter.md
+      - src/bmm-skills/3-solutioning/bmad-create-architecture/steps/step-04-decisions.md
+      - src/bmm-skills/3-solutioning/bmad-create-architecture/steps/step-05-patterns.md
+      - src/bmm-skills/3-solutioning/bmad-create-architecture/data/domain-complexity.csv
+      - src/bmm-skills/3-solutioning/bmad-create-architecture/data/project-types.csv
+    templates:
+      - src/bmm-skills/3-solutioning/bmad-create-architecture/architecture-decision-template.md
+
+  # ─── Review knowledge (feeds all review gates) ───
+  woos-review-knowledge:
+    target_skill: woos-product-design-flow
+    subfolder: review
+    personas:
+      - src/bmm-skills/2-plan-workflows/bmad-validate-prd/customize.toml
+    frameworks:
+      - src/bmm-skills/2-plan-workflows/bmad-validate-prd/SKILL.md
+      - src/bmm-skills/3-solutioning/bmad-check-implementation-readiness/SKILL.md
+      - src/bmm-skills/3-solutioning/bmad-check-implementation-readiness/steps/step-02-prd-analysis.md
+      - src/bmm-skills/3-solutioning/bmad-check-implementation-readiness/steps/step-04-ux-alignment.md
+    rubrics:
+      - src/bmm-skills/2-plan-workflows/bmad-prd/assets/prd-validation-checklist.md
+
+  # ─── Brainstorming/Elicitation (feeds idea-capture) ───
+  woos-elicitation-knowledge:
+    target_skill: woos-idea-capture
+    subfolder: elicitation
+    frameworks:
+      - src/core-skills/bmad-brainstorming/brain-methods.csv
+      - src/core-skills/bmad-advanced-elicitation/methods.csv

@@ -51,7 +51,7 @@ Use **Strict** for high-risk, ambiguous, or security-critical scope.
 ### Lite (small/low-risk)
 
 ```text
-Run Orchestrator -> Git Workflow -> Requirement Contract -> Implement -> Verify -> Code/Security Review -> PR Readiness
+Run Orchestrator -> Git Workflow -> Handoff Intake -> Implement -> Verify -> Code/Security Review -> PR Readiness
 ```
 
 Minimal use criteria:
@@ -63,7 +63,7 @@ Minimal use criteria:
 ### Standard (default)
 
 ```text
-Run Orchestrator -> Git Workflow -> Requirement Contract -> PRD Draft -> PRD Review -> Feature Design -> Design Review -> Implement -> Verify -> Code/Security Review -> PR Readiness -> Workflow Memory Update
+Run Orchestrator -> Git Workflow -> Handoff Intake -> Feature Design -> Design Review -> Implement -> Verify -> Code/Security Review -> PR Readiness -> Workflow Memory Update
 ```
 
 Use when:
@@ -75,7 +75,7 @@ Use when:
 ### Strict (full hard-gate flow)
 
 ```text
-Run Orchestrator -> Git Workflow -> Requirement Contract -> Research -> PRD Draft -> PRD Review -> Capability Contract -> Feature Design -> [API Design Review] -> Design Review -> TDD -> Implement -> Verify -> [Browser QA] -> Executable Acceptance -> Deviation Control -> Code/Security Review -> PR Readiness -> Workflow Memory Update
+Run Orchestrator -> Git Workflow -> Handoff Intake -> Capability Contract -> Feature Design -> [API Design Review] -> Design Review -> TDD -> Implement -> Verify -> [Browser QA] -> Executable Acceptance -> Deviation Control -> Code/Security Review -> PR Readiness -> Workflow Memory Update
 ```
 
 Use when:
@@ -93,11 +93,8 @@ Only these skills are allowed in this workflow:
 |---|---|---|
 | Run Orchestrator | `woos-run-orchestrator` | local |
 | Git Workflow | `git-workflow` | imported |
-| Requirement Contract | `woos-requirement-contract` | local |
-| Research | `search-first` or `deep-research` | imported |
+| Handoff Intake | _(reads product handoff)_ | from `woos-product-design-flow` |
 | Parallel Orchestration (when needed) | `dmux-workflows` | imported |
-| PRD Draft | `woos-prd-authoring` | local |
-| PRD Review | `woos-prd-review-gate` | local |
 | Capability Contract | `product-capability` | imported |
 | Feature Design | `woos-feature-design` | local |
 | API Design Review (if REST/GraphQL) | `api-design` | imported |
@@ -118,7 +115,6 @@ If a required skill is unavailable, status is `BLOCKED` and the workflow stops.
 
 Local wrapper intent:
 
-- `woos-prd-review-gate` wraps `product-planner` + `architect`
 - `woos-feature-design` wraps `architect` (and `product-planner` for complex scope)
 - `woos-design-review-gate` wraps `architect`
 - `woos-executable-acceptance-gate` wraps measurable acceptance checks
@@ -148,55 +144,23 @@ NOT_RUN/BLOCKED/REQUEST_CHANGES -> PASS -> next gate
 
 ## Gate Definitions (skill + minimal contract)
 
-### Gate 0 — Requirement Contract
-**Skill:** `woos-requirement-contract` (local)  
+### Gate 0 — Handoff Intake
+
+**Input:** `docs/handoff/<version>/<feature>.md` (produced by `woos-product-design-flow`)
+
 **Minimal contract:**
 
-1. Structured requirement contract exists with goals, constraints, acceptance criteria, non-goals, and risk assumptions.
-2. Unknowns are explicit and marked as blocking/non-blocking.
-3. Gate returns `REQUEST_CHANGES` if acceptance criteria are not machine-checkable.
+1. Handoff file exists and contains: Mission, Requirements, AC, User Flows, Build Tasks, Verification Plan.
+2. All AC are testable (already validated by product stage).
+3. Record handoff version in run-manifest for traceability.
 
-### Gate 0.5 — Research
-**Skill:** `search-first` (default) or `deep-research` (when market validation needed)  
-**Minimal contract (search-first):**
-
-1. Reuse options are searched before net-new design.
-2. Chosen direction is recorded with a short rationale.
-
-**Minimal contract (deep-research - optional upgrade):**
-
-1. Multi-source research conducted: web search, documentation, technical evaluations.
-2. Findings synthesized with citations and source attribution.
-3. Reuse direction validated or new approach justified against research findings.
-
-**When to use deep-research:**
-- Idea is still fuzzy; need to validate market/user pain points
-- Competitive analysis or technology evaluation required
-- Building TAM/SAM/SOM estimates
-- Due diligence on vendor, framework, or architectural choice
-
-### Gate 1 — PRD Draft
-**Skill:** `woos-prd-authoring` (local)  
-**Minimal contract:**
-
-1. PRD artifact exists at `docs/prd/<feature>.md` (or repo convention).
-2. Core sections and testable AC are present.
-
-### Gate 1R — PRD Review
-**Skill:** `woos-prd-review-gate` (local)  
-**Minimal contract:**
-
-1. Executes independent PRD review using `product-planner` + `architect` via the local gate skill.
-2. Uses `woos-review-context` to load/update cumulative findings.
-3. Uses `woos-agent-decision` when reviewer verdicts conflict.
-4. Returns `PASS` or `REQUEST_CHANGES` with concrete gaps.
-5. Escalates to `woos-human-handoff` when review loop threshold is exceeded.
+**If handoff does NOT exist:** Redirect to `woos-product-design-flow` first. Do not proceed without product handoff.
 
 ### Gate 1.5 — Capability Contract
 **Skill:** `product-capability`  
 **Minimal contract:**
 
-1. Produces implementation-facing capability contract.
+1. Produces implementation-facing capability contract derived from the handoff.
 2. Captures constraints/invariants/interfaces/open questions.
 
 ### Gate 2 — Feature Design

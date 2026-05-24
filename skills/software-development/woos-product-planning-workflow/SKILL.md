@@ -1,6 +1,6 @@
 ---
 name: woos-product-planning-workflow
-description: Product-level planning workflow for Hermes. Inspired by BMAD-style planning, it converts a product idea or initiative into feature map, delivery phases, and a recommended next implementation slice before entering woos-development-workflow.
+description: Product-level planning workflow for Hermes. Inspired by BMAD-style planning, it converts a product idea or initiative into feature map, delivery phases, and a recommended next implementation slice before entering engineering-workflow.
 version: 1.0.0
 author: Hermes Profile
 license: MIT
@@ -13,7 +13,7 @@ metadata:
 
 ## Why this skill exists
 
-`woos-development-workflow` is optimized for delivering a concrete feature slice.  
+`engineering-workflow` is optimized for delivering a concrete feature slice.  
 When the input is still at **product / initiative / roadmap** level, jumping directly into PRD/design/coding creates two common failures:
 
 1. implementation starts before feature boundaries are stable
@@ -53,7 +53,7 @@ For product-facing repositories, prefer this order:
 Idea / initiative
 -> woos-product-planning-workflow
 -> choose next slice
--> woos-development-workflow
+-> engineering-workflow
 ```
 
 Do **not** jump from vague `PRODUCT.md`, founder notes, or roadmap prose directly into implementation if feature boundaries and delivery phases are still unclear.
@@ -159,7 +159,7 @@ Output:
 
 ### Step 5 — Handoff into engineering workflow
 
-Prepare a clean handoff for `woos-development-workflow`.
+Prepare a clean handoff for `engineering-workflow`.
 
 The handoff must include:
 
@@ -222,7 +222,7 @@ This skill is successful only if:
 1. product intent is decomposed into a feature map
 2. delivery phases are explicit
 3. one recommended next slice is selected
-4. the engineering handoff is concrete enough for `woos-development-workflow`
+4. the engineering handoff is concrete enough for `engineering-workflow`
 5. unresolved product truth is listed explicitly instead of guessed
 
 ## Hard gate rules
@@ -245,7 +245,7 @@ After this skill passes:
 
 1. create/update the product planning artifact
 2. choose the recommended next slice
-3. invoke `woos-development-workflow` for that slice
+3. invoke `engineering-workflow` for that slice
 4. inside engineering workflow, continue through requirement -> PRD -> design -> implement
 
 ## Invocation examples
@@ -267,5 +267,5 @@ But it stays aligned with this Hermes profile:
 
 - thin, explicit skill contract
 - durable artifacts over chat-only planning
-- clear handoff into `woos-development-workflow`
+- clear handoff into `engineering-workflow`
 - no hidden roleplay dependency on separate personas unless explicitly requested
