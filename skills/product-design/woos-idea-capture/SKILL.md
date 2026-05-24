@@ -33,12 +33,15 @@ Skip when:
 - Idea already has a PRD → go to `woos-product-design-flow`
 - Pure bugfix with clear reproduction → no capture needed
 
-## Capture Modes
+## Capture Process
 
-### Lite Mode — Quick Note
+> **Note:** Idea Capture is mode-agnostic. The execution mode (Lite/Standard/Strict) is decided LATER, at the Human Approval Gate after Product Discovery. Capture always runs the same way regardless of eventual mode.
 
-For: small-scope ideas, feature requests with clear intent, internal improvements.
-Corresponds to the Lite execution tier in `woos-idea-to-delivery`.
+**Two capture depths based on idea complexity:**
+
+### Quick Note (trivially simple ideas)
+
+For: single-line fixes, obvious improvements, user already has full clarity.
 
 **Process:**
 
@@ -47,7 +50,7 @@ Corresponds to the Lite execution tier in `woos-idea-to-delivery`.
 3. Note constraints if any
 4. Output to `ideas/<slug>.md`
 
-**Lite template:**
+**Quick Note template:**
 
 ```markdown
 # <Idea Title>
@@ -68,9 +71,9 @@ What should we build?
 How do we know it worked?
 ```
 
-### Standard / Strict Mode — Guided Interview
+### Guided Interview (anything non-trivial)
 
-For: normal features (Standard) or multi-feature / high-risk initiatives (Strict).
+For: features, product initiatives, anything requiring design thinking.
 
 **Process:**
 

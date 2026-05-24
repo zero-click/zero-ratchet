@@ -57,8 +57,6 @@ Skip when:
 
 ## Execution Tiers
 
-Default: **Standard**.
-
 ### Lite — Quick Validation
 
 For: small tools, bugfix with design questions, scope-clear small changes, low risk.
@@ -113,7 +111,22 @@ DCR → back to Product Side
 - Design Review (engineering side): independent dispatch
 - DCR: mandatory for any product assumption violation
 
-## Tier Selection Guide
+## Tier Selection — Timing & Confirmation
+
+**⚠️ Mode is NOT decided at the start.** The flow is:
+
+```text
+1. Capture idea (mode-agnostic — just gather intent)
+2. Product Discovery (research, roadmap, architecture)
+3. 🚦 Human Approval Gate — present results + RECOMMEND a mode
+4. User confirms mode → proceed to Product Design Flow in that mode
+```
+
+**Why:** You can't judge complexity before understanding the problem. Capture and Discovery run in a mode-agnostic way. Only after the user sees the full picture do they (and you) have enough information to choose.
+
+**At the Human Approval Gate, present:**
+1. Full roadmap + architecture files
+2. Mode recommendation with rationale, using this guide:
 
 ```text
 Is it a multi-feature version release?                → Strict
@@ -124,7 +137,10 @@ Is scope clear, single-purpose, low risk?             → Lite
 Is it a typo/docs fix?                                → No workflow needed
 ```
 
-If unsure, start with Standard. User can override with `GREENLIGHT NEXT STAGE` to skip questions (NOT gates).
+3. Ask user: "建议使用 [X] 模式，是否同意？还是想用其他模式？"
+4. User confirms → record mode in run-manifest → proceed
+
+**Exception — Early Lite Detection:** If the idea is obviously trivial at Capture time (typo fix, 1-liner, user explicitly says "简单改个东西"), you MAY suggest Lite immediately and skip Discovery. But this still requires user confirmation.
 
 ## Phase Definitions
 
