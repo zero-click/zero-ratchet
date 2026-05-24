@@ -1,6 +1,6 @@
 ---
 name: woos-product-discovery
-description: "Stage 1 orchestrator: transform a raw idea into a validated product roadmap. Dispatches sub-agents per step with domain knowledge. Technical architecture belongs in engineering phase."
+description: "Stage 1 orchestrator: transform a raw idea into a validated product roadmap + system architecture. Dispatches sub-agents per step with domain knowledge."
 version: 3.0.0
 author: Hermes Profile
 license: MIT
@@ -15,7 +15,7 @@ metadata:
 
 > **🚨 STOP. Read this section FIRST. It overrides any instinct to "just do the work yourself."**
 >
-> You are an ORCHESTRATOR. You do NOT produce research or roadmaps yourself.
+> You are an ORCHESTRATOR. You do NOT produce research, roadmaps, or architecture yourself.
 > You dispatch sub-agents and validate their outputs. That is your ONLY job.
 >
 > Before EVERY step: output a Pre-flight block (see below). No pre-flight = invalid execution.
@@ -52,7 +52,7 @@ Before executing ANY step, you MUST output this block in the conversation:
 
 ### P1: Orchestrator Does NOT Create Content
 
-You MUST NOT write research findings, roadmap sections, or review verdicts yourself. Every piece of creative/analytical content comes from a dispatched sub-agent.
+You MUST NOT write research findings, roadmap sections, architecture designs, or review verdicts yourself. Every piece of creative/analytical content comes from a dispatched sub-agent.
 
 **Self-check:** If you are writing more than 3 sentences of domain content (not orchestration bookkeeping), you are doing the sub-agent's job. Stop. Dispatch instead.
 
@@ -83,7 +83,7 @@ Write your output to: [exact output file path]
 ### P3: No Step Merging or Skipping
 
 - Each step = separate sub-agent dispatch = separate output file
-- Steps 1-5 execute in order; you cannot jump ahead
+- Steps 1-6 execute in order; you cannot jump ahead
 - If a step fails → fix and retry, do NOT skip
 
 ### P4: Output Validation Before Advancing
@@ -99,9 +99,7 @@ Only then advance to next step.
 
 ## Purpose
 
-Turn a fuzzy idea into an actionable product roadmap. This is **Stage 1** of the woos-idea-to-delivery flow. Run once per project.
-
-**Scope boundary:** This phase produces WHAT to build (product intent, personas, features, metrics). It does NOT produce HOW to build it (architecture, tech stack, data models). Technical decisions belong in the engineering phase.
+Turn a fuzzy idea into an actionable product roadmap + system architecture. This is **Stage 1** of the woos-idea-to-delivery flow. Run once per project.
 
 All file paths (`.hep/`, `docs/`, `ideas/`) are relative to a **project root directory** which MUST be a git repository.
 
@@ -115,6 +113,7 @@ All file paths (`.hep/`, `docs/`, `ideas/`) are relative to a **project root dir
 
 Skip when ALL true:
 - `docs/product/<project>-roadmap.md` exists with versioned scope + metrics
+- `docs/product/<project>-architecture.md` exists
 
 If skipping → go directly to `woos-product-design-flow` (Stage 2).
 
@@ -194,8 +193,8 @@ Before investing in research, validate the problem is worth solving.
 
 Investigate:
 - Market landscape and competitors
-- Existing solutions or reusable approaches
-- Feasibility concerns (not tech stack selection — just "is this doable?")
+- Technical feasibility and architecture options
+- Existing solutions or reusable components
 - Risks and unknowns
 
 **Gate:** Research must cite sources and include a recommendation. If critical unknowns remain, flag as blockers.
@@ -266,7 +265,58 @@ PASS: X/6 | FAIL: Y/6 → [PASS | REQUEST_CHANGES]
 
 ---
 
-### Step 5: Decision Log
+### Step 5: System Architecture Overview
+
+| | |
+|---|---|
+| **Sub-agent** | ✅ |
+| **Persona** | `references/bmad/personas/architect.toml` |
+| **Knowledge** | `references/bmad/frameworks/create-architecture.md` |
+| **Input** | `docs/product/<project>-roadmap.md` |
+| **Output** | `docs/product/<project>-architecture.md` |
+
+Produce high-level system architecture spanning all planned versions:
+- Major system components/services
+- Communication patterns (API, events, shared DB)
+- Data architecture (storage types, data flow)
+- Cross-feature infrastructure (auth, queues, event bus)
+- Architectural coupling between features
+- System-level technical risks
+- Architecture decisions with rationale
+
+**Does NOT answer:** detailed per-feature design, code structure, implementation timeline.
+
+---
+
+### Step 5R: Architecture Review Gate
+
+| | |
+|---|---|
+| **Sub-agent** | ✅ (independent reviewer) |
+| **Persona** | `references/bmad/personas/architect.toml` |
+| **Knowledge** | `references/bmad/frameworks/architecture-validation.md` |
+| **Input** | `docs/product/<project>-architecture.md` + `docs/product/<project>-roadmap.md` |
+| **Output** | `docs/reviews/<project>-architecture-review-rN.md` |
+
+**Checklist:**
+
+| # | Criterion | Fix Hint |
+|---|-----------|----------|
+| A1 | Component boundaries | Split component into two if it has >1 responsibility; name each clearly |
+| A2 | Communication consistency | Pick one primary pattern; justify exceptions explicitly |
+| A3 | Data decoupling | Introduce API boundary between components sharing raw data |
+| A4 | Infrastructure proportional | Remove infra not needed until V2; document when it becomes necessary |
+| A5 | Dependencies manageable | Add "can be built independently" note; if not, mark as sequential |
+| A6 | Risks realistic | Add concrete mitigation action (not just "monitor") |
+| A7 | Version-aligned | Move components only needed by V2+ out of V1 architecture |
+
+**Fix flow:** Same as Step 4R. Fix agent uses architect persona. Max 2 rounds.
+
+**Result:** `PASS` → proceed to Step 6
+
+---
+
+### Step 6: Decision Log
 
 | | |
 |---|---|
@@ -276,8 +326,8 @@ PASS: X/6 | FAIL: Y/6 → [PASS | REQUEST_CHANGES]
 
 Record key decisions made during discovery:
 - Scope inclusions/exclusions and why
+- Architecture direction and why
 - Market positioning decisions
-- Product direction trade-offs
 
 Each entry: **Decision** + **Rationale** + **Alternatives Considered**
 
@@ -298,14 +348,16 @@ updated_at: "<ISO8601>"
 stages:
   product-discovery:
     status: in_progress  # pending | in_progress | done | blocked
-    current_step: 5
+    current_step: 6
     steps:
       1-idea-capture: { status: done, output: "ideas/<slug>/00-idea-capture.md" }
       2-problem-validation: { status: done, output: "ideas/<slug>/00-idea-capture.md#problem-validation" }
       3-research: { status: done, output: "docs/research/<topic>.md" }
       4-roadmap: { status: done, output: "docs/product/<project>-roadmap.md" }
       4r-roadmap-review: { status: done, round: 2, result: PASS }
-      5-decision-log: { status: pending }
+      5-architecture: { status: in_progress, output: "docs/product/<project>-architecture.md" }
+      5r-architecture-review: { status: pending }
+      6-decision-log: { status: pending }
 ```
 
 ### Recovery Protocol
@@ -332,17 +384,18 @@ After all steps done, this is a **hard gate** — you MUST NOT proceed to Stage 
 
 **Present to user:**
 1. Output the **full content** of `docs/product/<project>-roadmap.md`
-2. State the inferred mode as a fact (not a question):
+2. Output the **full content** of `docs/product/<project>-architecture.md`
+3. State the inferred mode as a fact (not a question):
    - Roadmap contains multiple features for this version → "Will use Strict mode (multi-feature version)"
    - Roadmap contains a single feature → "Will use Standard mode (single feature)"
-3. Ask: "Please review the roadmap above. If satisfied, say 'start PRD' to proceed. If you have changes, let me know."
+4. Ask: "Please review the roadmap and architecture above. If satisfied, say 'start PRD' to proceed. If you have changes, let me know."
 
 **Rules:**
-- Show the COMPLETE file content, not a summary
+- Show the COMPLETE file contents, not summaries
 - Mode is stated, not asked — it's determined by roadmap content
 - If user disagrees with mode inference, respect their override
 - Do NOT proceed until user explicitly says "start PRD" or equivalent
-- If user has questions or wants changes → make changes → re-present full file → wait again
+- If user has questions or wants changes → make changes → re-present full files → wait again
 - This gate CANNOT be skipped by `checkpoints: []` — it is always mandatory
 
 Wait for user approval → record mode in run-manifest → mark `stages.product-discovery.status: completed`
@@ -351,8 +404,8 @@ Wait for user approval → record mode in run-manifest → mark `stages.product-
 
 On completion (after human approval):
 - Roadmap: `docs/product/<project>-roadmap.md`
+- Architecture: `docs/product/<project>-architecture.md`
 - Mode: recorded in `run-manifest.yaml` (inferred from roadmap)
-- Technical preferences (if any): recorded in idea-capture as deferred — engineering phase will confirm
 - Next: invoke `woos-product-design-flow` (Stage 2)
 
 ## Failure Handling
@@ -363,4 +416,5 @@ On completion (after human approval):
 | Research reveals infeasibility | Report honestly; suggest alternatives |
 | Run orchestrator unavailable | Proceed without run_id; note in roadmap |
 | User rejects roadmap at checkpoint | Return to relevant step |
+| Architecture too uncertain | Flag as risk; proceed with assumptions documented |
 | Review loops 3x without convergence | Ask user for direction |

@@ -119,7 +119,7 @@ All file paths (`docs/`) are relative to a **project root directory** which MUST
 ## Prerequisites
 
 - `docs/product/<project>-roadmap.md` exists (from Stage 1)
-- **🚦 Human Approval Gate has passed** — user has reviewed full roadmap and explicitly said "start PRD" or equivalent. If you're invoking this skill and the user hasn't approved yet, STOP and go back to present the files.
+- **🚦 Human Approval Gate has passed** — user has reviewed full roadmap + architecture and explicitly said "start PRD" or equivalent. If you're invoking this skill and the user hasn't approved yet, STOP and go back to present the files.
 
 ## Modes
 
@@ -239,7 +239,7 @@ P0 requirements get full detail, P2 gets brief mention:
 | **Sub-agent** | ✅ (independent reviewer) |
 | **Persona** | `references/bmad/personas/prd-validator.toml` |
 | **Knowledge** | `references/bmad/frameworks/validate-prd.md` + `references/bmad/templates/prd-validation-checklist.md` |
-| **Input** | `docs/prd/<version>/<feature>.md` + `docs/prd/<version>/<feature>-requirements.md` |
+| **Input** | `docs/prd/<version>/<feature>.md` + `docs/prd/<version>/<feature>-requirements.md` + `docs/product/<project>-architecture.md` |
 | **Output** | `docs/reviews/<version>/<feature>-prd-review-rN.md` |
 
 **⚠️ PRD Review has TWO phases (both mandatory):**
@@ -268,6 +268,7 @@ If ANY section is missing → **immediate REQUEST_CHANGES** without proceeding t
 | P4 | Edge cases covered | Add "What if…" for: empty state, error, timeout, concurrent access |
 | P5 | Real user behavior | Replace developer-centric language with user-observable actions |
 | P6 | No internal contradictions | Identify conflicts within this PRD; resolve or move to non-goals |
+| P7 | Architecture alignment | Cross-check constants, state definitions, and API routes against `docs/product/<project>-architecture.md`. Flag any divergence. |
 
 **Review findings format:**
 ```markdown
@@ -452,6 +453,7 @@ The reviewer MUST read the full content of every document below — not just han
 
 ```
 docs/product/<project>-roadmap.md
+docs/product/<project>-architecture.md
 docs/prd/<version>/<feature>-requirements.md   (× all features)
 docs/prd/<version>/<feature>.md                (× all features)
 docs/handoff/<version>/<feature>.md            (× all features)
@@ -465,7 +467,7 @@ docs/design/<version>/<feature>-ui-brief.md    (× all features, if exists)
 | # | Check | Method | Example Failure |
 |---|-------|--------|-----------------|
 | A1 | State machine unified | Extract all state definitions across features. Every feature that references the same entity MUST use identical states + transitions | Feature B: 7 states vs Feature D: 6 states |
-| A2 | Constants consistent | Extract all numeric constants (timeouts, limits, intervals). Same concept MUST have same value everywhere | Heartbeat: 30s in Feature B vs 90s in Feature D requirements |
+| A2 | Constants consistent | Extract all numeric constants (timeouts, limits, intervals). Same concept MUST have same value everywhere | Heartbeat: 30s in architecture vs 90s in requirements |
 | A3 | Data model aligned | Extract all entity schemas/types. Same entity MUST have identical fields across features | Task type has `accepted` in C but not in D |
 | A4 | API contract consistent | Extract all endpoint definitions. Same endpoint MUST have consistent request/response schemas, status codes, auth | `POST /start` requires `accepted` state in B but `assigned` in D |
 | A5 | Terminology unified | Same concept MUST use same name everywhere | "agent" vs "worker" vs "executor" referring to same entity |
@@ -477,7 +479,7 @@ docs/design/<version>/<feature>-ui-brief.md    (× all features, if exists)
 | B1 | Roadmap → Requirements coverage | Every roadmap feature has a requirements file |
 | B2 | Requirements → PRD coverage | Every requirement appears in a PRD |
 | B3 | PRD → Handoff coverage | Every PRD user story appears in handoff build tasks |
-| B4 | Roadmap → PRD alignment | Roadmap's feature scope matches PRD's scope |
+| B4 | Architecture → PRD alignment | Architecture's component list matches PRD's scope |
 | B5 | UI → PRD traceability | Every UI screen/action maps to a PRD user story |
 
 **Part C — Cross-Feature Integration:**
@@ -508,7 +510,7 @@ docs/design/<version>/<feature>-ui-brief.md    (× all features, if exists)
 ### Constants
 | Constant | Doc 1 Value | Doc 2 Value | Status |
 |----------|-------------|-------------|--------|
-| heartbeat_timeout | 30s (B-requirements) | 90s (D-requirements) | ❌ |
+| heartbeat_timeout | 30s (architecture) | 90s (B-requirements) | ❌ |
 
 ### Data Model
 [compare entity fields across features]
@@ -540,7 +542,7 @@ docs/design/<version>/<feature>-ui-brief.md    (× all features, if exists)
 
 **Results:**
 - **PASS** → all handoffs ready for engineering
-- **CONFLICTS_FOUND** → return to conflicting feature's Step 4 (PRD) to resolve, then re-run Steps 5–9 for that feature. If conflict is in roadmap, fix upstream first.
+- **CONFLICTS_FOUND** → return to conflicting feature's Step 4 (PRD) to resolve, then re-run Steps 5–9 for that feature. If conflict is in architecture/roadmap, fix upstream first.
 
 ---
 
