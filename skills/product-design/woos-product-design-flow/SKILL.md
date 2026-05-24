@@ -105,8 +105,10 @@ Each step produces its own output file. You MUST NOT combine steps (e.g., writin
 After EVERY step, before advancing to the next, verify:
 1. Output file EXISTS at the declared path
 2. Output file contains ALL required sections (check H2 headings)
-3. **Context Receipt present** — sub-agent response starts with valid CONTEXT RECEIPT block
+3. **Context Receipt present** — sub-agent response starts with CONTEXT RECEIPT block containing non-empty persona, framework, and (for reviews) checklist fields
 4. If validation fails → re-dispatch the step, do NOT proceed
+
+**Note:** Orchestrator checks receipt FORMAT (fields filled, not blank). It does NOT need to verify receipt accuracy by re-reading source files — that would reintroduce the "I already know the content" problem.
 
 **Required sections by step:**
 
@@ -116,17 +118,42 @@ After EVERY step, before advancing to the next, verify:
 | Step 4 (PRD) | `## Background`, `## User Personas`, `## Functional Requirements`, `## Non-Functional Requirements`, `## User Flows`, `## Edge Cases`, `## Non-Goals`, `## Success Metrics` |
 | Step 9 (Readiness) | `## Checklist`, `## Verdict` |
 
-### P5: Review Prompt Must Include Full Checklist
+### P5: Review Checklist Is Self-Loaded
 
-When dispatching a review sub-agent, include the COMPLETE checklist table in the prompt. The reviewer must check ALL criteria, not just "look for issues."
+Review sub-agents load their own checklist by reading this SKILL.md. The orchestrator tells the reviewer WHERE to find the checklist, not WHAT it contains.
+
+**Review dispatch structure (follows P2 pull model):**
 
 ```
-You are reviewing: [file path]
-Check EVERY row. For EACH row, state ✅ or ❌ with specific finding.
+## Required Context (READ THESE FILES FIRST)
+
+- Persona: <reviewer persona path>
+- Framework: <validation framework path>
+- Checklist source: Read this file → <path to this SKILL.md>
+  Section: "Step <N>: <Review Gate Name>" → find the checklist table there
+
+## Context Receipt (MANDATORY)
+
+CONTEXT RECEIPT:
+- Persona: <name> | key principle: <quote>
+- Framework: <name> | steps: <list>
+- Checklist: <N> criteria loaded from <section name>
+
+## Task
+
+You are reviewing: <file path>
+Check EVERY row in the checklist. For EACH row, state ✅ or ❌ with specific finding.
 Do NOT skip rows. Do NOT give blanket passes.
-[paste full checklist table]
 If any ❌ → result is REQUEST_CHANGES.
+
+## Input Files
+<file(s) to review>
+
+## Output
+Write to: <review output path>
 ```
+
+**Orchestrator MUST NOT** paste the checklist table into the prompt. The reviewer reads it from source.
 
 ### P6: No Silent Step Skipping
 

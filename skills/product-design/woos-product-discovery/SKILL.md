@@ -111,8 +111,10 @@ Format: follow the template structure if one was provided.
 After each sub-agent completes, verify:
 1. Output file EXISTS at declared path
 2. Output is substantive (not a stub or placeholder)
-3. **Context Receipt present** — sub-agent response starts with valid CONTEXT RECEIPT block (proves it loaded persona + framework)
+3. **Context Receipt present** — sub-agent response starts with CONTEXT RECEIPT block containing non-empty persona and framework fields
 4. If review gate → verdict is explicit (PASS / REQUEST_CHANGES)
+
+**Note:** Orchestrator checks receipt FORMAT (fields filled, not blank). It does NOT need to verify receipt accuracy by re-reading source files — that would reintroduce the "I already know the content" problem.
 
 Only then advance to next step.
 
