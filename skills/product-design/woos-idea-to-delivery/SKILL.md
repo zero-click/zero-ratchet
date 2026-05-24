@@ -111,36 +111,30 @@ DCR → back to Product Side
 - Design Review (engineering side): independent dispatch
 - DCR: mandatory for any product assumption violation
 
-## Tier Selection — Timing & Confirmation
+## Tier Selection — Two Decision Points
 
-**⚠️ Mode is NOT decided at the start.** The flow is:
-
-```text
-1. Capture idea (mode-agnostic — just gather intent)
-2. Product Discovery (research, roadmap, architecture)
-3. 🚦 Human Approval Gate — present results + RECOMMEND a mode
-4. User confirms mode → proceed to Product Design Flow in that mode
-```
-
-**Why:** You can't judge complexity before understanding the problem. Capture and Discovery run in a mode-agnostic way. Only after the user sees the full picture do they (and you) have enough information to choose.
-
-**At the Human Approval Gate, present:**
-1. Full roadmap + architecture files
-2. Mode recommendation with rationale, using this guide:
+Mode is determined at two natural branching points, not upfront:
 
 ```text
-Is it a multi-feature version release?                → Strict
-Is it security/compliance sensitive?                  → Strict
-Is it high-uncertainty or UX-heavy?                   → Strict
-Is it a normal single feature?                        → Standard
-Is scope clear, single-purpose, low risk?             → Lite
-Is it a typo/docs fix?                                → No workflow needed
+Capture
+  ↓
+Decision 1: Is this trivial?
+  → Yes → Lite (skip Discovery, brief PRD, straight to handoff)
+  → No  → proceed to Discovery
+            ↓
+        Discovery completes (roadmap + architecture)
+            ↓
+        🚦 Human Approval Gate (review content, confirm to proceed)
+            ↓
+Decision 2: Inferred from roadmap content
+  → Single feature in roadmap       → Standard
+  → Multi-feature / UX-heavy / high-risk → Strict
 ```
 
-3. Ask user: "建议使用 [X] 模式，是否同意？还是想用其他模式？"
-4. User confirms → record mode in run-manifest → proceed
-
-**Exception — Early Lite Detection:** If the idea is obviously trivial at Capture time (typo fix, 1-liner, user explicitly says "简单改个东西"), you MAY suggest Lite immediately and skip Discovery. But this still requires user confirmation.
+**Key principles:**
+- **Lite branches at Capture** — if the idea is obviously small (typo, 1-liner, user says "简单改个东西"), propose Lite immediately. Requires user confirmation.
+- **Standard/Strict is NOT a "choice"** — it's determined by what's in the roadmap. Multi-feature version = Strict. Single feature = Standard. No need to ask.
+- **Human Gate confirms content, not mode** — the user reviews roadmap + architecture and says "开始拆 PRD". Mode is stated as a fact ("这是单 feature，使用 Standard 模式"), not presented as a question.
 
 ## Phase Definitions
 
@@ -151,9 +145,10 @@ Is it a typo/docs fix?                                → No workflow needed
 **Skill:** `woos-idea-capture`
 
 - Captures raw idea through guided interview
-- Determines scope and urgency
+- Assesses complexity to determine if Lite branch applies
 - Output: `ideas/<slug>/00-idea-capture.md`
 - **User override:** `GREENLIGHT NEXT STAGE` skips remaining questions
+- **Lite branch:** If trivially simple → confirm with user → skip to Phase 3 Lite
 
 #### Phase 2 — Product Discovery
 
@@ -165,9 +160,9 @@ Is it a typo/docs fix?                                → No workflow needed
 - System architecture overview → **Architecture Review Gate** (independent sub-agent)
 - Output: `docs/product/<project>-roadmap.md` + `docs/product/<project>-architecture.md`
 
-**🚦 Human Approval Gate:** After Stage 2 completes, present FULL roadmap + architecture files to user. Do NOT proceed to Phase 3 until user explicitly approves (e.g., "开始拆 PRD").
+**🚦 Human Approval Gate:** After Discovery completes, present FULL roadmap + architecture files to user. State inferred mode. Do NOT proceed to Phase 3 until user explicitly approves (e.g., "开始拆 PRD").
 
-**Lite: skip.**
+**Lite: skipped** (Lite branch goes directly from Capture to Phase 3 Lite).
 
 #### Phase 3 — Product Design Flow
 
