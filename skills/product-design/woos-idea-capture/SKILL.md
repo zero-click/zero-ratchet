@@ -35,7 +35,9 @@ Skip when:
 
 ## Capture Process
 
-> **Note:** Idea Capture is mode-agnostic. The execution mode (Lite/Standard/Strict) is decided LATER, at the Human Approval Gate after Product Discovery. Capture always runs the same way regardless of eventual mode.
+> **Note:** Capture itself always runs the same way, but mode selection happens in two places:
+> - **Lite** may branch immediately after Capture if the idea is obviously trivial and the user confirms.
+> - **Standard / Strict** are inferred later, after Product Discovery, from the approved roadmap.
 
 **Two capture depths based on idea complexity:**
 

@@ -19,6 +19,14 @@ metadata:
 
 Synthesize product artifacts (PRD, UI brief) into a single, self-contained handoff file. This file is the contract between the research agent and the coding agent — it defines WHAT to build and WHY. Technical decisions (architecture, data model, API design) are the coding agent's responsibility.
 
+## Required Load Set (mandatory)
+
+- `references/persona-pm.md`
+- `references/framework-epics-and-stories.md`
+- `docs/prd/<version>/<feature>.md`
+
+If a UI brief or analyze report exists and is part of the invocation, load it too. If a required declared input is not loaded, return `BLOCKED`.
+
 ## When to Use
 
 Use when:
@@ -38,6 +46,7 @@ Skip when:
 |----------|----------|--------|
 | PRD | Yes | `woos-product-design-flow` → `docs/prd/<version>/<feature>.md` |
 | UI Brief | Optional | `woos-ui-design-brief` → `docs/design/<version>/<feature>-ui-brief.md` |
+| Analyze Report | Optional | `woos-prd-consistency-audit` → `docs/handoff/<version>/<feature>-analyze-report.md` |
 | Research notes | Optional | `docs/research/<topic>.md` |
 | Idea capture | Optional | `ideas/<slug>/00-idea-capture.md` |
 

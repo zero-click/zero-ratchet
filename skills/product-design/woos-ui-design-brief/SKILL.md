@@ -10,6 +10,7 @@ metadata:
     related_skills:
       - woos-idea-capture
       - woos-product-design-flow
+      - woos-ui-brief-review
       - woos-build-handoff
 ---
 
@@ -168,6 +169,7 @@ If user selects a visual direction:
 
 In `woos-product-design-flow`:
 - Runs after PRD is approved (user knows WHAT to build)
+- Followed by `woos-ui-brief-review` when UI review is required
 - Runs before Build Handoff packaging (handoff includes UI direction)
 - **Lite mode:** skipped entirely
 - **Standard mode:** skipped (Standard is single-feature, keeps scope tight)
