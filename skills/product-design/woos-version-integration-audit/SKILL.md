@@ -20,6 +20,23 @@ Run Step 9 of `woos-product-design-flow` as a standalone audit skill with its ow
 
 This skill exists because cross-feature review is where agents most often pretend they checked everything and then write a shallow PASS.
 
+## Incremental Execution Model
+
+This skill runs **incrementally** — not just once at the end:
+
+- After the 2nd feature completes Step 8.5 → first run (F1 + F2)
+- After each subsequent feature → incremental run (all completed features so far)
+- Final run after last feature → full integration report
+
+**Context management:** To avoid context explosion, each incremental run loads:
+
+- Full docs: ONLY the newest completed feature (PRD + requirements + handoff + UI brief)
+- Interface summaries: ALL previously completed features (`*-interface.md`)
+- Script pre-filter: `integration_gate.py` extracts conflict candidates BEFORE semantic review
+- Roadmap + architecture: always loaded (shared context)
+
+This keeps context bounded at O(1 full feature + n interface summaries) rather than O(n full features).
+
 ## Required Invocation (hard gate)
 
 - MUST be invoked as a separate skill in fresh context
@@ -37,10 +54,13 @@ Before auditing, load and report:
 - `scripts/integration_gate.py`
 - `docs/product/<project>-roadmap.md`
 - `docs/product/<project>-architecture.md`
-- `docs/prd/<version>/<feature>-requirements.md` for all features
-- `docs/prd/<version>/<feature>.md` for all features
-- `docs/handoff/<version>/<feature>.md` for all features
-- `docs/design/<version>/<feature>-ui-brief.md` for all features that have one
+- `docs/prd/<version>/<newest-feature>-requirements.md` (full doc for newest feature)
+- `docs/prd/<version>/<newest-feature>.md` (full doc for newest feature)
+- `docs/handoff/<version>/<newest-feature>.md` (full doc for newest feature)
+- `docs/design/<version>/<newest-feature>-ui-brief.md` (if present, for newest feature)
+- `docs/prd/<version>/<feature>-interface.md` for ALL previously completed features
+
+For the **final run** (after last feature), load full docs for all features instead of just the newest.
 
 If any required file is not loaded, return `BLOCKED`.
 

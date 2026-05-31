@@ -39,6 +39,18 @@ Before auditing, load and report:
 
 If any required file is not loaded, return `BLOCKED`.
 
+## Conditional Load Set (upstream dependencies)
+
+When the orchestrator provides upstream interface summaries, also load:
+
+- `docs/prd/<version>/<upstream-feature>-interface.md` for each declared upstream dependency
+
+When upstream interface summaries are present, add **A6** to the required checks:
+
+| A6 | Upstream Interface Consistency | All shared concepts used in this feature's PRD/UI match upstream interface definitions (enums, field names, event types, terminology) |
+
+A6 failures count toward `GAPS_FOUND`.
+
 ## Output
 
 - `docs/handoff/<version>/<feature>-analyze-report.md`

@@ -28,6 +28,14 @@ Convert the ranked requirements contract into a full PRD for one feature.
 
 If any required file is not loaded, return `BLOCKED`.
 
+## Conditional Load Set (upstream dependencies)
+
+When the orchestrator provides upstream interface summaries, also load:
+
+- `docs/prd/<version>/<upstream-feature>-interface.md` for each declared upstream dependency
+
+When referencing shared concepts (status enums, data models, event types, API endpoints), use the exact definitions from upstream interface summaries. Do NOT invent alternate names for concepts already defined upstream.
+
 ## Output
 
 - `docs/prd/<version>/<feature>.md`
