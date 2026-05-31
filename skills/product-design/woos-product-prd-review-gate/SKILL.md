@@ -44,6 +44,18 @@ Before reviewing, load and report:
 
 If any required file is not loaded, return `BLOCKED`.
 
+## Conditional Load Set (upstream dependencies)
+
+When the orchestrator provides upstream interface summaries, also load:
+
+- `docs/prd/<version>/<upstream-feature>-interface.md` for each declared upstream dependency
+
+When upstream interface summaries are present, add **P8** to the content quality checklist:
+
+| P8 | Upstream interface alignment | Verify all shared concepts (enums, models, events, endpoints, terms) match upstream interface definitions exactly. Flag any divergence. |
+
+P8 failures count toward `REQUEST_CHANGES`.
+
 ## Output
 
 - `docs/reviews/<version>/<feature>-prd-review-rN.md`

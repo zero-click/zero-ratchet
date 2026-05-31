@@ -26,6 +26,14 @@ Turn one selected roadmap feature into a structured requirements file before any
 
 If any required file is not loaded, return `BLOCKED`.
 
+## Conditional Load Set (upstream dependencies)
+
+When the orchestrator identifies upstream dependencies (via Step 1.5), also load:
+
+- `docs/prd/<version>/<upstream-feature>-interface.md` for each declared upstream dependency
+
+These interface summaries define shared terminology, enums, data models, and API surfaces that this feature MUST align with. When writing requirements that reference shared concepts, use the exact names and definitions from the upstream interface summary.
+
 ## Output
 
 - `docs/prd/<version>/<feature>-requirements.md`

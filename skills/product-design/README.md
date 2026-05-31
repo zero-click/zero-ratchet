@@ -62,17 +62,18 @@ Raw Idea
   │  Step 1.5: Feature Dependency Analysis         [S]    │
   │                                                       │
   │  ┌─ Per Feature (in dependency order) ────────────┐   │
-  │  │  Step 2:   Requirement Contract                │   │
-  │  │  Step 3:   PRD Authoring                       │   │
-  │  │  Step 4:   PRD Review Gate              [S]    │   │
+  │  │  Step 2:   Requirement Contract       (+iface) │   │
+  │  │  Step 3:   PRD Authoring              (+iface) │   │
+  │  │  Step 4:   PRD Review Gate        [S] (+iface) │   │
   │  │  Step 5:   UI Brief                     [S]    │   │
   │  │  Step 5R:  UI Brief Review              [S]    │   │
-  │  │  Step 6:   Analyze Gate                 [S]    │   │
+  │  │  Step 6:   Analyze Gate           [S] (+iface) │   │
   │  │  Step 7:   Build Handoff                       │   │
   │  │  Step 8:   Readiness Check              [S]    │   │
+  │  │  Step 8.5: Interface Summary Extraction [S]    │   │
+  │  │  Step 9:   Integration Gate (incremental) [S]  │   │
   │  └───────────────────────────────────────────────┘   │
   │                                                       │
-  │  Step 9: Version Integration Gate              [S]    │
   └───────────────────────────┬───────────────────────────┘
                               │
                  ┌────────────▼────────────┐
@@ -81,6 +82,7 @@ Raw Idea
                  └─────────────────────────┘
 
   [S] = Strict mode only
+  (+iface) = receives upstream interface summaries when dependencies exist
 ```
 
 ---
@@ -125,16 +127,17 @@ Discovery dispatches 4 sub-skills in sequence:
 | Step | Skill | What It Does |
 |------|-------|--------------|
 | 1 | (orchestrator) | Select version scope, confirm boundaries |
-| 1.5 | (orchestrator) | Dependency analysis — determine feature execution order |
-| 2 | `woos-requirement-contract` | Per-feature requirements with P0/P1/P2 cut-line |
-| 3 | `woos-prd-authoring` | Full PRD from ranked requirements |
-| 4 | `woos-product-prd-review-gate` | Isolated PRD review → `PASS` / `REQUEST_CHANGES` |
+| 1.5 | (orchestrator) | Dependency analysis — determine feature execution order + interface pass-through plan |
+| 2 | `woos-requirement-contract` | Per-feature requirements with P0/P1/P2 cut-line (+upstream interface alignment) |
+| 3 | `woos-prd-authoring` | Full PRD from ranked requirements (+upstream interface alignment) |
+| 4 | `woos-product-prd-review-gate` | Isolated PRD review → `PASS` / `REQUEST_CHANGES` (+upstream interface check) |
 | 5 | `woos-ui-design-brief` | UI direction, screens, interaction patterns |
 | 5R | `woos-ui-brief-review` | Isolated UI review → `PASS` / `REQUEST_CHANGES` |
-| 6 | `woos-prd-consistency-audit` | Script extraction + semantic cross-document audit |
+| 6 | `woos-prd-consistency-audit` | Script extraction + semantic audit (+upstream interface check) |
 | 7 | `woos-build-handoff` | Self-contained handoff file for coding agent |
 | 8 | `woos-handoff-readiness-check` | Script extraction + readiness audit |
-| 9 | `woos-version-integration-audit` | Cross-feature conflict detection (after all features pass) |
+| 8.5 | (orchestrator) | Interface summary extraction — shared concepts for downstream features |
+| 9 | `woos-version-integration-audit` | Incremental cross-feature conflict detection (after each 2nd+ feature) |
 
 ---
 
@@ -144,7 +147,7 @@ Discovery dispatches 4 sub-skills in sequence:
 |------|------|-------|-------|
 | **Lite** | Trivial, < 2 days | Mission → Tasks → AC → Handoff | None |
 | **Standard** | Single feature, moderate | 1 → 2 → 3 → 4 → 7 → 8 | PRD Review, Readiness |
-| **Strict** | Multi-feature, UX-heavy, high-risk | 1 → 1.5 → 2 → 3 → 4 → 5 → 5R → 6 → 7 → 8 → 9 | All |
+| **Strict** | Multi-feature, UX-heavy, high-risk | 1 → 1.5 → [per feature: 2 → 3 → 4 → 5 → 5R → 6 → 7 → 8 → 8.5 → 9(incremental)] | All |
 
 Mode is determined automatically:
 1. After Capture: trivial → Lite (user confirms)
@@ -152,16 +155,18 @@ Mode is determined automatically:
 
 ---
 
-## Enforcement Rules (P0–P5)
+## Enforcement Rules (P0–P7)
 
 | Rule | Principle |
 |------|-----------|
 | **P0** | Explicit step dispatch — state skill, inputs, output before each step |
-| **P1** | Orchestrator does NOT author — only Steps 1 and 1.5 are direct |
+| **P1** | Orchestrator does NOT author — only Steps 1, 1.5, and 8.5 are direct |
 | **P2** | No merging or skipping — each step has verified output |
 | **P3** | Output validation — file must exist with expected structure/verdict |
 | **P4** | No self-review — fresh skill in fresh context for every gate |
 | **P5** | Subagent isolation — Steps 4, 5R, 6, 8, 9 run in isolated contexts |
+| **P6** | Fix propagation — any fix must grep + sync all affected docs globally |
+| **P7** | Upstream interface awareness — downstream features receive upstream interface summaries |
 
 ---
 
