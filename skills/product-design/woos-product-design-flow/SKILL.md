@@ -26,9 +26,12 @@ metadata:
 > You do not write requirements, PRDs, UI briefs, reviews, or audits yourself.
 > You route dedicated skills, validate outputs, and control transitions.
 
-## Design Principle
+## Design Principles
 
-**PRD is the source of truth for coding agents.** There is no intermediate "handoff" layer. Coding agents receive the full PRD (with background, rationale, edge cases) and decompose work themselves. Product defines WHAT and WHY. Engineering decides HOW, including task decomposition and ordering.
+1. **PRD is the source of truth.** Coding agents receive the full PRD directly. No intermediate "handoff" layer.
+2. **Per-feature checkpoint.** After each feature completes its design pipeline, the orchestrator pauses and asks the user whether to deliver it to engineering now or continue designing the next feature.
+3. **Sequential execution.** Features are designed one at a time, in dependency order.
+4. **Product defines WHAT/WHY, Engineering decides HOW.** Including task decomposition and ordering.
 
 ## ⛔ Enforcement Rules (NON-NEGOTIABLE)
 
@@ -70,9 +73,11 @@ After each step, verify the declared output exists and is substantive.
 | Step 4 | PRD review file exists with explicit `PASS` or `REQUEST_CHANGES` |
 | Step 5 | UI brief exists when UI is in scope |
 | Step 5R | UI review file exists with explicit `PASS` or `REQUEST_CHANGES` |
-| Step 6 | analyze report exists with explicit `PASS` or `GAPS_FOUND` |
+| Step 6 | Analyze report exists with explicit `PASS` or `GAPS_FOUND` |
 | Step 6.5 | `docs/prd/<version>/<feature>-interface.md` exists (Strict only) |
-| Step 7 | integration report exists with explicit `PASS` or `CONFLICTS_FOUND` |
+| Step 7 | Integration report exists with explicit `PASS` or `CONFLICTS_FOUND` |
+
+After all steps pass: **feature design is complete → CHECKPOINT.**
 
 ### P4: No Self-Review
 
@@ -106,7 +111,7 @@ When Step 1.5 identifies `feeds` or `mutual` relationships, downstream features 
 
 ## Purpose
 
-Transform one approved roadmap version into reviewed PRDs and interface summaries that coding agents can directly implement. This is **Stage 3** of the `woos-idea-to-design` flow.
+Transform one approved roadmap version into reviewed PRDs and interface summaries, with a user-controlled delivery checkpoint after each feature. This is **Stage 3** of the `woos-idea-to-design` flow.
 
 Product defines **WHAT** and **WHY**. Engineering decides **HOW**.
 
@@ -122,11 +127,11 @@ All file paths (`docs/`) are relative to a project root directory which must be 
 
 ## Modes
 
-| Mode | When | Steps |
-|------|------|-------|
-| **Lite** | Small scope, obvious, 1-2 days work | Requirements → PRD (lightweight) |
-| **Standard** | Single feature, moderate complexity | Requirements → PRD → PRD Review |
-| **Strict** | Multi-feature version, higher uncertainty, UX-heavy | Select Scope → Dependency Analysis → [per feature: Requirements → PRD → Review → UI → UI Review → Analyze → Interface Summary → Integration (incremental)] |
+| Mode | When | Blocking Steps | Checkpoint |
+|------|------|----------------|------------|
+| **Lite** | Small scope, obvious, 1-2 days work | Requirements → PRD | After PRD |
+| **Standard** | Single feature, moderate complexity | Requirements → PRD → PRD Review | After PRD Review |
+| **Strict** | Multi-feature version, higher uncertainty, UX-heavy | Select Scope → Dependency Analysis → [per feature: Requirements → PRD → Review → UI → UI Review → Analyze → Interface Summary → Integration] | After each feature completes all gates |
 
 ---
 
@@ -138,10 +143,11 @@ The orchestrator runs per feature:
 Step 1:   Select Version Scope
 Step 1.5: Feature Dependency Analysis (auto, Strict only)
   → For each feature (in dependency order):
-      Steps 2–6.5
-      Step 7 (incremental, after 2nd+ feature)
-  → After last feature passes Step 7:
-      Done — all PRDs + interface summaries ready for coding agents
+      Steps 2–6.5 (Requirements → Interface Summary)
+      Step 7 (incremental Integration, after 2nd+ feature)
+      → ⭐ CHECKPOINT: "Should this feature be delivered to engineering now?"
+          Yes → deliver to engineering, continue to next feature
+          No  → continue to next feature, deliver later
 ```
 
 ### Step 1: Select Version Scope
@@ -175,7 +181,7 @@ The orchestrator scans the roadmap features for shared entities:
 3. **Determine execution order:**
    - `independent` features: process in roadmap-listed order (arbitrary but deterministic)
    - `feeds` relationships: process upstream feature first
-   - `mutual` relationships: process in roadmap-listed order, but flag for Step 9 integration focus
+   - `mutual` relationships: process in roadmap-listed order, but flag for Step 7 integration focus
 
 **Output format (stated before proceeding):**
 
@@ -337,31 +343,34 @@ The orchestrator extracts the feature's **shared interface contract** — a ligh
 **Trigger:** Strict mode with 2+ features. Runs **incrementally**:
 
 - After the **2nd feature** completes Step 6.5 → first integration check (F1 + F2)
-- After each subsequent feature completes Step 6.5 → incremental integration check (all completed features)
+- After each subsequent feature completes Step 6.5 → incremental integration check
 - Final run after the last feature → full integration report
-
-**Incremental strategy:**
-
-The integration audit script receives ALL completed interface summaries plus the full docs of only the NEWLY completed feature. This keeps context bounded:
-
-```text
-Full docs loaded:     newest feature only
-Interface summaries:  all previously completed features
-Script pre-filter:    extract conflict candidates before semantic review
-```
-
-**Skip when:** the version has only one feature.
 
 **Results:**
 
-- `PASS` → continue to next feature (or done if last)
-- `CONFLICTS_FOUND` → fix before proceeding to next feature (apply P6: global sync)
+- `PASS` → continue
+- `CONFLICTS_FOUND` → fix before proceeding (apply P6: global sync)
+
+**Skip when:** the version has only one feature.
+
+---
+
+### ⭐ Checkpoint: Deliver to Engineering
+
+After a feature passes all gates for its mode (PRD Review in Standard, Step 7 in Strict), the orchestrator **pauses and asks the user:**
+
+> "Feature X design is complete. Deliver it to engineering now, or continue designing the next feature?"
+
+- **Yes** → deliver PRD + supporting docs to engineering, continue to next feature
+- **No** → continue to next feature, batch deliver later
+
+This checkpoint allows the user to decide the cadence of delivery without the orchestrator making assumptions about parallelism.
 
 ---
 
 ## Steps — Standard Mode
 
-Single feature, no priority/UI/analyze/integration path.
+Single feature, no UI/analyze/integration path.
 
 | Step | Skill | Output |
 |------|-------|--------|
@@ -369,40 +378,45 @@ Single feature, no priority/UI/analyze/integration path.
 | S2 | `woos-prd-authoring` | `docs/prd/<version>/<feature>.md` |
 | S3 | `woos-product-prd-review-gate` | `docs/reviews/<version>/<feature>-prd-review-rN.md` |
 
+PRD Review PASS → ⭐ checkpoint: deliver to engineering.
+
 ---
 
 ## Steps — Lite Mode
 
-Lite skips the review/audit pipeline. The orchestrator produces a lightweight PRD directly:
+Lite skips review gates:
 
 1. Requirements (brief)
 2. PRD (focused: FRs + ACs, no extensive edge cases)
 
 Output: `docs/prd/<version>/<feature>-requirements.md` + `docs/prd/<version>/<feature>.md`
 
-## DCR Reception
+PRD written → ⭐ deliver to engineering (no checkpoint needed, single trivial feature).
+
+## DCR — Design Change Request
+
+DCRs are a feedback mechanism from engineering back to product.
 
 When engineering sends `docs/feedback/<feature>-dcr.md`:
 
 1. Read the DCR
 2. Assess impact
-3. Small change → update PRD directly
-4. Large change → return to Step 3 or Step 5
+3. Small change → update PRD directly, notify engineering
+4. Large change → return to Step 3 or Step 5, re-run affected gates
 
 ## Deliverable to Engineering
 
-On completion, the coding agent receives:
+When the checkpoint delivers a feature, the coding agent receives:
 
 **Required:**
 - PRD: `docs/prd/<version>/<feature>.md`
-- Interface summary: `docs/prd/<version>/<feature>-interface.md` (Strict only)
-
-**Supporting (if exists):**
-- UI brief: `docs/design/<version>/<feature>-ui-brief.md`
 - Architecture: `docs/product/<project>-architecture.md`
-- Upstream interfaces: `docs/prd/<version>/<upstream>-interface.md`
-- Analyze report: `docs/reviews/<version>/<feature>-analyze-report.md`
-- Integration report: `docs/reviews/<version>/integration-report.md`
+- Roadmap: `docs/product/<project>-roadmap.md`
+
+**Additional (Strict mode):**
+- Interface summary: `docs/prd/<version>/<feature>-interface.md`
+- UI brief: `docs/design/<version>/<feature>-ui-brief.md` (if feature has UI)
+- Upstream interfaces: `docs/prd/<version>/<upstream>-interface.md` (if applicable)
 
 The coding agent is responsible for task decomposition, ordering, and implementation decisions.
 

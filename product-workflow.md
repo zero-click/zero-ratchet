@@ -34,55 +34,63 @@ The orchestrator only tracks: current step, output file paths, pass/fail status.
 | 7 | Decision Log | ❌ orchestrator | — | `docs/product/<project>-roadmap.md` → appends `## Decision Log` | _(none)_ |
 
 **Stage 1 final deliverables:**
-- `docs/product/<project>-roadmap.md` — 产品愿景 + 用户画像 + V1/V2/V3 路线图 + 决策日志
-- `docs/product/<project>-architecture.md` — 系统架构概览
+- `docs/product/<project>-roadmap.md` — product vision + user personas + V1/V2/V3 roadmap + decision log
+- `docs/product/<project>-architecture.md` — system architecture overview
 
 ---
 
 ## Stage 2: `woos-product-design-flow`
 
-### Design Principle: PRD is the Source of Truth
+### Design Principles
 
-Coding agents receive PRD + interface summaries directly. No intermediate "handoff" translation layer — it adds information loss and noise without value for capable coding agents that can decompose work themselves.
+1. **PRD is the source of truth.** Coding agents receive PRD + interface summaries directly. No intermediate "handoff" translation layer.
+2. **Per-feature completion.** Each feature completes its full design pipeline independently. After each feature finishes, the orchestrator pauses to ask whether engineering should start on it.
+3. **Sequential execution.** Features are designed and built one at a time (no parallel development).
 
 ### Three Modes
 
 | Mode | When | Steps | Reviews |
 |------|------|-------|---------|
-| **Lite** | Small scope, obvious, 1-2 days | Requirements → PRD → Done | None |
-| **Standard** | Single feature, moderate complexity | Requirements → PRD → PRD Review → Done | 1 (PRD) |
-| **Strict** | Multi-feature version, high uncertainty | Full: Priority → PRD → Review → UI → Review → Analyze → Integration | All |
+| **Lite** | Small scope, obvious, 1-2 days | Requirements → PRD | None |
+| **Standard** | Single feature, moderate complexity | Requirements → PRD → PRD Review | 1 (PRD) |
+| **Strict** | Multi-feature version, high uncertainty | Full: Requirements → PRD → Review → UI → Review → Analyze → Integration | All |
 
 ### Strict Mode (full pipeline, per version)
 
 ```
 Step 1: Select Version → extract feature list
-  → For each feature:
-      Steps 2–7 (Requirements → Analyze Gate)
-  → After ALL features pass Step 7:
-      Step 8: Version Integration Gate
+  → For each feature (in dependency order):
+      Steps 2–6 (Requirements → Analyze Gate)
+      → Interface Summary extraction
+      → Integration Gate (after 2nd+ feature)
+      → ⭐ Feature design complete
+      → CHECKPOINT: "Should this feature be delivered to engineering now?"
+          Yes → engineering starts, product continues next feature
+          No  → continue to next feature, batch deliver later
 ```
 
-| Step | Name | Sub-agent? | Persona | Output | BMAD Knowledge |
-|------|------|:----------:|---------|--------|----------------|
-| 1 | Select Version Scope | ❌ orchestrator | — | _(version + feature list in run-manifest)_ | _(none)_ |
-| 1.5 | Feature Dependency Analysis | ❌ orchestrator | — | _(execution order + interface pass-through plan)_ | _(none)_ |
-| 2 | Requirement Contract | ✅ | pm | `docs/prd/<version>/<feature>-requirements.md` | `personas/pm.toml`<br>`frameworks/prd.md` |
-| 3 | PRD Authoring | ✅ | pm | `docs/prd/<version>/<feature>.md` | `frameworks/prd.md`<br>`templates/prd-template.md` |
-| 4 | PRD Review | ✅ | product-planner | `docs/reviews/<version>/<feature>-prd-review-rN.md` | `frameworks/validate-prd.md`<br>`templates/prd-validation-checklist.md` |
-| 5 | UI Design Brief (opt-in) | ✅ | ux-designer | `docs/design/<version>/<feature>-ui-brief.md` | `personas/ux-designer.toml`<br>`frameworks/ux-design.md` |
-| 5R | UI Brief Review | ✅ | ux-reviewer | `docs/reviews/<version>/<feature>-ui-review-rN.md` | `frameworks/ux-validate.md` |
-| 6 | Analyze Gate | ✅ | qa | `docs/reviews/<version>/<feature>-analyze-report.md` | `frameworks/implementation-readiness.md` |
-| 6.5 | Interface Summary | ❌ orchestrator | — | `docs/prd/<version>/<feature>-interface.md` | _(none)_ |
-| **7** | **Version Integration Gate** | ✅ | pm | `docs/reviews/<version>/integration-report.md` | `frameworks/implementation-readiness.md` |
+| Step | Name | Sub-agent? | Persona | Output |
+|------|------|:----------:|---------|--------|
+| 1 | Select Version Scope | ❌ orchestrator | — | _(version + feature list)_ |
+| 1.5 | Feature Dependency Analysis | ❌ orchestrator | — | _(execution order)_ |
+| 2 | Requirement Contract | ✅ | pm | `docs/prd/<version>/<feature>-requirements.md` |
+| 3 | PRD Authoring | ✅ | pm | `docs/prd/<version>/<feature>.md` |
+| 4 | PRD Review | ✅ | product-planner | `docs/reviews/<version>/<feature>-prd-review-rN.md` |
+| 5 | UI Design Brief (opt-in) | ✅ | ux-designer | `docs/design/<version>/<feature>-ui-brief.md` |
+| 5R | UI Brief Review | ✅ | ux-reviewer | `docs/reviews/<version>/<feature>-ui-review-rN.md` |
+| 6 | Analyze Gate | ✅ | qa | `docs/reviews/<version>/<feature>-analyze-report.md` |
+| 6.5 | Interface Summary | ❌ orchestrator | — | `docs/prd/<version>/<feature>-interface.md` |
+| 7 | Integration Gate | ✅ | pm | `docs/reviews/<version>/integration-report.md` |
+| | **⭐ CHECKPOINT: deliver to engineering?** | | | |
 
 **Step 5 trigger:** Orchestrator asks user "Does this feature have UI?" — Yes → run, No → skip 5+5R.
 **Step 7 trigger:** Runs incrementally after 2nd+ feature completes. Skipped if only 1 feature in version.
+**Checkpoint:** After each feature passes all gates, orchestrator asks user whether to deliver to engineering now.
 
 ### Standard Mode (single feature)
 
 ```
-Requirements → PRD → PRD Review → Done
+Requirements → PRD → PRD Review → ⭐ Deliver to engineering
 ```
 
 | Step | Name | Sub-agent? | Output |
@@ -91,7 +99,7 @@ Requirements → PRD → PRD Review → Done
 | S2 | PRD Authoring | ✅ (pm) | `docs/prd/<version>/<feature>.md` |
 | S3 | PRD Review | ✅ (prd-validator) | `docs/reviews/<version>/<feature>-prd-review-rN.md` |
 
-No: Priority Ranking, UI Brief, Analyze Gate, Integration Gate.
+PRD Review PASS → deliver to engineering.
 
 ### Lite Mode (trivial)
 
@@ -100,32 +108,25 @@ No: Priority Ranking, UI Brief, Analyze Gate, Integration Gate.
 | L1 | Requirements | `docs/prd/<version>/<feature>-requirements.md` |
 | L2 | PRD (lightweight) | `docs/prd/<version>/<feature>.md` |
 
-No review gates. Self-check only.
+No review gates. PRD written → deliver to engineering.
 
-### Final Deliverable (all modes)
+### Deliverable to Engineering (all modes)
 
-⭐ **Coding agent 的输入 = PRD + 支撑文档（不再有 handoff 中间层）**
+⭐ **Deliver to the coding agent after feature design completes:**
 
 ```
-必需：
-  - docs/prd/<version>/<feature>.md              ← PRD（完整 context：why + what + edge cases）
-  - docs/prd/<version>/<feature>-interface.md    ← 跨 feature 共享契约（Strict mode）
+Required:
+  - docs/prd/<version>/<feature>.md              ← PRD (full context: why + what + edge cases)
+  - docs/product/<project>-architecture.md       ← system architecture constraints
+  - docs/product/<project>-roadmap.md            ← product direction and version context
 
-可选（如存在）：
-  - docs/design/<version>/<feature>-ui-brief.md  ← UI 实现方向
-  - docs/product/<project>-architecture.md       ← 系统架构约束
-  - docs/prd/<version>/<upstream>-interface.md   ← 上游依赖接口
+Additional in Strict mode:
+  - docs/prd/<version>/<feature>-interface.md    ← cross-feature shared contract
+  - docs/design/<version>/<feature>-ui-brief.md  ← UI implementation direction (if any)
+  - docs/prd/<version>/<upstream>-interface.md   ← upstream dependency interfaces
 ```
 
-Coding agent 自己负责 task decomposition、ordering、implementation decisions。Product 不替 engineering 拆活。
-
-**Per-mode deliverables:**
-
-| Mode | 产出物 |
-|------|--------|
-| Lite | `docs/prd/<version>/<feature>-requirements.md`<br>`docs/prd/<version>/<feature>.md` |
-| Standard | Lite 全部 +<br>`docs/reviews/<version>/<feature>-prd-review-rN.md` |
-| Strict | Standard 全部 +<br>`docs/design/<version>/<feature>-ui-brief.md` (如有)<br>`docs/reviews/<version>/<feature>-ui-review-rN.md` (如有)<br>`docs/reviews/<version>/<feature>-analyze-report.md`<br>`docs/prd/<version>/<feature>-interface.md`<br>`docs/reviews/<version>/integration-report.md` |
+The coding agent owns task decomposition, ordering, and implementation decisions. Product does not split engineering work.
 
 ---
 
@@ -135,8 +136,7 @@ Coding agent 自己负责 task decomposition、ordering、implementation decisio
 |--------|---------|
 | Sub-agent? | ✅ = dispatched as independent sub-agent with fresh context. ❌ = orchestrator handles directly. |
 | Persona | Role identity injected via `customize.toml`. |
-| Output | File path produced by this step. ↑ = appends to previous step's file. |
-| BMAD Knowledge | Files from `references/bmad/` (max 2 per step). |
+| Output | File path produced by this step. |
 
 ## File Types
 
@@ -176,27 +176,28 @@ Every step declares explicit `input` and `output` so the next agent knows exactl
 |------|-------|--------|
 | 1 Idea Capture | _(user conversation)_ | `ideas/<slug>/00-idea-capture.md` + `.hep/runs/<run_id>/run-manifest.yaml` |
 | 2 Problem Validation | `ideas/<slug>/00-idea-capture.md` | `ideas/<slug>/00-idea-capture.md` → appends `## Problem Validation` |
-| 3 Research | `ideas/<slug>/00-idea-capture.md` (全文) | `docs/research/<topic>.md` |
+| 3 Research | `ideas/<slug>/00-idea-capture.md` (full text) | `docs/research/<topic>.md` |
 | 4 Roadmap | `ideas/<slug>/00-idea-capture.md` + `docs/research/*.md` | `docs/product/<project>-roadmap.md` |
 | 4R Roadmap Review | `docs/product/<project>-roadmap.md` + `ideas/<slug>/00-idea-capture.md` | `docs/reviews/<project>-roadmap-review-rN.md` |
 | 5 Architecture | `docs/product/<project>-roadmap.md` | `docs/product/<project>-architecture.md` |
 | 5R Architecture Review | `docs/product/<project>-architecture.md` + `docs/product/<project>-roadmap.md` | `docs/reviews/<project>-architecture-review-rN.md` |
 | 6 Decision Log | `docs/product/<project>-roadmap.md` | `docs/product/<project>-roadmap.md` → appends to `## Decision Log` |
 
-### Stage 2 (Steps 2–6 run per feature, Step 7 runs incrementally)
+### Stage 2 (per feature, with checkpoint after each)
 
 | Step | Input | Output |
 |------|-------|--------|
-| 1 Select Scope | `docs/product/<project>-roadmap.md` | _(confirmed version + feature list — stored in run-manifest)_ |
+| 1 Select Scope | `docs/product/<project>-roadmap.md` | _(confirmed version + feature list)_ |
 | 1.5 Dependency Analysis | `docs/product/<project>-roadmap.md` § selected version | _(execution order + interface pass-through plan)_ |
 | 2 Requirements | `docs/product/<project>-roadmap.md` § target version § feature | `docs/prd/<version>/<feature>-requirements.md` |
-| 3 PRD Authoring | `docs/prd/<version>/<feature>-requirements.md` (含 Priority Ranking) | `docs/prd/<version>/<feature>.md` |
+| 3 PRD Authoring | `docs/prd/<version>/<feature>-requirements.md` | `docs/prd/<version>/<feature>.md` |
 | 4 PRD Review | `docs/prd/<version>/<feature>.md` + requirements | `docs/reviews/<version>/<feature>-prd-review-rN.md` |
-| 5 UI Brief | `docs/prd/<version>/<feature>.md` | `docs/design/<version>/<feature>-ui-brief.md` |
+| 5 UI Brief (opt-in) | `docs/prd/<version>/<feature>.md` | `docs/design/<version>/<feature>-ui-brief.md` |
 | 5R UI Review | UI brief + PRD | `docs/reviews/<version>/<feature>-ui-review-rN.md` |
 | 6 Analyze Gate | PRD + UI brief (if exists) | `docs/reviews/<version>/<feature>-analyze-report.md` |
 | 6.5 Interface Summary | PRD + requirements | `docs/prd/<version>/<feature>-interface.md` |
-| **7 Integration** | All `docs/prd/<version>/*-interface.md` + architecture | `docs/reviews/<version>/integration-report.md` |
+| 7 Integration | All `*-interface.md` + architecture | `docs/reviews/<version>/integration-report.md` |
+| | **⭐ CHECKPOINT: deliver to engineering?** | |
 
 ---
 
