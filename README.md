@@ -110,19 +110,26 @@ cd /path/to/hermes-ecc-profile
 python3 install-profile.py
 ```
 
-The installer will prompt for local ECC repo path.
+The installer reads ECC artifacts from `vendor/ecc/` in this repo — no local
+ECC checkout required.
 
 Optional:
 
 ```bash
-python3 install-profile.py --ecc-path /path/to/ecc --profile-root ~/.hermes/profiles/coding --install-soul
+python3 install-profile.py --profile-root ~/.hermes/profiles/coding --install-soul
+```
+
+To refresh the vendored snapshot from a local ECC checkout:
+
+```bash
+scripts/refresh-ecc-vendor.sh /path/to/everything-claude-code
 ```
 
 Installed layout (default profile root: `~/.hermes/profiles/coding`):
 
 - `skills/product-design/*` (product workflow skills)
 - `skills/software-development/*` (local workflow skills)
-- `skills/ecc-import/*` (imported ECC skills)
+- `skills/ecc-import/*` (vendored ECC skills)
 - `skills/ecc-agent-skills/*` (agent adapters)
 - `SOUL.md` (only if `--install-soul`)
 
