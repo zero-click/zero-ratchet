@@ -244,7 +244,7 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 
 ### Gate 2 — Story Decomposition
 
-**Skill:** `woos-story-decomposition` (orchestrator authors stories; `woos-product-planner` reviews in fresh context)
+**Skill:** `woos-story-decomposition` (orchestrator authors the plan; `woos-product-planner` reviews in fresh context)
 
 **Why this gate exists (AI-checkpoint semantics, not human task assignment):**
 
@@ -252,30 +252,29 @@ Stories are the unit of one bounded implement→verify→review iteration, one r
 
 Parse PRD, roadmap, architecture, and the engineering design artifact. Decompose into stories sized so that each can converge within a single review-round (`review_round_max = 2`).
 
-**Story file format:** See `woos-story-decomposition` SKILL — required fields are `Purpose`, `Linked Acceptance Criteria`, `Verification Signal` (machine-checkable command), `Rollback Boundary` (concrete paths or git command), `Dependencies`, `Expected Diff Scope`, `Status`, `Failure Log`. Stories missing `Verification Signal` or `Rollback Boundary`, or with vague predicates ("login works"), MUST be rejected.
-
-**Output:** `docs/stories/<version>/<feature-id>/story-001.md`, `story-002.md`, ...
+**Output format:** a single per-feature table file `docs/stories/<version>/<feature-id>/plan.md` with columns `ID | AC | Depends | Diff Scope`. See `woos-story-decomposition` SKILL for the authoritative schema. There are no per-story narrative documents — PRD AC is the spec, tests in the diff scope are the verification, and `git restore -- <diff_scope>` is the rollback.
 
 **Sizing rules (per `woos-story-decomposition`):**
-- 1 PRD AC per story (hard cap: 3 strongly-coupled AC sharing state)
+- 1 PRD AC per story (hard cap: 3 strongly-coupled AC sharing test setup)
 - Implementable + verifiable + reviewable within one review-round
-- Single rollback boundary; declared file set
+- Bounded, concrete diff scope (no globs, no prose)
 - No fixed "N stories per feature" rule — decompose as finely as the loop requires
 
 **Hard gate rules:**
 - Every PRD AC MUST map to at least one story (coverage gaps → `REQUEST_CHANGES`)
-- Dependency graph MUST be a DAG; orchestrator records `execution_order` in `run-manifest.yaml`
-- `woos-product-planner` MUST be dispatched in fresh context with `mode: story-review` to validate AC coverage, DAG, and sizing before Gate 3 starts
+- Dependency graph MUST be a DAG; orchestrator records `execution_order` and `ac_coverage_map` in `run-manifest.yaml` under `gate_results.gate-2-stories`
+- Diff scopes MUST be concrete paths; no two stories without a `Depends` relationship may overlap on the same file
+- `woos-product-planner` MUST be dispatched in fresh context with `mode: story-review` to validate AC coverage, DAG, sizing, and overlap before Gate 3 starts
 
 ### Gate 3 — Story Execution Loop
 
-Execute stories in dependency order. For **each story**:
+Execute stories in dependency order (`run-manifest.yaml: gate-2-stories.execution_order`). For **each story**, look up its row in `plan.md` for the linked AC and allowed diff scope:
 
 #### 3.1 TDD
 
 **Skill:** `tdd-workflow`
 
-1. **RED**: Write failing test for the story's behavior
+1. **RED**: Write failing test for the AC linked to this story (test file must live inside the story's `Diff Scope`)
 2. **GREEN**: Implement minimum code to pass
 3. **REFACTOR**: Clean up while keeping tests green
 
@@ -285,8 +284,8 @@ If RED-GREEN stalls (2+ consecutive failed attempts): activate `woos-systematic-
 
 **Skill:** `coding-standards`
 
-- Implement strictly within the story's `Expected Diff Scope`; any change outside is a deviation and MUST be reported.
-- The story's `Linked Acceptance Criteria` defines what behavior to produce; the `Verification Signal` defines how PASS is judged. There is no separate "implementation tasks" checklist — the story file IS the source of truth.
+- Implement strictly within the story's `Diff Scope`; any change outside is a deviation and MUST be reported.
+- The linked PRD AC defines what behavior to produce; the tests written in step 3.1 define how PASS is judged. There is no separate "implementation tasks" checklist and no per-story narrative — the PRD AC + the test files ARE the source of truth.
 - Changes are minimal, scoped, convention-aligned.
 - Design issue discovered → write DCR (see DCR section), do NOT improvise.
 
@@ -294,23 +293,23 @@ If RED-GREEN stalls (2+ consecutive failed attempts): activate `woos-systematic-
 
 **Skill:** `verification-loop`
 
-- Run the story's declared `Verification Signal` command(s) exactly as written. The story's Verification Signal — not free-form judgment — is the PASS predicate.
+- Run the project's test runner. PASS = green for the new tests AND no regression in previously passing tests.
 - Run lint / type check.
-- Capture command output (exit code + last lines of stdout/stderr) into the story's `Failure Log` on failure.
+- Capture command output (exit code + last lines of stdout/stderr) into `run-manifest.yaml` under `gate_results.gate-2-stories.runtime.<story-id>.failure_log` on failure.
 
 #### 3.4 Story Verification Gate
 
-Per-story check against the story's `Verification Signal`:
-- **PASS** (signal exits 0, all declared commands clean) → mark story `status: completed`, next story
-- **FAIL (1st)** → write attempt to `Failure Log`, fix within the story's `Rollback Boundary` and retry
+Per-story check:
+- **PASS** (new tests green, no regressions, lint/typecheck clean) → mark story `status: completed` in run-manifest, next story
+- **FAIL (1st)** → append attempt to runtime `failure_log`, fix within the story's `Diff Scope` and retry
 - **FAIL (2nd)** → activate `woos-systematic-debugging`
-- **FAIL (3rd)** → revert the story using its declared `Rollback Boundary` git command, mark `status: blocked`, continue with other stories
+- **FAIL (3rd)** → rollback with `git restore -- <diff_scope>` (or `git revert <range>` if already committed), mark `status: blocked`, continue with other stories
 
 #### 3.5 Failure Isolation
 
-- A blocked story does NOT block independent stories (per the DAG produced by Gate 2)
+- A blocked story does NOT block independent stories (per the DAG)
 - Blocked stories are retried after all other stories complete
-- On retry, revert state to the story's `Rollback Boundary` first; do not stack failed attempts
+- On retry, revert state via `git restore -- <diff_scope>` first; do not stack failed attempts
 - If still blocked → write DCR with context (see DCR section)
 
 ### Gate 4 — Executable Acceptance
@@ -528,9 +527,7 @@ Persistence:
 │   ├── design/<version>/<feature-id>-ui-brief.md ← optional product input if UI
 │   ├── engineering/<version>/<feature-id>-design.md ← output of Gate 1
 │   ├── stories/<version>/<feature-id>/   ← output of Gate 2
-│   │   ├── story-001.md
-│   │   ├── story-002.md
-│   │   └── ...
+│   │   └── plan.md                       ← single per-feature story plan (ID | AC | Depends | Diff Scope)
 │   ├── feedback/<version>/<feature-id>-dcr-<NNN>.md ← DCR output (back to product-design stage, one file per DCR)
 │   └── traceability/<version>/<feature-id>-traceability.md ← traceability output
 └── (implementation files)

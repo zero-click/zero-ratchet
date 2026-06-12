@@ -158,12 +158,13 @@ This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
 **What:** Decompose PRD + engineering design into AI-checkpoint stories — the unit of one bounded implement→verify→review iteration, one rollback boundary, and one traceability anchor. Not for human task assignment, estimation, or sprint slicing.
 
 - **Skill:** `woos-story-decomposition` (orchestrator authors, `woos-product-planner` reviews in fresh context)
-- Each story covers 1 PRD AC (hard cap: 3 strongly-coupled AC sharing state)
+- Each story covers 1 PRD AC (hard cap: 3 strongly-coupled AC sharing test setup)
 - Each story must converge within a single review-round (`review_round_max = 2`)
-- Each story declares a machine-checkable `Verification Signal` (runnable command) and a concrete `Rollback Boundary` (paths or git command)
-- Stories form a DAG; orchestrator records `execution_order`
+- Each story declares a concrete `Diff Scope` (file paths) — this is both the rollback boundary (`git restore -- <diff_scope>`) and the deviation-control whitelist
+- Verification is the project's existing test runner; tests written inside the diff scope ARE the signal — no per-story `Verification Signal` field
+- Stories form a DAG; orchestrator records `execution_order` and `ac_coverage_map` in `run-manifest.yaml`
 - No fixed "3–8 stories per feature" rule — decompose as finely as the loop requires
-- Output: `docs/stories/<version>/<feature-id>/story-NNN.md`
+- Output: single per-feature `docs/stories/<version>/<feature-id>/plan.md` (4-column table: `ID | AC | Depends | Diff Scope`) — no per-story narrative documents
 
 ### Gate 3 — Story Execution Loop
 
@@ -405,9 +406,7 @@ When engineering discovers a design issue that can't be resolved within scope:
 │   ├── design/<version>/<feature-id>-ui-brief.md ← optional product input if UI
 │   ├── engineering/<version>/<feature-id>-design.md ← Gate 1 output
 │   ├── stories/<version>/<feature-id>/ ← Gate 2 output
-│   │   ├── story-001.md
-│   │   ├── story-002.md
-│   │   └── ...
+│   │   └── plan.md                     ← single per-feature story plan
 │   ├── adr/                           ← ADR captures
 │   ├── feedback/<version>/<feature-id>-dcr-<NNN>.md ← DCR output (back to product, one file per DCR, NNN starts at 001)
 │   └── traceability/<version>/<feature-id>-traceability.md ← Gate 6 output

@@ -22,7 +22,7 @@ PRD-quality review is owned by `woos-product-prd-review-gate` and is not perform
 
 The dispatcher MUST set `mode` explicitly:
 
-- `mode: story-review` — validate a Gate 2 story set: AC coverage completeness, DAG correctness, sizing against AI-checkpoint rules (one review-round bound, single rollback boundary, machine-checkable verification signal, hard cap of 3 AC per story)
+- `mode: story-review` — validate a Gate 2 story plan (`plan.md`): AC coverage completeness, DAG correctness, sizing against AI-checkpoint rules (one review-round bound, hard cap of 3 AC per story), concrete diff scopes, and non-overlap between unordered stories
 - `mode: planning` — produce/validate a phased implementation plan, decomposition consult, or dependency-sequencing review for an upstream skill (e.g. `woos-feature-design`)
 
 Each dispatch MUST be a separate fresh-context invocation. PRD-quality review is NOT performed by this skill — it lives in `woos-product-prd-review-gate` on the product-design side.
@@ -31,7 +31,7 @@ Each dispatch MUST be a separate fresh-context invocation. PRD-quality review is
 
 - `mode` (required: `story-review` | `planning`)
 - Feature goal and scope
-- For `story-review`: PRD path + engineering-design path + the full set of story files (`docs/stories/<version>/<feature-id>/story-*.md`) + dependency order
+- For `story-review`: PRD path + engineering-design path + the feature's `docs/stories/<version>/<feature-id>/plan.md` + `run-manifest.yaml` excerpt with `execution_order` and `ac_coverage_map`
 - For `planning`: relevant design/PRD context as provided by the caller
 - Existing constraints (architecture, policy, timelines if provided)
 - Relevant artifact paths (PRD, roadmap, architecture, design, and supporting interface/UI docs when available)
@@ -60,11 +60,10 @@ Runtime budget: must return within `max_review_runtime_seconds` provided by orch
 **Story-review dimensions (when `mode: story-review`):**
 
 1. AC coverage — every PRD AC maps to at least one story; no orphan AC
-2. DAG validity — no cycles; declared dependencies all resolve to stories in the set
+2. DAG validity — no cycles; declared dependencies all resolve to stories in the plan
 3. Sizing — every story stays within the one-review-round budget; ≤3 strongly-coupled AC per story
-4. Verification Signal quality — every story declares a runnable, machine-checkable command; no prose predicates
-5. Rollback Boundary quality — every story declares concrete paths or git command
-6. Non-overlap — no two stories declare overlapping rollback boundaries on the same files
+4. Diff scope concreteness — every story declares a comma-separated list of concrete paths; no globs, no prose
+5. Non-overlap — no two stories without a `Depends` relationship declare the same file in `Diff Scope`
 
 **Planning dimensions (when `mode: planning`):**
 
@@ -76,7 +75,7 @@ Runtime budget: must return within `max_review_runtime_seconds` provided by orch
 
 ### Calibration
 
-Only flag issues that would cause real problems during design or implementation. Coverage gaps, cycles, vague verification signals, or stories so coarse they cannot converge in one review-round are real issues. Minor wording, formatting, and stylistic preferences are not blocking.
+Only flag issues that would cause real problems during design or implementation. Coverage gaps, cycles, vague diff scopes, unordered overlap, or stories so coarse they cannot converge in one review-round are real issues. Minor wording, formatting, and stylistic preferences are not blocking.
 
 ### Completeness self-check (required before returning)
 
@@ -100,9 +99,8 @@ STORY_REVIEW: (only when mode=story-review)
 - ac_coverage_gaps
 - dag_violations
 - oversized_stories
-- vague_verification_signals
-- weak_rollback_boundaries
-- overlapping_boundaries
+- vague_diff_scopes
+- unordered_overlaps
 PHASES: (only when mode=planning)
 - phase name + ordered steps
 DEPENDENCIES:
