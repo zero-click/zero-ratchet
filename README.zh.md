@@ -52,7 +52,15 @@ ln -s "$PWD/skills/ecc"                  ~/.claude/skills/ecc
                                               docs/feedback/<ver>/...
 ```
 
-**阶段边界：** 产品定义 **WHAT / WHY**，工程决定 **HOW**。PRD + roadmap + architecture 是两阶段之间的契约。
+**两阶段之间的 handoff 契约：**
+
+- `docs/product/<project>-roadmap.md` —— 版本范围、目标
+- `docs/product/<project>-architecture.md` —— 顶层组件图
+- `docs/prd/<version>/<feature-id>.md` —— 单 feature PRD（问题、功能性 + 非功能性需求、行为契约）
+- `docs/prd/<version>/<feature-id>-interface.md` —— 当其他 feature 依赖这个 feature 时的共享接口摘要（枚举、数据模型、事件/接口形状）
+- `docs/design/<version>/<feature-id>-ui-brief.md` —— 涉及 UI 时的 UI 方向
+
+剩下的归工程：代码组织、库选型、内部数据结构、测试策略、部署。
 
 **DCR 回路：** 工程发现产品假设有错时，发起 Design Change Request 回到产品侧——PRD 更新后工程继续。
 

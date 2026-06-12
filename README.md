@@ -52,7 +52,15 @@ Substitute `.claude/skills/` with `.cursor/skills/`, `~/.hermes/profiles/coding/
                                               docs/feedback/<ver>/...
 ```
 
-**Stage boundary:** Product defines **WHAT** and **WHY**. Engineering decides **HOW**. PRD + roadmap + architecture are the contract between the two stages.
+**Handoff contract between the two stages:**
+
+- `docs/product/<project>-roadmap.md` — version scope, goals
+- `docs/product/<project>-architecture.md` — top-level component map
+- `docs/prd/<version>/<feature-id>.md` — per-feature PRD (problem, functional + non-functional requirements, behavior contract)
+- `docs/prd/<version>/<feature-id>-interface.md` — shared interface summary (enums, data models, event/API shapes) when other features depend on this one
+- `docs/design/<version>/<feature-id>-ui-brief.md` — UI direction when the feature has UI
+
+Engineering owns the rest: code organization, library choice, internal data structures, test strategy, deployment.
 
 **DCR loop:** when engineering discovers a wrong product assumption, it issues a Design Change Request back to product — the PRD is updated and engineering resumes.
 
