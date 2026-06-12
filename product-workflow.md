@@ -86,7 +86,7 @@ Step 1: Select Version → extract feature list
 | 1.5 | Feature Dependency Analysis | ❌ orchestrator | — | _(execution order + feature IDs)_ |
 | 2 | Requirement Contract | ✅ | pm | `docs/prd/<version>/<feature-id>-requirements.md` |
 | 3 | PRD Authoring | ✅ | pm | `docs/prd/<version>/<feature-id>.md` |
-| 4 | PRD Review | ✅ | product-planner | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
+| 4 | PRD Review | ✅ | prd-reviewer (`woos-product-prd-review-gate`) | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
 | 5 | UI Design Brief (opt-in) | ✅ | ux-designer | `docs/design/<version>/<feature-id>-ui-brief.md` |
 | 5R | UI Brief Review | ✅ | ux-reviewer | `docs/reviews/<version>/<feature-id>-ui-review-rN.md` |
 | 6 | Analyze Gate | ✅ | qa | `docs/reviews/<version>/<feature-id>-analyze-report.md` |
@@ -108,7 +108,7 @@ Requirements → PRD → PRD Review → ⭐ Deliver to engineering
 |------|------|:----------:|--------|
 | S1 | Requirement Contract | ✅ (pm) | `docs/prd/<version>/<feature-id>-requirements.md` |
 | S2 | PRD Authoring | ✅ (pm) | `docs/prd/<version>/<feature-id>.md` |
-| S3 | PRD Review | ✅ (prd-validator) | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
+| S3 | PRD Review | ✅ (prd-reviewer / `woos-product-prd-review-gate`) | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
 
 PRD Review PASS → deliver to engineering.
 

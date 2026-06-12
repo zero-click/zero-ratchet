@@ -246,39 +246,28 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 
 ### Gate 2 — Story Decomposition
 
-**Skill:** built-in (orchestrator decomposes)
+**Skill:** `woos-story-decomposition` (orchestrator authors stories; `product-planner` reviews in fresh context)
 
-Parse PRD, roadmap, architecture, and the engineering design artifact. Decompose into independent stories. Each story is a self-contained unit of work.
+**Why this gate exists (AI-checkpoint semantics, not human task assignment):**
 
-**Story file format:**
+Stories are the unit of one bounded implement→verify→review iteration, one rollback boundary, one traceability anchor, and one DCR isolation scope. They exist to make the AI coding loop converge — not to slice work for humans, estimate effort, or fit a sprint.
 
-```markdown
-# Story <NNN>: <task name>
+Parse PRD, roadmap, architecture, and the engineering design artifact. Decompose into stories sized so that each can converge within a single review-round (`review_round_max = 2`).
 
-## Implementation Tasks
-- [ ] Task 1
-- [ ] Task 2
-
-## Acceptance Criteria
-- AC-01: ...
-
-## Verification
-- Unit test: ...
-- Integration test: ...
-
-## Dependencies
-- None (or: depends on story-NNN)
-
-## Status: pending
-```
+**Story file format:** See `woos-story-decomposition` SKILL — required fields are `Purpose`, `Linked Acceptance Criteria`, `Verification Signal` (machine-checkable command), `Rollback Boundary` (concrete paths or git command), `Dependencies`, `Expected Diff Scope`, `Status`, `Failure Log`. Stories missing `Verification Signal` or `Rollback Boundary`, or with vague predicates ("login works"), MUST be rejected.
 
 **Output:** `docs/stories/<version>/<feature-id>/story-001.md`, `story-002.md`, ...
 
-**Rules:**
-- Each story covers 1–3 related PRD requirements, AC, or engineering design tasks
-- Stories have clear dependencies (DAG order)
-- Each story is independently verifiable
-- Total stories should be manageable (typically 3–8 per feature)
+**Sizing rules (per `woos-story-decomposition`):**
+- 1 PRD AC per story (hard cap: 3 strongly-coupled AC sharing state)
+- Implementable + verifiable + reviewable within one review-round
+- Single rollback boundary; declared file set
+- No fixed "N stories per feature" rule — decompose as finely as the loop requires
+
+**Hard gate rules:**
+- Every PRD AC MUST map to at least one story (coverage gaps → `REQUEST_CHANGES`)
+- Dependency graph MUST be a DAG; orchestrator records `execution_order` in `run-manifest.yaml`
+- `product-planner` MUST be dispatched in fresh context with `mode: story-review` to validate AC coverage, DAG, and sizing before Gate 3 starts
 
 ### Gate 3 — Story Execution Loop
 
@@ -298,31 +287,33 @@ If RED-GREEN stalls (2+ consecutive failed attempts): activate `woos-systematic-
 
 **Skill:** `coding-standards`
 
-- Follow implementation tasks within the story
-- Changes are minimal, scoped, convention-aligned
-- Design issue discovered → write DCR (see DCR section), do NOT improvise
+- Implement strictly within the story's `Expected Diff Scope`; any change outside is a deviation and MUST be reported.
+- The story's `Linked Acceptance Criteria` defines what behavior to produce; the `Verification Signal` defines how PASS is judged. There is no separate "implementation tasks" checklist — the story file IS the source of truth.
+- Changes are minimal, scoped, convention-aligned.
+- Design issue discovered → write DCR (see DCR section), do NOT improvise.
 
 #### 3.3 Verify
 
 **Skill:** `verification-loop`
 
-- Run tests for the current story
-- Run lint / type check
-- Verify story-level AC
+- Run the story's declared `Verification Signal` command(s) exactly as written. The story's Verification Signal — not free-form judgment — is the PASS predicate.
+- Run lint / type check.
+- Capture command output (exit code + last lines of stdout/stderr) into the story's `Failure Log` on failure.
 
 #### 3.4 Story Verification Gate
 
-Per-story AC check:
-- **PASS** → mark story `status: completed`, next story
-- **FAIL (1st)** → fix and retry
+Per-story check against the story's `Verification Signal`:
+- **PASS** (signal exits 0, all declared commands clean) → mark story `status: completed`, next story
+- **FAIL (1st)** → write attempt to `Failure Log`, fix within the story's `Rollback Boundary` and retry
 - **FAIL (2nd)** → activate `woos-systematic-debugging`
-- **FAIL (3rd)** → mark story `status: blocked`, continue with other stories
+- **FAIL (3rd)** → revert the story using its declared `Rollback Boundary` git command, mark `status: blocked`, continue with other stories
 
 #### 3.5 Failure Isolation
 
-- A blocked story does NOT block independent stories
+- A blocked story does NOT block independent stories (per the DAG produced by Gate 2)
 - Blocked stories are retried after all other stories complete
-- If still blocked → write DCR with context
+- On retry, revert state to the story's `Rollback Boundary` first; do not stack failed attempts
+- If still blocked → write DCR with context (see DCR section)
 
 ### Gate 4 — Executable Acceptance
 

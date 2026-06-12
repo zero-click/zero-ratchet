@@ -17,7 +17,7 @@ Provide deterministic conflict resolution when reviewers disagree on gate outcom
 1. Domain authority first:
    - Security issues: `security-reviewer` authoritative.
    - Architecture issues: `architect` authoritative.
-   - Planning/sequencing issues: `product-planner` authoritative.
+   - Planning/sequencing issues: `product-planner` (with `mode: planning`) authoritative.
 2. Evidence-backed conclusion over opinion-only conclusion.
 3. Lower-risk path over speed-optimized path when evidence is similar.
 

@@ -64,7 +64,7 @@ flowchart TD
   D1 -->|Yes| D2[API Design Review<br/>api-design]
   D1 -->|No| E
   D2 --> E[Gate 1R: Design Review<br/>woos-design-review-gate]
-  E --> F[Gate 2: Story Decomposition]
+  E --> F[Gate 2: Story Decomposition<br/>woos-story-decomposition]
   F --> G[Gate 3: Story Execution Loop]
   G --> G1[3.1 TDD<br/>tdd-workflow]
   G1 --> G2[3.2 Implement<br/>coding-standards]

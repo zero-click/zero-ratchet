@@ -155,13 +155,14 @@ This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
 
 ### Gate 2 — Story Decomposition
 
-**What:** Break the PRD and engineering design into independent, verifiable stories.
+**What:** Decompose PRD + engineering design into AI-checkpoint stories — the unit of one bounded implement→verify→review iteration, one rollback boundary, and one traceability anchor. Not for human task assignment, estimation, or sprint slicing.
 
-- Built-in orchestrator procedure
-- Each story covers 1–3 related PRD requirements, AC, or engineering design tasks
-- Stories form a DAG (dependency order)
-- Each story is independently verifiable
-- Target: 3–8 stories per feature
+- **Skill:** `woos-story-decomposition` (orchestrator authors, `product-planner` reviews in fresh context)
+- Each story covers 1 PRD AC (hard cap: 3 strongly-coupled AC sharing state)
+- Each story must converge within a single review-round (`review_round_max = 2`)
+- Each story declares a machine-checkable `Verification Signal` (runnable command) and a concrete `Rollback Boundary` (paths or git command)
+- Stories form a DAG; orchestrator records `execution_order`
+- No fixed "3–8 stories per feature" rule — decompose as finely as the loop requires
 - Output: `docs/stories/<version>/<feature-id>/story-NNN.md`
 
 ### Gate 3 — Story Execution Loop

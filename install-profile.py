@@ -29,6 +29,7 @@ LOCAL_SOFTWARE_DEV_SKILLS = [
     "woos-agent-decision",
     "woos-code-review-gate",
     "woos-pr-readiness",
+    "woos-story-decomposition",
     "woos-systematic-debugging",
     "woos-setup-rules",
 ]

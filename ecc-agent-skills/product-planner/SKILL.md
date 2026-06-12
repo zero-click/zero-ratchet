@@ -1,6 +1,6 @@
 ---
 name: product-planner
-description: Product planning and PRD quality review skill adapted from ECC planner agent. Covers requirement quality assurance, implementation planning, dependency sequencing, and risk-aware execution plans.
+description: Planning and decomposition review skill adapted from ECC planner agent. Covers story-set review (Gate 2) and planning consults for upstream skills. PRD-quality review is NOT in scope — that is owned by `woos-product-prd-review-gate`.
 origin: ECC-agent-adapter
 ecc_source_repo: affaan-m/everything-claude-code
 ecc_source_path: agents/planner.md
@@ -11,25 +11,39 @@ ecc_source_commit: 0e9f613fd196f6d4157765b17d39c2c42ebbf564
 
 ## When to Use
 
-- PRD review gate: validate requirement quality before design
-- Before implementing non-trivial features
+- **Gate 2 story-set review** (`woos-story-decomposition`): validate AC coverage, dependency DAG, and AI-checkpoint sizing of the orchestrator's story set
+- Before implementing non-trivial features: dependency sequencing / planning consult
 - When a task spans multiple files or phases
 - When ordering and dependencies are unclear
 
+PRD-quality review is owned by `woos-product-prd-review-gate` and is not performed by this skill.
+
+## Mode Contract
+
+The dispatcher MUST set `mode` explicitly:
+
+- `mode: story-review` — validate a Gate 2 story set: AC coverage completeness, DAG correctness, sizing against AI-checkpoint rules (one review-round bound, single rollback boundary, machine-checkable verification signal, hard cap of 3 AC per story)
+- `mode: planning` — produce/validate a phased implementation plan, decomposition consult, or dependency-sequencing review for an upstream skill (e.g. `woos-feature-design`)
+
+Each dispatch MUST be a separate fresh-context invocation. PRD-quality review is NOT performed by this skill — it lives in `woos-product-prd-review-gate` on the product-design side.
+
 ## Input Contract
 
+- `mode` (required: `story-review` | `planning`)
 - Feature goal and scope
-- PRD artifact path (required for PRD review flows)
+- For `story-review`: PRD path + engineering-design path + the full set of story files (`docs/stories/<version>/<feature-id>/story-*.md`) + dependency order
+- For `planning`: relevant design/PRD context as provided by the caller
 - Existing constraints (architecture, policy, timelines if provided)
 - Relevant artifact paths (PRD, roadmap, architecture, design, and supporting interface/UI docs when available)
 
 ## Workflow
 
-1. Clarify objective, boundaries, and success criteria.
-2. Assess PRD quality (completeness, testability, consistency, scope).
-3. Identify impacted components and dependency order.
-4. Produce phased implementation steps with concrete actions.
-5. Call out risks, edge cases, and required validations.
+1. Clarify objective, boundaries, and success criteria for the dispatched mode.
+2. In `story-review`: validate the story set against AC coverage, DAG integrity, sizing rules, and overlap.
+3. In `planning`: identify impacted components and dependency order; produce phased steps with concrete actions.
+4. Call out risks, edge cases, and required validations.
+
+Out of scope: PRD-quality assessment (testability, scope focus, YAGNI, NFR coverage, etc.). Route those concerns back to `woos-product-prd-review-gate` rather than answering them here.
 
 Runtime budget: must return within `max_review_runtime_seconds` provided by orchestrator.
 
@@ -37,22 +51,22 @@ Runtime budget: must return within `max_review_runtime_seconds` provided by orch
 
 ### Role boundary
 
-- Owns: requirement quality assurance, requirement decomposition, dependency sequencing, rollout phase ordering.
+- Owns: story-set quality (AC coverage, DAG, sizing), dependency sequencing, rollout phase ordering.
 - Must consult: `architect` when planning depends on architecture decisions.
-- Must not decide alone: deep technical design choices, security threat acceptance.
+- Must not decide alone: deep technical design choices, security threat acceptance, PRD-quality verdicts.
 
 ### Required review dimensions (must all be covered)
 
-**PRD quality dimensions (product perspective):**
+**Story-review dimensions (when `mode: story-review`):**
 
-1. Acceptance criteria testability — each AC must be unambiguous and machine-verifiable; no vague "should work well" or "intuitive UX"
-2. Internal consistency — no contradictions between sections, user stories, or AC items
-3. Scope focus — PRD addresses a single coherent feature; flag if it spans multiple independent subsystems that should be separate PRDs
-4. YAGNI — no unrequested feature creep or speculative requirements; flag gold-plating
-5. Non-functional requirements coverage — performance, security, observability, error handling expectations are stated or explicitly marked N/A
-6. Edge case and error scenario coverage — failure modes, boundary conditions, and degraded-state behavior are addressed
+1. AC coverage — every PRD AC maps to at least one story; no orphan AC
+2. DAG validity — no cycles; declared dependencies all resolve to stories in the set
+3. Sizing — every story stays within the one-review-round budget; ≤3 strongly-coupled AC per story
+4. Verification Signal quality — every story declares a runnable, machine-checkable command; no prose predicates
+5. Rollback Boundary quality — every story declares concrete paths or git command
+6. Non-overlap — no two stories declare overlapping rollback boundaries on the same files
 
-**Planning dimensions (execution perspective):**
+**Planning dimensions (when `mode: planning`):**
 
 7. Scope clarity and non-goals
 8. Dependency correctness and sequencing risk
@@ -62,12 +76,12 @@ Runtime budget: must return within `max_review_runtime_seconds` provided by orch
 
 ### Calibration
 
-Only flag issues that would cause real problems during design or implementation. Missing AC, contradictions, or requirements so ambiguous they could be built two different ways — those are issues. Minor wording improvements, stylistic preferences, and formatting are not blocking.
+Only flag issues that would cause real problems during design or implementation. Coverage gaps, cycles, vague verification signals, or stories so coarse they cannot converge in one review-round are real issues. Minor wording, formatting, and stylistic preferences are not blocking.
 
 ### Completeness self-check (required before returning)
 
+- `mode_received: story-review | planning`
 - `all_dimensions_checked: true|false`
-- `prd_quality_checked: true|false`
 - `blocking_vs_non_blocking_classified: true|false`
 - `feedback_is_single_pass_complete: true|false`
 - `duplicates_with_prior_context: []`
@@ -80,10 +94,16 @@ Return in this structure:
 
 ```text
 STATUS: PASS | REQUEST_CHANGES | NOT_RUN | BLOCKED
-SUMMARY: one-paragraph plan summary
-PRD_QUALITY:
-- dimension, status, findings
-PHASES:
+MODE: story-review | planning
+SUMMARY: one-paragraph summary
+STORY_REVIEW: (only when mode=story-review)
+- ac_coverage_gaps
+- dag_violations
+- oversized_stories
+- vague_verification_signals
+- weak_rollback_boundaries
+- overlapping_boundaries
+PHASES: (only when mode=planning)
 - phase name + ordered steps
 DEPENDENCIES:
 - explicit prerequisite mapping
@@ -92,12 +112,12 @@ RISKS:
 REVIEW_DIMENSIONS:
 - dimension, status, findings
 COMPLETENESS_CHECK:
+- mode_received
 - all_dimensions_checked
-- prd_quality_checked
 - feedback_is_single_pass_complete
 BLOCKING_FINDINGS:
 - empty or concrete blockers
 ```
 
-Use `REQUEST_CHANGES` when PRD quality issues or input ambiguity prevents safe planning.
-Use `BLOCKED` when required inputs/artifacts are unavailable.
+Use `REQUEST_CHANGES` when story-set defects or planning gaps prevent safe progression. PRD-quality complaints must be routed to `woos-product-prd-review-gate`, not surfaced here.
+Use `BLOCKED` when required inputs/artifacts are unavailable, including when `mode` was not supplied.
