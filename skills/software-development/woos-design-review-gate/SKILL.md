@@ -18,7 +18,7 @@ Run a strict design review gate before coding starts.
 
 ## Required Invocation (hard gate)
 
-- MUST invoke `architect`.
+- MUST invoke `architect` with `mode: review`.
 - MUST invoke `woos-review-context` before and after reviewer execution.
 - If not invoked, return `NOT_RUN` and stop.
 - If unavailable, return `BLOCKED` and stop.

@@ -65,10 +65,12 @@ Use **Lite** only for low-risk small changes that do not need story decompositio
 ### Lite (small/low-risk)
 
 ```text
-Run Orchestrator → Git → Product Intake → Implement → Verify → Code Review → PR Readiness
+Run Orchestrator → Git → Product Intake → Implement → Verify → Code Review → PR Readiness → Workflow Memory
 ```
 
 Criteria: limited scope, low coupling, no architecture/API changes, no security impact.
+
+Lite skips Gate 1 (Feature Design), Gate 1R (Design Review), Gate 2 (Story Decomposition), Gate 4 (Executable Acceptance), Gate 5 (Deviation Control), and Gate 6 (Traceability). Code Review and PR Readiness still run, but their `spec_alignment` / `traceability` checks omit the engineering-design artifact (see those skills' Lite Mode Adjustments).
 
 ### Standard (default full-gate flow)
 
@@ -378,7 +380,7 @@ Trace from original PRD through design to implementation and tests.
    - Always: `coding-standards` knowledge
    - If security-sensitive (per E3 triggers): full `security-review` skill content
 3. If security-sensitive: dispatch `security-reviewer` with `security-review` knowledge.
-4. Verify architecture conformance (component boundaries, data model, API contracts).
+4. If the code-reviewer flags an architecture-level concern (component boundary, data model, or API contract change beyond the approved design), dispatch `architect` with `mode: consult` to confirm interpretation before final verdict. Independent architecture conformance is owned by Gate 1R (for the design) and Gate 5 (for drift); Gate 7 escalates findings rather than re-deriving the architecture verdict.
 5. If applicable (per E3 triggers): invoke `production-audit` for pre-merge readiness.
 6. Output MUST follow structured findings format (per E2). "LGTM" without findings table = INVALID, rerun.
 7. Uses `woos-review-context` for cumulative findings.
@@ -388,7 +390,7 @@ Trace from original PRD through design to implementation and tests.
 
 ### Gate 8 — PR Readiness
 
-**Skill:** `woos-pr-readiness`
+**Skill:** `woos-pr-readiness` (readiness check) + `git-workflow` (PR creation)
 
 1. All tests pass (unit + integration + e2e as applicable).
 2. Lint is clean, type check passes.
@@ -396,7 +398,7 @@ Trace from original PRD through design to implementation and tests.
 4. Traceability matrix provided (requirement → test → code).
 5. Conventional commit messages.
 6. PR description includes: story summary, test plan, blocked stories (if any with DCR refs).
-7. Create PR via `gh pr create`.
+7. When `woos-pr-readiness` returns `PASS`, dispatch `git-workflow` to run `gh pr create`. PR creation is NOT performed by the readiness skill. Record the resulting PR URL in `run-manifest.yaml` under `gate-8-pr.pr_url`.
 
 ### Post — Workflow Memory Update
 
@@ -415,7 +417,7 @@ Trace from original PRD through design to implementation and tests.
 
 **Action:**
 
-1. Write `docs/feedback/<version>/<feature-id>-dcr.md`:
+1. Write `docs/feedback/<version>/<feature-id>-dcr-<NNN>.md` (`<NNN>` zero-padded, starting at `001`; allocate the next free number — never overwrite an existing DCR file, since one feature may produce multiple DCRs during a single run):
 
 ```markdown
 # DCR: <Issue Title>
@@ -468,15 +470,17 @@ gates:
 
 ## Lite Mode (simplified)
 
-| Step | What |
-|------|------|
-| L1 | Read product inputs (PRD, roadmap, architecture) |
-| L2 | Implement tasks directly (no story decomposition) |
-| L3 | Verify (test + lint) |
-| L4 | Independent code review in fresh context |
-| L5 | Create PR via `woos-pr-readiness` |
+| Step | Skill | What |
+|------|-------|------|
+| L0 | `woos-run-orchestrator` + `git-workflow` | Run bootstrap + git baseline |
+| L1 | `woos-product-intake` (Gate 0) | Read product inputs (PRD, roadmap, architecture, optional interface/UI) |
+| L2 | direct implementation | Implement tasks directly (no story decomposition) |
+| L3 | `verification-loop` | Verify (test + lint) |
+| L4 | `woos-code-review-gate` | Independent code review in fresh context (`execution_mode=Lite`, engineering-design omitted from spec alignment) |
+| L5 | `woos-pr-readiness` + `git-workflow` | Readiness check then PR creation via `gh pr create` |
+| L6 | `woos-workflow-memory` | Capture failures and reusable patterns |
 
-No story decomposition, no deviation control, no traceability gate.
+Lite explicitly skips: Gate 1 Feature Design, Gate 1R Design Review, Gate 2 Story Decomposition, Gate 4 Executable Acceptance, Gate 5 Deviation Control, Gate 6 Traceability.
 
 ---
 
@@ -538,7 +542,7 @@ Persistence:
 │   │   ├── story-001.md
 │   │   ├── story-002.md
 │   │   └── ...
-│   ├── feedback/<version>/<feature-id>-dcr.md ← DCR output (back to product-design stage)
+│   ├── feedback/<version>/<feature-id>-dcr-<NNN>.md ← DCR output (back to product-design stage, one file per DCR)
 │   └── traceability/<version>/<feature-id>-traceability.md ← traceability output
 └── (implementation files)
 ```

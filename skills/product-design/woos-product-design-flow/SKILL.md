@@ -455,7 +455,7 @@ PRD written → ⭐ deliver to engineering (no checkpoint needed, single trivial
 
 DCRs are a feedback mechanism from engineering back to product.
 
-When engineering sends `docs/feedback/<version>/<feature-id>-dcr.md`:
+When engineering sends `docs/feedback/<version>/<feature-id>-dcr-<NNN>.md` (one file per DCR; multiple DCRs may exist for the same feature, numbered in order of creation):
 
 1. Read the DCR
 2. Assess impact

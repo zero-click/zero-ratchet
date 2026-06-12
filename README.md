@@ -98,7 +98,7 @@ flowchart TD
 When the engineering stage discovers a product assumption is wrong, it issues a **Design Change Request** back to product:
 
 ```
-Engineering → docs/feedback/<version>/<feature-id>-dcr.md → Product Design → updated PRD/supporting docs → Engineering resumes
+Engineering → docs/feedback/<version>/<feature-id>-dcr-<NNN>.md → Product Design → updated PRD/supporting docs → Engineering resumes
 ```
 
 Available whenever engineering discovers a design issue that must route back to product.

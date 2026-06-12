@@ -35,7 +35,7 @@ Enforce independent review before PR readiness.
 
 ## Contract
 
-- Input: current diff + linked artifacts (PRD, roadmap, architecture, engineering design, and supporting interface/UI artifacts when available) + prior review context
+- Input: current diff + linked artifacts (PRD, roadmap, architecture, and supporting interface/UI artifacts; engineering design when produced — required in Standard mode, omitted in Lite mode where Gate 1 is skipped) + prior review context
 - Output status: `PASS` | `REQUEST_CHANGES` | `NOT_RUN` | `BLOCKED`
 - Output content: blocking and non-blocking findings
 - Output fields (required):
@@ -48,6 +48,8 @@ Enforce independent review before PR readiness.
   - `resolved_prior_findings`
   - `carry_forward_findings`
   - `review_context_file`
+  - `execution_mode: Lite | Standard`
+  - `engineering_design_present: true|false` (true required in Standard; false allowed only when `execution_mode=Lite`)
   - `spec_alignment_status: PASS | REQUEST_CHANGES`
   - `spec_deviation_findings`
   - `intentional_deviations`
@@ -60,7 +62,9 @@ Enforce independent review before PR readiness.
 
 ## Spec Alignment Requirements (hard gate)
 
-- Review MUST explicitly compare implementation against linked PRD, roadmap, architecture, engineering design, and supporting interface/UI artifacts when available.
+- Review MUST explicitly compare implementation against the linked artifacts that exist for the active mode:
+  - **Standard:** PRD, roadmap, architecture, engineering design, supporting interface/UI artifacts when available.
+  - **Lite:** PRD, roadmap, architecture, supporting interface/UI artifacts when available. There is no engineering-design artifact in Lite (Gate 1 is skipped); absence of `engineering-design` MUST NOT cause `REQUEST_CHANGES` and MUST NOT be fabricated.
 - Any behavior/interface/data/policy deviation MUST be recorded in `spec_deviation_findings`.
 - If deviation is intentional, add rationale and artifact update status in `intentional_deviations`.
 - If unresolved deviation exists, set `spec_alignment_status: REQUEST_CHANGES`.

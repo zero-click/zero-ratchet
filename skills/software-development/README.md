@@ -112,7 +112,7 @@ This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
 
   On design issue at any gate:
   ┌─────────────────────────────────────────┐
-  │  DCR → docs/feedback/<version>/<feature-id>-dcr.md │
+  │  DCR → docs/feedback/<version>/<feature-id>-dcr-<NNN>.md │
   │  → back to product pipeline for fix     │
   └─────────────────────────────────────────┘
 ```
@@ -245,7 +245,7 @@ Per story (in dependency order):
 
 | Mode | When | Gates | Story Loop |
 |------|------|-------|------------|
-| **Lite** | Low-risk, limited scope, no arch changes | Product Intake → Implement → Verify → Review → PR | No decomposition |
+| **Lite** | Low-risk, limited scope, no arch changes | Run Orchestrator → Git → Product Intake → Implement → Verify → Code Review → PR Readiness → Workflow Memory | No decomposition |
 | **Standard** | Default for product-designed features, multi-file changes, UI/API/database/security risk, or full traceability | All 9 gates + conditional API/browser/security/production audits | Full story loop |
 
 **Mode is determined by PRD scope and risk**, not chosen manually:
@@ -389,7 +389,7 @@ Skills that provide information-gathering capability:
 
 When engineering discovers a design issue that can't be resolved within scope:
 
-1. Write `docs/feedback/<version>/<feature-id>-dcr.md` (issue, impact, proposed fix, priority)
+1. Write `docs/feedback/<version>/<feature-id>-dcr-<NNN>.md` (issue, impact, proposed fix, priority). `<NNN>` is a zero-padded sequence starting at `001`; never overwrite an existing DCR file — always allocate the next free number.
 2. Stop work on affected stories
 3. Continue with unaffected stories
 4. Product pipeline receives DCR, fixes, and re-issues updated PRD/supporting docs
@@ -414,7 +414,7 @@ When engineering discovers a design issue that can't be resolved within scope:
 │   │   ├── story-002.md
 │   │   └── ...
 │   ├── adr/                           ← ADR captures
-│   ├── feedback/<version>/<feature-id>-dcr.md ← DCR output (back to product)
+│   ├── feedback/<version>/<feature-id>-dcr-<NNN>.md ← DCR output (back to product, one file per DCR, NNN starts at 001)
 │   └── traceability/<version>/<feature-id>-traceability.md ← Gate 6 output
 └── (implementation files)
 ```

@@ -14,7 +14,7 @@ Produce a technical design artifact that is precise enough for TDD and implement
 
 ## Required Invocation (hard gate)
 
-- MUST invoke `architect` to produce/revise the design.
+- MUST invoke `architect` with `mode: author` to produce/revise the design.
 - For high-complexity scope, also invoke `product-planner` to validate decomposition and sequencing.
 - If required invocation is missing, return `NOT_RUN` and stop.
 - If required component is unavailable, return `BLOCKED` and stop.

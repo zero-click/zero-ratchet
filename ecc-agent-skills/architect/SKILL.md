@@ -11,14 +11,27 @@ ecc_source_commit: 0e9f613fd196f6d4157765b17d39c2c42ebbf564
 
 ## When to Use
 
-- During feature design and design review gates
+- During feature design **authoring** (Gate 1 / `woos-feature-design`) — produce the engineering design artifact from approved PRD + roadmap + architecture
+- During design **review** gates (Gate 1R / `woos-design-review-gate`) — fresh-context independent review of an existing design artifact
 - When architecture trade-offs need explicit decisions
-- Before implementation for cross-component changes
+- When code-reviewer escalates a finding that needs architecture interpretation (consult role)
+
+## Mode Contract
+
+This adapter operates in one of three modes; the dispatcher MUST set `mode` explicitly:
+
+- `mode: author` — produce a design artifact. Output is a draft of `docs/engineering/<version>/<feature-id>-design.md` plus the structured fields below.
+- `mode: review` — review an existing design artifact in fresh context. Do NOT modify the artifact; emit findings only.
+- `mode: consult` — answer a focused architecture question raised by another reviewer. Do NOT produce or modify artifacts.
+
+`mode: author` and `mode: review` MUST be invoked in separate fresh-context dispatches; the same session cannot fill both roles.
 
 ## Input Contract
 
-- Design artifact path (required for review flows)
-- Linked PRD, roadmap, architecture, and supporting interface/UI context when available
+- `mode` (required: `author` | `review` | `consult`)
+- For `author`: approved PRD + roadmap + architecture (+ optional interface summary / UI brief / upstream interfaces)
+- For `review`: design artifact path + linked PRD, roadmap, architecture, and supporting interface/UI context when available + prior review context
+- For `consult`: the specific question + the minimum artifacts needed to answer it
 - Known constraints (security, scalability, performance, rollout)
 
 ## Workflow
