@@ -1,5 +1,5 @@
 ---
-name: product-planner
+name: woos-product-planner
 description: Planning and decomposition review skill adapted from ECC planner agent. Covers story-set review (Gate 2) and planning consults for upstream skills. PRD-quality review is NOT in scope — that is owned by `woos-product-prd-review-gate`.
 origin: ECC-agent-adapter
 ecc_source_repo: affaan-m/everything-claude-code
@@ -52,7 +52,7 @@ Runtime budget: must return within `max_review_runtime_seconds` provided by orch
 ### Role boundary
 
 - Owns: story-set quality (AC coverage, DAG, sizing), dependency sequencing, rollout phase ordering.
-- Must consult: `architect` when planning depends on architecture decisions.
+- Must consult: `woos-architect` when planning depends on architecture decisions.
 - Must not decide alone: deep technical design choices, security threat acceptance, PRD-quality verdicts.
 
 ### Required review dimensions (must all be covered)

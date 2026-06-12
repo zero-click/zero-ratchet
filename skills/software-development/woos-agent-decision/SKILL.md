@@ -15,9 +15,9 @@ Provide deterministic conflict resolution when reviewers disagree on gate outcom
 ## Decision Policy
 
 1. Domain authority first:
-   - Security issues: `security-reviewer` authoritative.
-   - Architecture issues: `architect` authoritative.
-   - Planning/sequencing issues: `product-planner` (with `mode: planning`) authoritative.
+   - Security issues: `woos-security-reviewer` authoritative.
+   - Architecture issues: `woos-architect` authoritative.
+   - Planning/sequencing issues: `woos-product-planner` (with `mode: planning`) authoritative.
 2. Evidence-backed conclusion over opinion-only conclusion.
 3. Lower-risk path over speed-optimized path when evidence is similar.
 

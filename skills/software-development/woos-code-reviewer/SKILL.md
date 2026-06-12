@@ -1,5 +1,5 @@
 ---
-name: code-reviewer
+name: woos-code-reviewer
 description: Independent code quality and correctness review skill adapted from ECC code-reviewer agent.
 origin: ECC-agent-adapter
 ecc_source_repo: affaan-m/everything-claude-code
@@ -33,8 +33,8 @@ Runtime budget: must return within `max_review_runtime_seconds` provided by orch
 ### Role boundary
 
 - Owns: correctness, reliability, maintainability, and implementation-vs-spec defects.
-- Must consult: `architect` when findings require architecture interpretation.
-- Must defer to: `security-reviewer` for final severity on security findings.
+- Must consult: `woos-architect` when findings require architecture interpretation.
+- Must defer to: `woos-security-reviewer` for final severity on security findings.
 
 ### Required review dimensions (must all be covered)
 

@@ -21,7 +21,7 @@ Stop silent drift between planned intent and final implementation.
 
 ## Required Invocation (hard gate)
 
-- MUST dispatch `code-reviewer` (or an equivalent whitelisted reviewer) in fresh context with a deviation-control focus. In-context self-review where the implementer's session re-labels itself as reviewer is NOT a valid invocation.
+- MUST dispatch `woos-code-reviewer` (or an equivalent whitelisted reviewer) in fresh context with a deviation-control focus. In-context self-review where the implementer's session re-labels itself as reviewer is NOT a valid invocation.
 - The dispatched agent receives only the inputs listed above plus prior review context. It MUST NOT inherit the implementer's session history.
 - MUST invoke `woos-review-context` before and after reviewer execution.
 - If the reviewer is not invoked, return `NOT_RUN` and stop.
@@ -61,12 +61,12 @@ Stop silent drift between planned intent and final implementation.
 ```json
 {
   "enforcement": {
-    "required_invocations": ["code-reviewer", "woos-review-context"],
-    "actually_invoked": ["code-reviewer", "woos-review-context"],
+    "required_invocations": ["woos-code-reviewer", "woos-review-context"],
+    "actually_invoked": ["woos-code-reviewer", "woos-review-context"],
     "missing_invocations": [],
     "invocation_evidence": [
       {
-        "skill": "code-reviewer",
+        "skill": "woos-code-reviewer",
         "dispatch_mode": "fresh_context",
         "invoked_at": "2026-06-12T00:00:00Z",
         "artifact_ref": "git diff HEAD + docs/engineering/<version>/<feature-id>-design.md",

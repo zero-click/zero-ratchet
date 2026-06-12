@@ -1,5 +1,5 @@
 ---
-name: architect
+name: woos-architect
 description: Architecture review and design skill adapted from ECC architect agent. Use for design validation, trade-off analysis, and system-level decisions.
 origin: ECC-agent-adapter
 ecc_source_repo: affaan-m/everything-claude-code
@@ -14,7 +14,7 @@ ecc_source_commit: 0e9f613fd196f6d4157765b17d39c2c42ebbf564
 - During feature design **authoring** (Gate 1 / `woos-feature-design`) — produce the engineering design artifact from approved PRD + roadmap + architecture
 - During design **review** gates (Gate 1R / `woos-design-review-gate`) — fresh-context independent review of an existing design artifact
 - When architecture trade-offs need explicit decisions
-- When code-reviewer escalates a finding that needs architecture interpretation (consult role)
+- When woos-code-reviewer escalates a finding that needs architecture interpretation (consult role)
 
 ## Mode Contract
 
@@ -48,7 +48,7 @@ Runtime budget: must return within `max_review_runtime_seconds` provided by orch
 ### Role boundary
 
 - Owns: architecture decisions, interface/data model consistency, scalability and operability risks.
-- Must consult: `product-planner` with `mode: planning` for dependency and sequencing implications, `security-reviewer` for security-sensitive design risks.
+- Must consult: `woos-product-planner` with `mode: planning` for dependency and sequencing implications, `woos-security-reviewer` for security-sensitive design risks.
 - Veto authority: high-risk architecture flaws that can cause correctness, safety, or operability failures.
 
 ### Required review dimensions (must all be covered)

@@ -157,7 +157,7 @@ This is **Stage 3** of the idea-to-delivery pipeline. It ensures:
 
 **What:** Decompose PRD + engineering design into AI-checkpoint stories — the unit of one bounded implement→verify→review iteration, one rollback boundary, and one traceability anchor. Not for human task assignment, estimation, or sprint slicing.
 
-- **Skill:** `woos-story-decomposition` (orchestrator authors, `product-planner` reviews in fresh context)
+- **Skill:** `woos-story-decomposition` (orchestrator authors, `woos-product-planner` reviews in fresh context)
 - Each story covers 1 PRD AC (hard cap: 3 strongly-coupled AC sharing state)
 - Each story must converge within a single review-round (`review_round_max = 2`)
 - Each story declares a machine-checkable `Verification Signal` (runnable command) and a concrete `Rollback Boundary` (paths or git command)
@@ -217,9 +217,9 @@ Per story (in dependency order):
 **What:** Independent code review in fresh context.
 
 - **Skill:** `woos-code-review-gate`
-- Dispatches `code-reviewer` (+ `security-reviewer` with `security-review` knowledge if sensitive)
+- Dispatches `woos-code-reviewer` (+ `woos-security-reviewer` with `security-review` knowledge if sensitive)
 - Checks architecture conformance in Standard mode
-- If applicable: invokes `production-audit` for pre-merge readiness
+- If applicable: invokes `woos-production-audit` for pre-merge readiness
 - Uses `woos-agent-decision` for reviewer conflicts
 - 2 rounds without convergence → `woos-human-handoff`
 
@@ -281,7 +281,6 @@ The workflow includes 3 non-negotiable enforcement rules (E1–E3) learned from 
 | `woos-review-context` | Infrastructure — cumulative cross-gate findings |
 | `woos-agent-decision` | Infrastructure — reviewer conflict resolution |
 | `woos-systematic-debugging` | Infrastructure — structured debugging on failures |
-| `woos-setup-rules` | Utility — project rule routing setup |
 
 ### Imported Skills (from ECC)
 
@@ -298,11 +297,8 @@ The workflow includes 3 non-negotiable enforcement rules (E1–E3) learned from 
 | `architecture-decision-records` | Gate 1 + cross-gate | Structured ADR capture for deviations |
 | `database-migrations` | Gate 3 (conditional) | Zero-downtime schema changes, rollback |
 | `deployment-patterns` | Gate 1, Gate 8 | CI/CD, Docker, rollback, production readiness |
-| `production-audit` | Gate 7 (conditional) | Pre-merge production readiness audit |
+| `woos-production-audit` | Gate 7 (conditional) | Pre-merge production readiness audit |
 | `codebase-onboarding` | Gate 0 (first run) | Codebase analysis and onboarding guide |
-| `search-first` | Any gate | Quick research and reference lookup |
-| `deep-research` | Any gate | Deep research when needed |
-| `dmux-workflows` | Gate 3 (parallel) | Parallel coding lanes via worktrees |
 
 ## Key Design Principles
 
@@ -339,7 +335,7 @@ Skills that provide security domain knowledge for review gates:
 | Skill | Knowledge Provided |
 |-------|-------------------|
 | `security-review` | Authentication patterns, input validation, secrets handling, API security, payment flow security, OWASP checklist |
-| `production-audit` | Pre-merge production readiness: error handling, logging, monitoring, graceful degradation |
+| `woos-production-audit` | Pre-merge production readiness: error handling, logging, monitoring, graceful degradation |
 
 #### Architecture & Design (Gate 1)
 
@@ -367,8 +363,6 @@ Skills that provide information-gathering capability:
 
 | Skill | Knowledge Provided |
 |-------|-------------------|
-| `search-first` | Quick targeted research, reference lookup |
-| `deep-research` | Multi-source deep investigation for complex problems |
 | `codebase-onboarding` | Codebase analysis: architecture map, entry points, conventions, patterns |
 
 ### Gate × Knowledge Matrix
@@ -376,14 +370,14 @@ Skills that provide information-gathering capability:
 | Gate | Core | Security | Architecture | Testing | Research |
 |------|------|----------|-------------|---------|----------|
 | **0: Product Intake** | — | — | — | — | `codebase-onboarding` |
-| **1: Feature Design** | — | — | `api-design`, `architecture-decision-records`, `deployment-patterns`, `database-migrations` | — | `deep-research` |
+| **1: Feature Design** | — | — | `api-design`, `architecture-decision-records`, `deployment-patterns`, `database-migrations` | — | — |
 | **1R: Design Review** | — | — | — | — | — |
 | **2: Story Decomposition** | — | — | — | — | — |
-| **3: Story Loop** | `tdd-workflow`, `coding-standards`, `verification-loop` | — | `database-migrations` | `e2e-testing`, `browser-qa` | `search-first` |
+| **3: Story Loop** | `tdd-workflow`, `coding-standards`, `verification-loop` | — | `database-migrations` | `e2e-testing`, `browser-qa` | — |
 | **4: Acceptance** | `verification-loop` | — | — | — | — |
 | **5: Deviation Control** | — | — | `architecture-decision-records` | — | — |
 | **6: Traceability** | — | — | — | — | — |
-| **7: Code Review** | — | `security-review`, `production-audit` | — | — | — |
+| **7: Code Review** | — | `security-review`, `woos-production-audit` | — | — | — |
 | **8: PR Readiness** | `git-workflow` | — | `deployment-patterns` | — | — |
 
 ## DCR (Design Change Request)

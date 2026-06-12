@@ -50,7 +50,6 @@ Example: 01-user-auth, 02-project-dashboard
 ## Git Branch/Worktree Policy
 
 - `git-workflow` is required for branch strategy, commit/PR flow, and merge/rebase conventions.
-- `dmux-workflows` is required only when running parallel coding lanes.
 
 Mandatory bootstrap:
 
@@ -92,7 +91,6 @@ Only these skills are allowed in this workflow:
 | Git Workflow | `git-workflow` | imported |
 | Product Intake | _(reads PRD + roadmap + architecture)_ | from product pipeline |
 | Codebase Onboarding | `codebase-onboarding` | imported (first run) |
-| Parallel Orchestration | `dmux-workflows` | imported |
 | Feature Design | `woos-feature-design` | local |
 | ADR Capture | `architecture-decision-records` | imported |
 | API Design Review | `api-design` | imported (conditional) |
@@ -108,7 +106,7 @@ Only these skills are allowed in this workflow:
 | Code/Security Review | `woos-code-review-gate` | local |
 | Security Review | `security-review` | imported |
 | Deployment Patterns | `deployment-patterns` | imported (conditional) |
-| Production Audit | `production-audit` | imported (conditional) |
+| Production Audit | `woos-production-audit` | local (conditional) |
 | PR Readiness | `woos-pr-readiness` | local |
 | Workflow Memory | `woos-workflow-memory` | local |
 | Review Context (cross-gate) | `woos-review-context` | local |
@@ -141,7 +139,7 @@ Before dispatching ANY review sub-agent (Gate 1R, Gate 7), the orchestrator MUST
 3. The sub-agent must receive domain knowledge, not just a role name
 
 **Gate 1R dispatch must include:** full content of `woos-design-review-gate` + `architecture-decision-records`
-**Gate 7 dispatch must include:** full content of `security-review` (+ `production-audit` if applicable)
+**Gate 7 dispatch must include:** full content of `security-review` (+ `woos-production-audit` if applicable)
 
 Skipping this = sub-agent works without methodology = shallow "LGTM" output.
 
@@ -184,7 +182,7 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 | `e2e-testing` | Stories produce integration test files, OR PRD AC reference user flows spanning multiple pages |
 | `database-migrations` | Design doc defines schema changes, OR stories create/modify migration files |
 | `deployment-patterns` | Design doc has rollout/rollback section, deployment/infra changes, or migration rollout risk |
-| `production-audit` | PRD flags security/compliance-sensitive scope, high-risk rollout, or production reliability risk |
+| `woos-production-audit` | PRD flags security/compliance-sensitive scope, high-risk rollout, or production reliability risk |
 | `security-review` | Any story touches auth, input validation, secrets, API endpoints, or payment flows |
 | `codebase-onboarding` | First run on this repository (no prior run-manifest exists) |
 
@@ -237,7 +235,7 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 
 **Minimal contract:**
 
-1. Independent design review using `architect` via local gate skill.
+1. Independent design review using `woos-architect` via local gate skill.
 2. Sub-agent MUST be injected with `architecture-decision-records` skill content (per E1).
 3. Output MUST follow structured findings format (per E2).
 4. Uses `woos-review-context` to load/update cumulative findings.
@@ -246,7 +244,7 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 
 ### Gate 2 — Story Decomposition
 
-**Skill:** `woos-story-decomposition` (orchestrator authors stories; `product-planner` reviews in fresh context)
+**Skill:** `woos-story-decomposition` (orchestrator authors stories; `woos-product-planner` reviews in fresh context)
 
 **Why this gate exists (AI-checkpoint semantics, not human task assignment):**
 
@@ -267,7 +265,7 @@ Parse PRD, roadmap, architecture, and the engineering design artifact. Decompose
 **Hard gate rules:**
 - Every PRD AC MUST map to at least one story (coverage gaps → `REQUEST_CHANGES`)
 - Dependency graph MUST be a DAG; orchestrator records `execution_order` in `run-manifest.yaml`
-- `product-planner` MUST be dispatched in fresh context with `mode: story-review` to validate AC coverage, DAG, and sizing before Gate 3 starts
+- `woos-product-planner` MUST be dispatched in fresh context with `mode: story-review` to validate AC coverage, DAG, and sizing before Gate 3 starts
 
 ### Gate 3 — Story Execution Loop
 
@@ -366,13 +364,13 @@ Trace from original PRD through design to implementation and tests.
 
 **Skill:** `woos-code-review-gate`
 
-1. Dispatch `code-reviewer` in fresh context (no self-review).
+1. Dispatch `woos-code-reviewer` in fresh context (no self-review).
 2. Sub-agent MUST be injected with relevant skill content (per E1):
    - Always: `coding-standards` knowledge
    - If security-sensitive (per E3 triggers): full `security-review` skill content
-3. If security-sensitive: dispatch `security-reviewer` with `security-review` knowledge.
-4. If the code-reviewer flags an architecture-level concern (component boundary, data model, or API contract change beyond the approved design), dispatch `architect` with `mode: consult` to confirm interpretation before final verdict. Independent architecture conformance is owned by Gate 1R (for the design) and Gate 5 (for drift); Gate 7 escalates findings rather than re-deriving the architecture verdict.
-5. If applicable (per E3 triggers): invoke `production-audit` for pre-merge readiness.
+3. If security-sensitive: dispatch `woos-security-reviewer` with `security-review` knowledge.
+4. If the woos-code-reviewer flags an architecture-level concern (component boundary, data model, or API contract change beyond the approved design), dispatch `woos-architect` with `mode: consult` to confirm interpretation before final verdict. Independent architecture conformance is owned by Gate 1R (for the design) and Gate 5 (for drift); Gate 7 escalates findings rather than re-deriving the architecture verdict.
+5. If applicable (per E3 triggers): invoke `woos-production-audit` for pre-merge readiness.
 6. Output MUST follow structured findings format (per E2). "LGTM" without findings table = INVALID, rerun.
 7. Uses `woos-review-context` for cumulative findings.
 8. Uses `woos-agent-decision` when reviewer verdicts conflict.

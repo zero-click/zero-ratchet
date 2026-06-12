@@ -10,7 +10,7 @@ metadata:
     related_skills:
       - woos-development-workflow
       - woos-feature-design
-      - product-planner
+      - woos-product-planner
 ---
 
 # Woos Story Decomposition
@@ -35,11 +35,11 @@ Story sizing, fields, and acceptance rules are derived from those four needs —
 
 ## Required Invocation (hard gate)
 
-- The orchestrator performs the decomposition. `product-planner` MUST be dispatched in fresh context **with `mode: story-review`** to review the resulting story set before Gate 3 starts.
-- `product-planner` review covers: AC coverage completeness, dependency-order correctness, sizing (one review-round bound), and overlap/duplication.
-- If `product-planner` is not invoked with `mode: story-review`, return `NOT_RUN` and stop.
-- If `product-planner` is unavailable, return `BLOCKED` and stop.
-- The dispatched `product-planner` agent MUST run with `dispatch_mode: "fresh_context"`. In-context self-validation is invalid.
+- The orchestrator performs the decomposition. `woos-product-planner` MUST be dispatched in fresh context **with `mode: story-review`** to review the resulting story set before Gate 3 starts.
+- `woos-product-planner` review covers: AC coverage completeness, dependency-order correctness, sizing (one review-round bound), and overlap/duplication.
+- If `woos-product-planner` is not invoked with `mode: story-review`, return `NOT_RUN` and stop.
+- If `woos-product-planner` is unavailable, return `BLOCKED` and stop.
+- The dispatched `woos-product-planner` agent MUST run with `dispatch_mode: "fresh_context"`. In-context self-validation is invalid.
 
 ## Input Contract
 
@@ -53,7 +53,7 @@ Story sizing, fields, and acceptance rules are derived from those four needs —
 
 - One file per story: `docs/stories/<version>/<feature-id>/story-<NNN>.md` (`<NNN>` zero-padded from `001`)
 - Dependency-order list recorded in `run-manifest.yaml` under `gate_results.gate-2-stories.execution_order` (sub-key of the existing `gate_results` map; no new top-level section required)
-- `product-planner` review report (saved with the gate output)
+- `woos-product-planner` review report (saved with the gate output)
 
 ## Story Sizing Rules (AI-checkpoint semantics, not human estimation)
 
@@ -143,12 +143,12 @@ Lite skips this gate entirely. In Lite, the feature itself is treated as one imp
 ```json
 {
   "enforcement": {
-    "required_invocations": ["product-planner"],
-    "actually_invoked": ["product-planner"],
+    "required_invocations": ["woos-product-planner"],
+    "actually_invoked": ["woos-product-planner"],
     "missing_invocations": [],
     "invocation_evidence": [
       {
-        "skill": "product-planner",
+        "skill": "woos-product-planner",
         "mode": "story-review",
         "dispatch_mode": "fresh_context",
         "invoked_at": "2026-06-12T00:00:00Z",
@@ -169,5 +169,5 @@ Lite skips this gate entirely. In Lite, the feature itself is treated as one imp
 
 ## Escalation
 
-- `product-planner` returns `REQUEST_CHANGES` → orchestrator revises the story set; max 2 revision rounds before `woos-human-handoff`.
+- `woos-product-planner` returns `REQUEST_CHANGES` → orchestrator revises the story set; max 2 revision rounds before `woos-human-handoff`.
 - Repeated `oversized_stories` after 2 revisions → escalate; the underlying PRD AC is likely itself too coarse and may need a DCR back to product.

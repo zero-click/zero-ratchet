@@ -1,6 +1,6 @@
 ---
 name: woos-design-review-gate
-description: Independent feature design review gate for Hermes workflow. Uses architect review and returns PASS or REQUEST_CHANGES.
+description: Independent feature design review gate for Hermes workflow. Uses woos-architect review and returns PASS or REQUEST_CHANGES.
 version: 1.6.0
 author: Hermes Profile
 license: MIT
@@ -14,11 +14,11 @@ Run a strict design review gate before coding starts.
 
 ## Required reviewer
 
-- `architect`
+- `woos-architect`
 
 ## Required Invocation (hard gate)
 
-- MUST invoke `architect` with `mode: review`.
+- MUST invoke `woos-architect` with `mode: review`.
 - MUST invoke `woos-review-context` before and after reviewer execution.
 - If not invoked, return `NOT_RUN` and stop.
 - If unavailable, return `BLOCKED` and stop.
@@ -26,7 +26,7 @@ Run a strict design review gate before coding starts.
 
 ## Reviewer Isolation (hard gate)
 
-- The `architect` reviewer MUST be dispatched as a separate agent instance with fresh context (e.g., via task/spawn tool). In-context skill injection where the same LLM session plays the reviewer role is NOT a valid invocation.
+- The `woos-architect` reviewer MUST be dispatched as a separate agent instance with fresh context (e.g., via task/spawn tool). In-context skill injection where the same LLM session plays the reviewer role is NOT a valid invocation.
 - The dispatched agent receives only the review inputs (design doc, linked PRD, roadmap, architecture, and any supporting interface/UI artifacts, plus prior review context). It MUST NOT inherit the implementer's session history or reasoning.
 - `invocation_evidence` MUST include `dispatch_mode: "fresh_context"`. Any other value is invalid and MUST return `BLOCKED`.
 
@@ -36,7 +36,7 @@ Run a strict design review gate before coding starts.
 - Output status: `PASS` | `REQUEST_CHANGES` | `NOT_RUN` | `BLOCKED`
 - Output content: concrete mismatches, risks, and required revisions
 - Output fields (required):
-  - `reviewer_used: architect`
+  - `reviewer_used: woos-architect`
   - `review_round`
   - `review_dimensions_covered`
   - `completeness_check`
@@ -53,7 +53,7 @@ Run a strict design review gate before coding starts.
 ## Mandatory Review Protocol
 
 1. Load prior findings through `woos-review-context`.
-2. Require all required architect dimensions to be checked.
+2. Require all required woos-architect dimensions to be checked.
 3. Require one-pass complete findings; partial-first feedback is invalid.
 4. Update `woos-review-context` with resolved/carry-forward findings.
 5. Persist review result to the same `<workspace_root>/hep/review-context/<run_id>.yaml`.
@@ -72,12 +72,12 @@ Run a strict design review gate before coding starts.
 ```json
 {
   "enforcement": {
-    "required_invocations": ["architect", "woos-review-context"],
-    "actually_invoked": ["architect", "woos-review-context"],
+    "required_invocations": ["woos-architect", "woos-review-context"],
+    "actually_invoked": ["woos-architect", "woos-review-context"],
     "missing_invocations": [],
     "invocation_evidence": [
       {
-        "skill": "architect",
+        "skill": "woos-architect",
         "dispatch_mode": "fresh_context",
         "invoked_at": "2026-05-12T22:00:00Z",
         "artifact_ref": "docs/engineering/<version>/<feature-id>-design.md",

@@ -1,6 +1,6 @@
 ---
 name: woos-code-review-gate
-description: Independent code/security review gate for Hermes workflow. Uses code-reviewer and security-reviewer where applicable.
+description: Independent code/security review gate for Hermes workflow. Uses woos-code-reviewer and woos-security-reviewer where applicable.
 version: 1.7.0
 author: Hermes Profile
 license: MIT
@@ -14,13 +14,13 @@ Enforce independent review before PR readiness.
 
 ## Required reviewers
 
-- Always: `code-reviewer`
-- Security-sensitive scope: `security-reviewer` (additional)
+- Always: `woos-code-reviewer`
+- Security-sensitive scope: `woos-security-reviewer` (additional)
 
 ## Required Invocation (hard gate)
 
-- MUST invoke `code-reviewer` for every code change.
-- MUST invoke `security-reviewer` when scope includes auth, input handling, secrets, payments, external callbacks, or sensitive data flows.
+- MUST invoke `woos-code-reviewer` for every code change.
+- MUST invoke `woos-security-reviewer` when scope includes auth, input handling, secrets, payments, external callbacks, or sensitive data flows.
 - MUST invoke `woos-review-context` before and after reviewer execution.
 - MUST invoke `woos-agent-decision` when reviewer conclusions conflict.
 - If required reviewer is not invoked, return `NOT_RUN` and stop.
@@ -29,7 +29,7 @@ Enforce independent review before PR readiness.
 
 ## Reviewer Isolation (hard gate)
 
-- Each reviewer (`code-reviewer`, `security-reviewer`) MUST be dispatched as a separate agent instance with fresh context (e.g., via task/spawn tool). In-context skill injection where the same LLM session plays the reviewer role is NOT a valid invocation.
+- Each reviewer (`woos-code-reviewer`, `woos-security-reviewer`) MUST be dispatched as a separate agent instance with fresh context (e.g., via task/spawn tool). In-context skill injection where the same LLM session plays the reviewer role is NOT a valid invocation.
 - The dispatched agent receives only the review inputs (current diff, linked artifacts, prior review context). It MUST NOT inherit the implementer's session history or reasoning.
 - `invocation_evidence` MUST include `dispatch_mode: "fresh_context"`. Any other value is invalid and MUST return `BLOCKED`.
 
@@ -107,7 +107,7 @@ Gate passes only when all required reviewers are clear and `spec_alignment_statu
 {
   "enforcement": {
     "required_invocations": ["code-reviewer", "woos-review-context"],
-    "conditionally_required_invocations": ["security-reviewer", "woos-agent-decision"],
+    "conditionally_required_invocations": ["woos-security-reviewer", "woos-agent-decision"],
     "actually_invoked": ["code-reviewer", "woos-review-context"],
     "missing_invocations": [],
     "invocation_evidence": [
@@ -132,6 +132,6 @@ Gate passes only when all required reviewers are clear and `spec_alignment_statu
 }
 ```
 
-When `security_scope_detected` is `true`, `security-reviewer` MUST appear in `actually_invoked`.
+When `security_scope_detected` is `true`, `woos-security-reviewer` MUST appear in `actually_invoked`.
 When `conflict_detected` is `true`, `woos-agent-decision` MUST appear in `actually_invoked`.
 Missing `invocation_evidence` MUST return `BLOCKED`.
