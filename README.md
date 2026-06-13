@@ -88,21 +88,17 @@ Entry: `woos-development-workflow`. Standard mode flow:
 
 ```
 Run Orchestrator → Git → Product Intake
-  → Gate 1  Feature Design          (woos-feature-design)
-  → Gate 1R Design Review           (woos-design-review-gate)
-  → Gate 2  Story Decomposition     → plan.md (ID | AC | Depends | Diff Scope)
-  → Gate 3  Story Loop              (TDD + Implement + Verify per story)
-  → Gate 4  Executable Acceptance
-  → Gate 5  Deviation Control
-  → Gate 6  Traceability
-  → Gate 7  Code / Security Review
-  → Gate 8  PR Readiness
+  → Gate 1  Feature Plan (architecture + story table)  (woos-feature-plan)
+  → Gate 1R Plan Review (2 reviewers, fresh context)   (woos-plan-review-gate)
+  → Gate 2  Story Loop              (TDD + Implement + Verify per story)
+  → Gate 3  Review (code + security + AC coverage + scope drift)
+  → Gate 4  Ship (traceability matrix + PR readiness + gh pr create)
   → Workflow Memory
 ```
 
-Lite mode skips Gates 1, 1R, 2, 4, 5, 6 — for low-risk small changes.
+Lite mode skips Gate 1 and 1R; Gate 3 skips its AC-coverage and scope-drift checks; Gate 4 skips traceability-matrix generation. Use for low-risk small changes.
 
-**Story output (Gate 2)** is a single per-feature `plan.md` table, not per-story narrative documents. PRD AC is the spec, tests in the diff scope are the verification, and `git restore -- <diff_scope>` is the rollback.
+**Gate 1 output** is a single per-feature `docs/engineering/<version>/<feature-id>-plan.md` containing architecture decisions, test strategy, rollout/rollback, baseline/deviation record, and the story execution table (`ID | AC | Depends | Diff Scope`). Interface contracts live in the PRD's `<feature-id>-interface.md` and are not duplicated. PRD AC is the spec, tests in the diff scope are the verification, and `git restore -- <diff_scope>` is the rollback.
 
 ## How This Compares
 
@@ -125,7 +121,7 @@ Honest list — these are real and not getting solved this week:
 - **No CI for skill cross-references.** SKILL.md files reference each other by string (`woos-architect`, `woos-product-planner`, …). A rename / delete is detected only when the orchestrator tries to dispatch and fails.
 - **Definition of done stops at PR merge.** No post-merge hook for deployment, observability, or "did the roadmap success metric actually move".
 - **Single-user, not battle-tested.** ECC, BMAD, Superpowers have communities surfacing edge cases. This pipeline has been run end-to-end by one person on a small number of features. Many failure modes are still latent.
-- **DCR friction may suppress reporting.** Gate 5 makes unauthorized deviation expensive, which can incentivize hiding deviations rather than reporting them. No counter-incentive currently.
+- **DCR friction may suppress reporting.** Gate 3's scope-drift check makes unauthorized deviation expensive, which can incentivize hiding deviations rather than reporting them. No counter-incentive currently.
 - **DAG rollback ambiguity.** If a downstream story committed against an upstream story that later needs revert, the cascade-revert procedure is left to the AI rather than spelled out in the workflow.
 
 ## Updating `skills/ecc/`
@@ -151,9 +147,9 @@ Seven infrastructure skills that make the gated flow run hands-off:
 | Skill | Role |
 |-------|------|
 | `woos-run-orchestrator` | Run queue, concurrency, timeout/retry |
-| `woos-executable-acceptance-gate` | Machine-checkable done criteria |
+| `woos-code-review-gate` | One-pass review: code/security findings, PRD AC coverage, scope-drift detection, baseline-deviation alignment |
 | `woos-failure-state-machine` | Deterministic retry / degrade / escalation |
-| `woos-deviation-control-gate` | Implementation-vs-spec drift blocking |
+| `woos-pr-readiness` | Final verification + mechanically generated traceability matrix + PR creation |
 | `woos-workflow-memory` | Persistent failure/rework pattern capture |
 | `woos-human-handoff` | Explicit takeover and recovery protocol |
 | `woos-review-context` | Cumulative cross-gate findings |

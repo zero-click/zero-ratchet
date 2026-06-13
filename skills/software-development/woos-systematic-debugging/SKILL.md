@@ -156,9 +156,9 @@ After 3 failed fix attempts (across all phases):
 
 This skill is a **cross-cutting protocol**, not a fixed gate. It activates during:
 
-- Gate 3 (TDD): when RED-GREEN cycle stalls
-- Gate 4 (Implement): when implementation creates cascading failures  
-- Gate 5 (Verify): when verification fails and fix is non-obvious
+- Gate 2.1 (TDD): when RED-GREEN cycle stalls
+- Gate 2.2 (Implement): when implementation creates cascading failures  
+- Gate 2.3 (Verify): when verification fails and fix is non-obvious
 - `woos-failure-state-machine`: when `FAILED_RETRYABLE` retry count reaches 2+
 
 When activated, the current gate pauses. Debugging protocol runs. When Phase 4 completes, the original gate resumes.
