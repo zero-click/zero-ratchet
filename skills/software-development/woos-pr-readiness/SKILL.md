@@ -26,7 +26,7 @@ Confirm work is ready for commit/PR handoff.
 - Check conventional commit and PR test plan readiness
 - Check implementation traceability against approved artifacts that exist for the active mode:
   - **Standard:** PRD, roadmap, architecture, engineering design, supporting interface/UI artifacts when available.
-  - **Lite:** PRD, roadmap, architecture, supporting interface/UI artifacts when available. There is no engineering-design artifact in Lite (Gate 1 is skipped); absence of `engineering-design` MUST NOT cause `REQUEST_CHANGES` and MUST NOT be fabricated.
+  - **Lite:** PRD, roadmap, architecture, supporting interface/UI artifacts when available. There is no engineering plan artifact in Lite (Gate 1 is skipped); absence of `engineering-plan` MUST NOT cause `REQUEST_CHANGES` and MUST NOT be fabricated.
 - Check artifact updates are complete when intentional deviations exist
 - Return `PASS` | `REQUEST_CHANGES` | `NOT_RUN` | `BLOCKED`
 - Output fields (required):

@@ -11,8 +11,8 @@ ecc_source_commit: 0e9f613fd196f6d4157765b17d39c2c42ebbf564
 
 ## When to Use
 
-- During feature design **authoring** (Gate 1 / `woos-feature-design`) — produce the engineering design artifact from approved PRD + roadmap + architecture
-- During design **review** gates (Gate 1R / `woos-design-review-gate`) — fresh-context independent review of an existing design artifact
+- During feature plan **authoring** (Gate 1 / `woos-feature-plan`) — produce the engineering plan artifact from approved PRD + roadmap + architecture
+- During plan **review** gates (Gate 1R / `woos-plan-review-gate`) — fresh-context independent review of an existing plan artifact
 - When architecture trade-offs need explicit decisions
 - When woos-code-reviewer escalates a finding that needs architecture interpretation (consult role)
 
@@ -20,8 +20,8 @@ ecc_source_commit: 0e9f613fd196f6d4157765b17d39c2c42ebbf564
 
 This adapter operates in one of three modes; the dispatcher MUST set `mode` explicitly:
 
-- `mode: author` — produce a design artifact. Output is a draft of `docs/engineering/<version>/<feature-id>-design.md` plus the structured fields below.
-- `mode: review` — review an existing design artifact in fresh context. Do NOT modify the artifact; emit findings only.
+- `mode: author` — produce a plan artifact. Output is a draft of `docs/engineering/<version>/<feature-id>-plan.md` (architecture / baseline / risk / rollout / security sections) plus the structured fields below.
+- `mode: review` — review an existing plan artifact in fresh context. Do NOT modify the artifact; emit findings only.
 - `mode: consult` — answer a focused architecture question raised by another reviewer. Do NOT produce or modify artifacts.
 
 `mode: author` and `mode: review` MUST be invoked in separate fresh-context dispatches; the same session cannot fill both roles.
@@ -30,7 +30,7 @@ This adapter operates in one of three modes; the dispatcher MUST set `mode` expl
 
 - `mode` (required: `author` | `review` | `consult`)
 - For `author`: approved PRD + roadmap + architecture (+ optional interface summary / UI brief / upstream interfaces)
-- For `review`: design artifact path + linked PRD, roadmap, architecture, and supporting interface/UI context when available + prior review context
+- For `review`: plan artifact path + linked PRD, roadmap, architecture, and supporting interface/UI context when available + prior review context
 - For `consult`: the specific question + the minimum artifacts needed to answer it
 - Known constraints (security, scalability, performance, rollout)
 

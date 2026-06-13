@@ -1,6 +1,6 @@
 ---
 name: woos-product-planner
-description: Planning and decomposition review skill adapted from ECC planner agent. Covers story-set review (Gate 2) and planning consults for upstream skills. PRD-quality review is NOT in scope — that is owned by `woos-product-prd-review-gate`.
+description: Planning and decomposition review skill adapted from ECC planner agent. Covers story-table review (called from the plan review gate) and planning consults for the feature plan skill. PRD-quality review is NOT in scope — that is owned by `woos-product-prd-review-gate`.
 origin: ECC-agent-adapter
 ecc_source_repo: affaan-m/everything-claude-code
 ecc_source_path: agents/planner.md
@@ -11,8 +11,8 @@ ecc_source_commit: 0e9f613fd196f6d4157765b17d39c2c42ebbf564
 
 ## When to Use
 
-- **Gate 2 story-set review** (`woos-story-decomposition`): validate AC coverage, dependency DAG, and AI-checkpoint sizing of the orchestrator's story set
-- Before implementing non-trivial features: dependency sequencing / planning consult
+- **Story-table review** (called by `woos-plan-review-gate`): validate AC coverage, dependency DAG, and AI-checkpoint sizing of the story table inside the feature plan
+- **Planning consult** (called by `woos-feature-plan`): produce/validate a phased implementation plan, decomposition consult, or dependency-sequencing review while the plan is being authored
 - When a task spans multiple files or phases
 - When ordering and dependencies are unclear
 
@@ -22,8 +22,8 @@ PRD-quality review is owned by `woos-product-prd-review-gate` and is not perform
 
 The dispatcher MUST set `mode` explicitly:
 
-- `mode: story-review` — validate a Gate 2 story plan (`plan.md`): AC coverage completeness, DAG correctness, sizing against AI-checkpoint rules (one review-round bound, hard cap of 3 AC per story), concrete diff scopes, and non-overlap between unordered stories
-- `mode: planning` — produce/validate a phased implementation plan, decomposition consult, or dependency-sequencing review for an upstream skill (e.g. `woos-feature-design`)
+- `mode: story-review` — validate the Story Table section of `docs/engineering/<version>/<feature-id>-plan.md`: AC coverage completeness, DAG correctness, sizing against AI-checkpoint rules (one review-round bound, hard cap of 3 AC per story), concrete diff scopes, and non-overlap between unordered stories
+- `mode: planning` — produce/validate a phased implementation plan, decomposition consult, or dependency-sequencing review for the feature plan being authored
 
 Each dispatch MUST be a separate fresh-context invocation. PRD-quality review is NOT performed by this skill — it lives in `woos-product-prd-review-gate` on the product-design side.
 
@@ -31,8 +31,8 @@ Each dispatch MUST be a separate fresh-context invocation. PRD-quality review is
 
 - `mode` (required: `story-review` | `planning`)
 - Feature goal and scope
-- For `story-review`: PRD path + engineering-design path + the feature's `docs/stories/<version>/<feature-id>/plan.md` + `run-manifest.yaml` excerpt with `execution_order` and `ac_coverage_map`
-- For `planning`: relevant design/PRD context as provided by the caller
+- For `story-review`: PRD path + `docs/engineering/<version>/<feature-id>-plan.md` (the Story Table section) + `run-manifest.yaml` excerpt with `execution_order` and `ac_coverage_map`
+- For `planning`: relevant PRD context as provided by the caller
 - Existing constraints (architecture, policy, timelines if provided)
 - Relevant artifact paths (PRD, roadmap, architecture, design, and supporting interface/UI docs when available)
 

@@ -88,10 +88,9 @@ ln -s "$PWD/skills/ecc"                  ~/.claude/skills/ecc
 
 ```
 Run Orchestrator → Git → Product Intake
-  → Gate 1  Feature Design          (woos-feature-design)
-  → Gate 1R Design Review           (woos-design-review-gate)
-  → Gate 2  Story Decomposition     → plan.md (ID | AC | Depends | Diff Scope)
-  → Gate 3  Story Loop              (每个 story：TDD + Implement + Verify)
+  → Gate 1  Feature Plan（架构 + 故事表）          (woos-feature-plan)
+  → Gate 1R Plan Review（双评审，fresh context）   (woos-plan-review-gate)
+  → Gate 3  Story Loop（每个 story：TDD + Implement + Verify）
   → Gate 4  Executable Acceptance
   → Gate 5  Deviation Control
   → Gate 6  Traceability
@@ -100,9 +99,9 @@ Run Orchestrator → Git → Product Intake
   → Workflow Memory
 ```
 
-Lite 模式跳过 Gate 1、1R、2、4、5、6——适用于低风险小改动。
+Lite 模式跳过 Gate 1、1R、4、5、6——适用于低风险小改动。
 
-**Gate 2 的产物**是单个 per-feature `plan.md` 表（不再有每个 story 的 narrative 文件）。PRD AC 是规约，diff scope 里的测试就是验证，`git restore -- <diff_scope>` 就是回滚。
+**Gate 1 的产物**是单个 per-feature `docs/engineering/<version>/<feature-id>-plan.md`：包含架构决策、测试策略、rollout/rollback、baseline/deviation 记录，以及 story 执行表（`ID | AC | Depends | Diff Scope`）。Interface 契约住在 PRD 的 `<feature-id>-interface.md` 里，这里不重复。PRD AC 是规约，diff scope 里的测试就是验证，`git restore -- <diff_scope>` 就是回滚。
 
 ## 与同类对比
 

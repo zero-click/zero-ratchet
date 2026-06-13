@@ -1,6 +1,6 @@
 ---
 name: woos-deviation-control-gate
-description: Block unresolved implementation drift against PRD, product context, and engineering design artifacts.
+description: Block unresolved implementation drift against PRD, product context, and the engineering plan artifact.
 version: 1.1.0
 author: Hermes Profile
 license: MIT
@@ -15,7 +15,7 @@ Stop silent drift between planned intent and final implementation.
 ## Required Inputs
 
 - Approved PRD
-- Approved engineering design artifact (Standard mode only; absent in Lite — see Lite Mode Adjustments below)
+- Approved engineering plan artifact (Standard mode only; absent in Lite — see Lite Mode Adjustments below)
 - Product context artifacts: roadmap + architecture (+ interface summary/UI brief/upstream interfaces when available)
 - Current implementation diff and test results
 
@@ -43,8 +43,8 @@ Stop silent drift between planned intent and final implementation.
 
 ## Lite Mode Adjustments
 
-- In Lite mode there is no engineering-design artifact (Gate 1 is skipped). Drift classification is performed against PRD + roadmap + architecture + supporting interface/UI artifacts only.
-- Absence of `engineering-design` in Lite is expected and MUST NOT be classified as drift or BLOCKED.
+- In Lite mode there is no engineering plan artifact (Gate 1 is skipped). Drift classification is performed against PRD + roadmap + architecture + supporting interface/UI artifacts only.
+- Absence of `engineering-plan` in Lite is expected and MUST NOT be classified as drift or BLOCKED.
 
 ## Output Contract
 
@@ -69,7 +69,7 @@ Stop silent drift between planned intent and final implementation.
         "skill": "woos-code-reviewer",
         "dispatch_mode": "fresh_context",
         "invoked_at": "2026-06-12T00:00:00Z",
-        "artifact_ref": "git diff HEAD + docs/engineering/<version>/<feature-id>-design.md",
+        "artifact_ref": "git diff HEAD + docs/engineering/<version>/<feature-id>-plan.md",
         "output_digest": "sha256:..."
       }
     ],

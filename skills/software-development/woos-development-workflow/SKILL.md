@@ -59,7 +59,7 @@ Mandatory bootstrap:
 ## Execution Profiles
 
 Default profile is **Standard**.  
-Use **Lite** only for low-risk small changes that do not need story decomposition or independent design review.
+Use **Lite** only for low-risk small changes that do not need a structured plan or independent plan review.
 
 ### Lite (small/low-risk)
 
@@ -69,12 +69,12 @@ Run Orchestrator → Git → Product Intake → Implement → Verify → Code Re
 
 Criteria: limited scope, low coupling, no architecture/API changes, no security impact.
 
-Lite skips Gate 1 (Feature Design), Gate 1R (Design Review), Gate 2 (Story Decomposition), Gate 4 (Executable Acceptance), Gate 5 (Deviation Control), and Gate 6 (Traceability). Code Review and PR Readiness still run, but their `spec_alignment` / `traceability` checks omit the engineering-design artifact (see those skills' Lite Mode Adjustments).
+Lite skips Gate 1 (Feature Plan), Gate 1R (Plan Review), Gate 4 (Executable Acceptance), Gate 5 (Deviation Control), and Gate 6 (Traceability). Code Review and PR Readiness still run, but their `spec_alignment` / `traceability` checks omit the engineering-plan artifact (see those skills' Lite Mode Adjustments).
 
 ### Standard (default full-gate flow)
 
 ```text
-Run Orchestrator → Git → Product Intake → Feature Design → Design Review → Story Decomposition → Story Loop (TDD+Implement+Verify) → Executable Acceptance → Deviation Control → Traceability → Code Review → PR Readiness → Workflow Memory
+Run Orchestrator → Git → Product Intake → Feature Plan → Plan Review → Story Loop (TDD+Implement+Verify) → Executable Acceptance → Deviation Control → Traceability → Code Review → PR Readiness → Workflow Memory
 ```
 
 Use when: default for product-designed features, multi-file change, design choices needed, moderate/high risk, security-sensitive scope, significant architecture/API/UI/database changes, or full traceability required.
@@ -91,10 +91,10 @@ Only these skills are allowed in this workflow:
 | Git Workflow | `git-workflow` | imported |
 | Product Intake | _(reads PRD + roadmap + architecture)_ | from product pipeline |
 | Codebase Onboarding | `codebase-onboarding` | imported (first run) |
-| Feature Design | `woos-feature-design` | local |
+| Feature Plan | `woos-feature-plan` | local |
 | ADR Capture | `architecture-decision-records` | imported |
 | API Design Review | `api-design` | imported (conditional) |
-| Design Review | `woos-design-review-gate` | local |
+| Plan Review | `woos-plan-review-gate` | local |
 | TDD | `tdd-workflow` | imported |
 | Implement | `coding-standards` | imported |
 | Database Migrations | `database-migrations` | imported (conditional) |
@@ -138,7 +138,7 @@ Before dispatching ANY review sub-agent (Gate 1R, Gate 7), the orchestrator MUST
 2. Inject the full skill content into the sub-agent's context/prompt
 3. The sub-agent must receive domain knowledge, not just a role name
 
-**Gate 1R dispatch must include:** full content of `woos-design-review-gate` + `architecture-decision-records`
+**Gate 1R dispatch must include:** full content of `woos-plan-review-gate` + `architecture-decision-records`
 **Gate 7 dispatch must include:** full content of `security-review` (+ `woos-production-audit` if applicable)
 
 Skipping this = sub-agent works without methodology = shallow "LGTM" output.
@@ -177,11 +177,11 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 
 | Skill | Triggers When |
 |-------|--------------|
-| `api-design` | PRD or interface summary defines REST/GraphQL endpoints, OR design doc defines new API routes |
+| `api-design` | PRD or interface summary defines REST/GraphQL endpoints, OR plan defines new API routes |
 | `browser-qa` | PRD or UI brief describes UI behavior, OR stories produce `.tsx`/`.vue`/`.svelte`/HTML files |
 | `e2e-testing` | Stories produce integration test files, OR PRD AC reference user flows spanning multiple pages |
-| `database-migrations` | Design doc defines schema changes, OR stories create/modify migration files |
-| `deployment-patterns` | Design doc has rollout/rollback section, deployment/infra changes, or migration rollout risk |
+| `database-migrations` | Plan defines schema changes, OR stories create/modify migration files |
+| `deployment-patterns` | Plan has rollout/rollback section with deployment/infra changes, or migration rollout risk |
 | `woos-production-audit` | PRD flags security/compliance-sensitive scope, high-risk rollout, or production reliability risk |
 | `security-review` | Any story touches auth, input validation, secrets, API endpoints, or payment flows |
 | `codebase-onboarding` | First run on this repository (no prior run-manifest exists) |
@@ -216,59 +216,45 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 
 **If required inputs do NOT exist:** Redirect to `woos-product-design-flow`. Do not proceed without PRD, roadmap, and architecture.
 
-### Gate 1 — Feature Design
+### Gate 1 — Feature Plan
 
-**Skill:** `woos-feature-design`
-
-**Minimal contract:**
-
-1. Design artifact at `docs/engineering/<version>/<feature-id>-design.md`.
-2. Covers: architecture, data model, interfaces, risk, rollout/rollback.
-3. If API endpoints are defined or changed: invoke `api-design` for review.
-4. If database schema changes: reference `database-migrations` for migration strategy.
-5. If deployment strategy needed: reference `deployment-patterns` for rollout/rollback.
-6. Baseline/deviation fields complete; deviations captured via `architecture-decision-records`.
-
-### Gate 1R — Design Review
-
-**Skill:** `woos-design-review-gate`
+**Skill:** `woos-feature-plan`
 
 **Minimal contract:**
 
-1. Independent design review using `woos-architect` via local gate skill.
-2. Sub-agent MUST be injected with `architecture-decision-records` skill content (per E1).
-3. Output MUST follow structured findings format (per E2).
+1. Plan artifact at `docs/engineering/<version>/<feature-id>-plan.md` containing: Overview, Architecture, Test Strategy, Rollout & Rollback, Security & Risk, Baseline & Deviation Decision Record, and Story Table.
+2. Architecture / baseline / risk / rollout sections authored via `woos-architect` (`mode: author`).
+3. Story Table validated by `woos-product-planner` (`mode: planning`) before the plan is finalized.
+4. If API endpoints are defined or changed: invoke `api-design` for review.
+5. If database schema changes: reference `database-migrations` for migration strategy.
+6. If deployment strategy needed: reference `deployment-patterns` for rollout/rollback.
+7. Baseline/deviation rows complete for every affected domain; deviations captured via `architecture-decision-records`.
+8. Story Table satisfies the Gate 1 hard rules from `woos-feature-plan`:
+   - Every PRD AC mapped to ≥1 story (no orphan AC)
+   - DAG (no cycles), all `Depends` references resolve
+   - Concrete `Diff Scope` per story (no globs, no prose); no two unordered stories share a file
+   - Hard cap of 3 strongly-coupled AC per story
+9. Interface/API contracts and data-model details are NOT duplicated here — those live in `docs/prd/<version>/<feature-id>-interface.md` (produced by product flow Step 6.5).
+
+### Gate 1R — Plan Review
+
+**Skill:** `woos-plan-review-gate`
+
+**Minimal contract:**
+
+1. Two independent reviewers dispatched in fresh context:
+   - `woos-architect` (`mode: review`) on architecture / baseline / risk / rollout / security sections
+   - `woos-product-planner` (`mode: story-review`) on the Story Table section
+2. Sub-agents MUST be injected with relevant skill content (per E1): `architecture-decision-records` for the architect; `woos-product-planner` story-review dimensions for the planner.
+3. Output MUST follow structured findings format (per E2), split by reviewer.
 4. Uses `woos-review-context` to load/update cumulative findings.
-5. Returns `PASS` or `REQUEST_CHANGES`.
-6. Escalates to `woos-human-handoff` when review loop threshold (2 rounds) exceeded.
-
-### Gate 2 — Story Decomposition
-
-**Skill:** `woos-story-decomposition` (orchestrator authors the plan; `woos-product-planner` reviews in fresh context)
-
-**Why this gate exists (AI-checkpoint semantics, not human task assignment):**
-
-Stories are the unit of one bounded implement→verify→review iteration, one rollback boundary, one traceability anchor, and one DCR isolation scope. They exist to make the AI coding loop converge — not to slice work for humans, estimate effort, or fit a sprint.
-
-Parse PRD, roadmap, architecture, and the engineering design artifact. Decompose into stories sized so that each can converge within a single review-round (`review_round_max = 2`).
-
-**Output format:** a single per-feature table file `docs/stories/<version>/<feature-id>/plan.md` with columns `ID | AC | Depends | Diff Scope`. See `woos-story-decomposition` SKILL for the authoritative schema. There are no per-story narrative documents — PRD AC is the spec, tests in the diff scope are the verification, and `git restore -- <diff_scope>` is the rollback.
-
-**Sizing rules (per `woos-story-decomposition`):**
-- 1 PRD AC per story (hard cap: 3 strongly-coupled AC sharing test setup)
-- Implementable + verifiable + reviewable within one review-round
-- Bounded, concrete diff scope (no globs, no prose)
-- No fixed "N stories per feature" rule — decompose as finely as the loop requires
-
-**Hard gate rules:**
-- Every PRD AC MUST map to at least one story (coverage gaps → `REQUEST_CHANGES`)
-- Dependency graph MUST be a DAG; orchestrator records `execution_order` and `ac_coverage_map` in `run-manifest.yaml` under `gate_results.gate-2-stories`
-- Diff scopes MUST be concrete paths; no two stories without a `Depends` relationship may overlap on the same file
-- `woos-product-planner` MUST be dispatched in fresh context with `mode: story-review` to validate AC coverage, DAG, sizing, and overlap before Gate 3 starts
+5. Uses `woos-agent-decision` when reviewer verdicts conflict (any REQUEST_CHANGES → overall REQUEST_CHANGES).
+6. Returns `PASS` or `REQUEST_CHANGES`.
+7. Escalates to `woos-human-handoff` when review loop threshold (2 rounds) exceeded.
 
 ### Gate 3 — Story Execution Loop
 
-Execute stories in dependency order (`run-manifest.yaml: gate-2-stories.execution_order`). For **each story**, look up its row in `plan.md` for the linked AC and allowed diff scope:
+Execute stories in dependency order (`run-manifest.yaml: gate-1-plan.execution_order`). For **each story**, look up its row in the Story Table section of `docs/engineering/<version>/<feature-id>-plan.md` for the linked AC and allowed diff scope:
 
 #### 3.1 TDD
 
@@ -295,7 +281,7 @@ If RED-GREEN stalls (2+ consecutive failed attempts): activate `woos-systematic-
 
 - Run the project's test runner. PASS = green for the new tests AND no regression in previously passing tests.
 - Run lint / type check.
-- Capture command output (exit code + last lines of stdout/stderr) into `run-manifest.yaml` under `gate_results.gate-2-stories.runtime.<story-id>.failure_log` on failure.
+- Capture command output (exit code + last lines of stdout/stderr) into `run-manifest.yaml` under `gate_results.gate-3-execution.<story-id>.failure_log` on failure.
 
 #### 3.4 Story Verification Gate
 
@@ -325,7 +311,7 @@ After ALL stories complete (or remaining are blocked):
 
 **Skill:** `woos-deviation-control-gate`
 
-1. Compare implementation against PRD, product architecture, and engineering design artifacts.
+1. Compare implementation against PRD, product architecture, and engineering plan artifacts.
 2. Unresolved deviations block progression.
 3. Intentional deviations require updated artifacts + rationale.
 4. **PASS** → Gate 6. **REQUEST_CHANGES** → return to Gate 3.
@@ -339,11 +325,11 @@ Trace from original PRD through design to implementation and tests.
 **Procedure:**
 
 1. Read PRD from `docs/prd/<version>/<feature-id>.md`
-2. Read engineering design from `docs/engineering/<version>/<feature-id>-design.md`
+2. Read engineering plan from `docs/engineering/<version>/<feature-id>-plan.md`
 3. For each PRD AC, trace the chain:
 
-| PRD AC | Design Spec | Code | Test | Status |
-|--------|-------------|------|------|--------|
+| PRD AC | Plan Spec | Code | Test | Status |
+|--------|-----------|------|------|--------|
 | AC-4.5.1 | §API endpoint | routes/tasks.py:fn | test_file:test_fn | ✅ Aligned |
 | AC-6.2 | §Data model | N/A | N/A | ❌ Missing |
 
@@ -442,9 +428,8 @@ After completing ANY gate, you MUST:
 ```yaml
 gates:
   gate-0-product-intake: completed
-  gate-1-design: completed
+  gate-1-plan: completed
   gate-1r-review: completed
-  gate-2-stories: completed
   gate-3-execution: in_progress
   gate-4-acceptance: pending
   gate-5-deviation: pending
@@ -464,11 +449,11 @@ gates:
 | L1 | `woos-product-intake` (Gate 0) | Read product inputs (PRD, roadmap, architecture, optional interface/UI) |
 | L2 | direct implementation | Implement tasks directly (no story decomposition) |
 | L3 | `verification-loop` | Verify (test + lint) |
-| L4 | `woos-code-review-gate` | Independent code review in fresh context (`execution_mode=Lite`, engineering-design omitted from spec alignment) |
+| L4 | `woos-code-review-gate` | Independent code review in fresh context (`execution_mode=Lite`, engineering-plan omitted from spec alignment) |
 | L5 | `woos-pr-readiness` + `git-workflow` | Readiness check then PR creation via `gh pr create` |
 | L6 | `woos-workflow-memory` | Capture failures and reusable patterns |
 
-Lite explicitly skips: Gate 1 Feature Design, Gate 1R Design Review, Gate 2 Story Decomposition, Gate 4 Executable Acceptance, Gate 5 Deviation Control, Gate 6 Traceability.
+Lite explicitly skips: Gate 1 Feature Plan, Gate 1R Plan Review, Gate 4 Executable Acceptance, Gate 5 Deviation Control, Gate 6 Traceability.
 
 ---
 
@@ -508,7 +493,7 @@ Persistence:
 
 - Run manifest: `<workspace_root>/hep/runs/<run_id>/run-manifest.yaml`
 - Review context: `<workspace_root>/hep/review-context/<run_id>.yaml`
-- Stories: `<workspace_root>/docs/stories/<version>/<feature-id>/`
+- Engineering plan (incl. Story Table): `<workspace_root>/docs/engineering/<version>/<feature-id>-plan.md`
 - For gated runs, `run_id` is mandatory; if missing, return `BLOCKED`.
 
 ## File Layout
@@ -525,9 +510,7 @@ Persistence:
 │   ├── prd/<version>/<feature-id>.md     ← required input
 │   ├── prd/<version>/<feature-id>-interface.md ← optional product input
 │   ├── design/<version>/<feature-id>-ui-brief.md ← optional product input if UI
-│   ├── engineering/<version>/<feature-id>-design.md ← output of Gate 1
-│   ├── stories/<version>/<feature-id>/   ← output of Gate 2
-│   │   └── plan.md                       ← single per-feature story plan (ID | AC | Depends | Diff Scope)
+│   ├── engineering/<version>/<feature-id>-plan.md ← output of Gate 1 (incl. Story Table)
 │   ├── feedback/<version>/<feature-id>-dcr-<NNN>.md ← DCR output (back to product-design stage, one file per DCR)
 │   └── traceability/<version>/<feature-id>-traceability.md ← traceability output
 └── (implementation files)

@@ -88,9 +88,8 @@ Entry: `woos-development-workflow`. Standard mode flow:
 
 ```
 Run Orchestrator → Git → Product Intake
-  → Gate 1  Feature Design          (woos-feature-design)
-  → Gate 1R Design Review           (woos-design-review-gate)
-  → Gate 2  Story Decomposition     → plan.md (ID | AC | Depends | Diff Scope)
+  → Gate 1  Feature Plan (architecture + story table)  (woos-feature-plan)
+  → Gate 1R Plan Review (2 reviewers, fresh context)   (woos-plan-review-gate)
   → Gate 3  Story Loop              (TDD + Implement + Verify per story)
   → Gate 4  Executable Acceptance
   → Gate 5  Deviation Control
@@ -100,9 +99,9 @@ Run Orchestrator → Git → Product Intake
   → Workflow Memory
 ```
 
-Lite mode skips Gates 1, 1R, 2, 4, 5, 6 — for low-risk small changes.
+Lite mode skips Gates 1, 1R, 4, 5, 6 — for low-risk small changes.
 
-**Story output (Gate 2)** is a single per-feature `plan.md` table, not per-story narrative documents. PRD AC is the spec, tests in the diff scope are the verification, and `git restore -- <diff_scope>` is the rollback.
+**Gate 1 output** is a single per-feature `docs/engineering/<version>/<feature-id>-plan.md` containing architecture decisions, test strategy, rollout/rollback, baseline/deviation record, and the story execution table (`ID | AC | Depends | Diff Scope`). Interface contracts live in the PRD's `<feature-id>-interface.md` and are not duplicated. PRD AC is the spec, tests in the diff scope are the verification, and `git restore -- <diff_scope>` is the rollback.
 
 ## How This Compares
 
