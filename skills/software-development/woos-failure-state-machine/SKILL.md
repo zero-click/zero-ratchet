@@ -35,7 +35,7 @@ Prevent stalls and infinite loops by enforcing deterministic post-failure action
 
 - `max_retries` per gate
 - `timeout_seconds` per gate
-- `review_round_max` per review gate (consistent with `woos-plan-review-gate`, `woos-code-review-gate`, `woos-agent-decision`, `woos-run-orchestrator`)
+- `review_round_max` per review gate (consistent with `woos-plan-review-gate`, `woos-code-review-gate`, `woos-run-orchestrator`)
 - `escalation_conditions`
 - `resume_conditions` (include `resume_gate`: which gate to re-enter on `RESUMED`)
 

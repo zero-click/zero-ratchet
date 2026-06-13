@@ -81,7 +81,7 @@ Three non-negotiable rules learned from production agent failures:
 ## Skill Map
 
 **Local (`woos-*`):**
-`woos-development-workflow` (entry), `woos-feature-plan`, `woos-plan-review-gate`, `woos-code-review-gate`, `woos-pr-readiness`, `woos-workflow-memory`, `woos-run-orchestrator`, `woos-failure-state-machine`, `woos-human-handoff`, `woos-review-context`, `woos-agent-decision`, `woos-systematic-debugging`, `woos-architect`, `woos-product-planner`, `woos-code-reviewer`, `woos-security-reviewer`, `woos-production-audit`.
+`woos-development-workflow` (entry), `woos-feature-plan`, `woos-plan-review-gate`, `woos-code-review-gate`, `woos-pr-readiness`, `woos-workflow-memory`, `woos-run-orchestrator`, `woos-failure-state-machine`, `woos-human-handoff`, `woos-review-context`, `woos-systematic-debugging`, `woos-architect`, `woos-product-planner`, `woos-code-reviewer`, `woos-security-reviewer`, `woos-production-audit`.
 
 **Imported (`skills/ecc/`):**
 `git-workflow`, `tdd-workflow`, `coding-standards`, `verification-loop`, `api-design`, `browser-qa`, `e2e-testing`, `security-review`, `architecture-decision-records`, `database-migrations`, `deployment-patterns`, `codebase-onboarding`.

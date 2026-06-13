@@ -70,7 +70,7 @@ Both MUST run; a one-reviewer pass is invalid.
 2. Dispatch `woos-architect` (`mode: review`) with the full plan + supporting artifacts; require all architect dimensions to be checked.
 3. Dispatch `woos-product-planner` (`mode: story-review`) with the plan's Story Table and supporting artifacts; require all five story-review dimensions to be checked (AC coverage, DAG, sizing, diff-scope concreteness, non-overlap).
 4. Require one-pass complete findings from each reviewer; partial-first feedback is invalid.
-5. Reconcile reviewer outputs via `woos-agent-decision` when verdicts conflict (e.g. architect says PASS, planner says REQUEST_CHANGES — overall verdict is REQUEST_CHANGES).
+5. Reviewer-conflict rule: any REQUEST_CHANGES → overall REQUEST_CHANGES (e.g. architect says PASS, planner says REQUEST_CHANGES → overall REQUEST_CHANGES). Both reviewers' findings are merged into the structured output table.
 6. Update `woos-review-context` with resolved / carry-forward findings.
 7. Persist review result to `<workspace_root>/hep/review-context/<run_id>.yaml`.
 8. Reject baseline deviations without ADR + approval.

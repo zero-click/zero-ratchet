@@ -108,7 +108,6 @@ Only these skills are allowed in this workflow:
 | Ship (traceability matrix + PR readiness) | `woos-pr-readiness` | local |
 | Workflow Memory | `woos-workflow-memory` | local |
 | Review Context (cross-gate) | `woos-review-context` | local |
-| Agent Decision (conflicts) | `woos-agent-decision` | local |
 | Failure State Machine | `woos-failure-state-machine` | local |
 | Systematic Debugging | `woos-systematic-debugging` | local |
 | Human Handoff | `woos-human-handoff` | local |
@@ -246,7 +245,7 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 2. Sub-agents MUST be injected with relevant skill content (per E1): `architecture-decision-records` for the architect; `woos-product-planner` story-review dimensions for the planner.
 3. Output MUST follow structured findings format (per E2), split by reviewer.
 4. Uses `woos-review-context` to load/update cumulative findings.
-5. Uses `woos-agent-decision` when reviewer verdicts conflict (any REQUEST_CHANGES → overall REQUEST_CHANGES).
+5. Reviewer-conflict rule: any REQUEST_CHANGES → overall REQUEST_CHANGES (no separate arbitration skill needed; both reviewers' findings are merged into the structured output).
 6. Returns `PASS` or `REQUEST_CHANGES`.
 7. Escalates to `woos-human-handoff` when review loop threshold (2 rounds) exceeded.
 
@@ -315,7 +314,7 @@ This single gate absorbs what previous iterations split across Executable Accept
    - **Scope drift** — every file in the diff appears in some story's declared `Diff Scope`, or is recorded as an intentional deviation with rationale (`scope_drift_status: PASS`).
    - **Spec alignment / baseline deviation** — already in the skill's contract; baseline deviations need ADR + approval.
 8. Uses `woos-review-context` for cumulative findings.
-9. Uses `woos-agent-decision` when reviewer verdicts conflict.
+9. Reviewer-conflict rule: any REQUEST_CHANGES → overall REQUEST_CHANGES. Both reviewers' findings are merged in the structured output table.
 10. **PASS** → Gate 4. **REQUEST_CHANGES** → return to Gate 2 (specific story or plan update).
 11. 2 rounds without convergence → `woos-human-handoff`.
 
@@ -441,7 +440,6 @@ Cross-gate control skills:
 - `woos-failure-state-machine`: deterministic transition (retry → degrade → human_handoff)
 - `woos-human-handoff`: escalation trigger, handoff payload, resume conditions
 - `woos-review-context`: cumulative findings across review gates
-- `woos-agent-decision`: conflict resolution when reviewers disagree
 
 Persistence:
 

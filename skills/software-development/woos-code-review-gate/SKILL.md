@@ -22,7 +22,7 @@ Enforce independent review before PR readiness.
 - MUST invoke `woos-code-reviewer` for every code change.
 - MUST invoke `woos-security-reviewer` when scope includes auth, input handling, secrets, payments, external callbacks, or sensitive data flows.
 - MUST invoke `woos-review-context` before and after reviewer execution.
-- MUST invoke `woos-agent-decision` when reviewer conclusions conflict.
+- When reviewer conclusions conflict, the conflict-resolution rule is built-in: any REQUEST_CHANGES wins. Both reviewers' findings are merged into the structured output — no separate arbitration skill.
 - If required reviewer is not invoked, return `NOT_RUN` and stop.
 - If required reviewer is unavailable, return `BLOCKED` and stop.
 - Do not replace with self-review or non-whitelisted reviewer.
@@ -110,7 +110,7 @@ Gate passes only when all required reviewers are clear AND every status field is
 1. Load prior findings through `woos-review-context`.
 2. Require all required reviewer dimensions to be checked.
 3. Require one-pass complete findings; partial-first feedback is invalid.
-4. Resolve reviewer disagreement through `woos-agent-decision`.
+4. Resolve reviewer disagreement by merging both reviewers' findings into one structured table; overall verdict is REQUEST_CHANGES if any reviewer says so.
 5. Update `woos-review-context` with resolved/carry-forward findings.
 6. Persist review result to the same `<workspace_root>/hep/review-context/<run_id>.yaml`.
 7. Reject baseline deviations without ADR+approval.
@@ -129,7 +129,7 @@ Gate passes only when all required reviewers are clear AND every status field is
 {
   "enforcement": {
     "required_invocations": ["code-reviewer", "woos-review-context"],
-    "conditionally_required_invocations": ["woos-security-reviewer", "woos-agent-decision"],
+    "conditionally_required_invocations": ["woos-security-reviewer"],
     "actually_invoked": ["code-reviewer", "woos-review-context"],
     "missing_invocations": [],
     "invocation_evidence": [
@@ -148,12 +148,10 @@ Gate passes only when all required reviewers are clear AND every status field is
     "unconfirmed_constraints_frozen": false,
     "security_scope_detected": false,
     "security_scope_evidence": [],
-    "conflict_detected": false,
     "completeness_passed": true
   }
 }
 ```
 
 When `security_scope_detected` is `true`, `woos-security-reviewer` MUST appear in `actually_invoked`.
-When `conflict_detected` is `true`, `woos-agent-decision` MUST appear in `actually_invoked`.
 Missing `invocation_evidence` MUST return `BLOCKED`.
