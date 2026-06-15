@@ -74,7 +74,7 @@ Lite skips Gate 1 (Feature Plan) and Gate 1R (Plan Review). Review (formerly Cod
 ### Standard (default full-gate flow)
 
 ```text
-Run Orchestrator → Git → Product Intake → Feature Plan → Plan Review → Story Loop (TDD+Implement+Verify) → Review → Ship → Workflow Memory
+Run Orchestrator → Git → Product Intake → Feature Plan → Plan Review → Task Loop (TDD+Implement+Verify) → Review → Ship → Workflow Memory
 ```
 
 Use when: default for product-designed features, multi-file change, design choices needed, moderate/high risk, security-sensitive scope, significant architecture/API/UI/database changes, or full traceability required.
@@ -219,18 +219,20 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 
 **Minimal contract:**
 
-1. Plan artifact at `docs/engineering/<version>/<feature-id>-plan.md` containing: Overview, Architecture, Test Strategy, Rollout & Rollback, Security & Risk, Baseline & Deviation Decision Record, and Story Table.
+1. Plan artifact at `docs/engineering/<version>/<feature-id>-plan.md` containing: Overview, Architecture, Test Strategy, Rollout & Rollback, Security & Risk, Baseline & Deviation Decision Record, and Stories (each with Tasks).
 2. Architecture / baseline / risk / rollout sections authored via `woos-architect` (`mode: author`).
-3. Story Table validated by `woos-product-planner` (`mode: planning`) before the plan is finalized.
+3. Stories section validated by `woos-product-planner` (`mode: planning`) before the plan is finalized.
 4. If API endpoints are defined or changed: invoke `api-design` for review.
 5. If database schema changes: reference `database-migrations` for migration strategy.
 6. If deployment strategy needed: reference `deployment-patterns` for rollout/rollback.
 7. Baseline/deviation rows complete for every affected domain; deviations captured via `architecture-decision-records`.
-8. Story Table satisfies the Gate 1 hard rules from `woos-feature-plan`:
-   - Every PRD AC mapped to ≥1 story (no orphan AC)
-   - DAG (no cycles), all `Depends` references resolve
-   - Concrete `Diff Scope` per story (no globs, no prose); no two unordered stories share a file
-   - Hard cap of 3 strongly-coupled AC per story
+8. Stories section satisfies the Gate 1 hard rules from `woos-feature-plan`:
+   - Every story has a full agile statement (`As a / I want / so that`) naming a PRD persona
+   - Every PRD AC mapped to ≥1 story's AC list (no orphan AC)
+   - DAG (no cycles), all `Depends` references resolve at story level
+   - Concrete `Diff Scope` per task (no globs, no prose); no two tasks under non-dependent stories share a file
+   - Stories sized by INVEST (user value), tasks sized by commit atomicity — not by AC count
+   - Doc-only features: ≤2 stories total
 9. Interface/API contracts and data-model details are NOT duplicated here — those live in `docs/prd/<version>/<feature-id>-interface.md` (produced by product flow Step 6.5).
 
 ### Gate 1R — Plan Review
@@ -241,7 +243,7 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 
 1. Two independent reviewers dispatched in fresh context:
    - `woos-architect` (`mode: review`) on architecture / baseline / risk / rollout / security sections
-   - `woos-product-planner` (`mode: story-review`) on the Story Table section
+   - `woos-product-planner` (`mode: story-review`) on the Stories section
 2. Sub-agents MUST be injected with relevant skill content (per E1): `architecture-decision-records` for the architect; `woos-product-planner` story-review dimensions for the planner.
 3. Output MUST follow structured findings format (per E2), split by reviewer.
 4. Uses `woos-review-context` to load/update cumulative findings.
@@ -249,17 +251,17 @@ Conditional skills activate based on these concrete triggers (not agent judgment
 6. Returns `PASS` or `REQUEST_CHANGES`.
 7. Escalates to `woos-human-handoff` when review loop threshold (2 rounds) exceeded.
 
-### Gate 2 — Story Execution Loop
+### Gate 2 — Task Execution Loop
 
-Execute stories in dependency order (`run-manifest.yaml: gate-1-plan.execution_order`). For **each story**, look up its row in the Story Table section of `docs/engineering/<version>/<feature-id>-plan.md` for the linked AC and allowed diff scope:
+Execute **tasks** in dependency order (`run-manifest.yaml: gate-1-plan.execution_order`). Tasks belong to stories; each task is one commit-sized unit with its own `Diff Scope`. For **each task**, look it up in the parent story's Tasks table in `docs/engineering/<version>/<feature-id>-plan.md` for the linked AC and allowed diff scope:
 
 #### 3.1 TDD
 
 **Skill:** `tdd-workflow`
 
-1. **RED**: Write failing test for the AC linked to this story (test file must live inside the story's `Diff Scope`)
-2. **GREEN**: Implement minimum code to pass
-3. **REFACTOR**: Clean up while keeping tests green
+1. **RED**: Write failing test for the AC the task contributes to (test file must live inside the task's `Diff Scope`). Doc-only tasks skip RED.
+2. **GREEN**: Implement minimum code to pass.
+3. **REFACTOR**: Clean up while keeping tests green.
 
 If RED-GREEN stalls (2+ consecutive failed attempts): activate `woos-systematic-debugging`.
 
@@ -267,8 +269,8 @@ If RED-GREEN stalls (2+ consecutive failed attempts): activate `woos-systematic-
 
 **Skill:** `coding-standards`
 
-- Implement strictly within the story's `Diff Scope`; any change outside is a deviation and MUST be reported.
-- The linked PRD AC defines what behavior to produce; the tests written in step 3.1 define how PASS is judged. There is no separate "implementation tasks" checklist and no per-story narrative — the PRD AC + the test files ARE the source of truth.
+- Implement strictly within the task's `Diff Scope`; any change outside is a deviation and MUST be reported.
+- The parent story's AC defines what behavior to produce; the tests written in step 3.1 define how PASS is judged. There is no separate per-task narrative beyond the task's one-line `Summary` — the agile story + PRD AC + the test files ARE the source of truth.
 - Changes are minimal, scoped, convention-aligned.
 - Design issue discovered → write DCR (see DCR section), do NOT improvise.
 
@@ -278,20 +280,20 @@ If RED-GREEN stalls (2+ consecutive failed attempts): activate `woos-systematic-
 
 - Run the project's test runner. PASS = green for the new tests AND no regression in previously passing tests.
 - Run lint / type check.
-- Capture command output (exit code + last lines of stdout/stderr) into `run-manifest.yaml` under `gate_results.gate-2-execution.<story-id>.failure_log` on failure.
+- Capture command output (exit code + last lines of stdout/stderr) into `run-manifest.yaml` under `gate_results.gate-2-execution.<story-id>.tasks.<task-id>.failure_log` on failure.
 
-#### 3.4 Story Verification Gate
+#### 3.4 Task Verification Gate
 
-Per-story check:
-- **PASS** (new tests green, no regressions, lint/typecheck clean) → mark story `status: completed` in run-manifest, next story
-- **FAIL (1st)** → append attempt to runtime `failure_log`, fix within the story's `Diff Scope` and retry
+Per-task check:
+- **PASS** (new tests green, no regressions, lint/typecheck clean) → mark task `status: completed`; once all tasks of a story PASS, mark story `status: completed`; next task
+- **FAIL (1st)** → append attempt to runtime `failure_log`, fix within the task's `Diff Scope` and retry
 - **FAIL (2nd)** → activate `woos-systematic-debugging`
-- **FAIL (3rd)** → rollback with `git restore -- <diff_scope>` (or `git revert <range>` if already committed), mark `status: blocked`, continue with other stories
+- **FAIL (3rd)** → rollback with `git restore -- <diff_scope>` (or `git revert <range>` if already committed), mark task `status: blocked` (parent story status reflects this); continue with independent tasks/stories
 
 #### 3.5 Failure Isolation
 
-- A blocked story does NOT block independent stories (per the DAG)
-- Blocked stories are retried after all other stories complete
+- A blocked task does NOT block tasks/stories that don't depend on it (per the DAG)
+- Blocked tasks are retried after all other tasks complete
 - On retry, revert state via `git restore -- <diff_scope>` first; do not stack failed attempts
 - If still blocked → write DCR with context (see DCR section)
 
@@ -310,22 +312,22 @@ This single gate absorbs what previous iterations split across Executable Accept
 5. If applicable (per E3 triggers): invoke `woos-production-audit` for pre-merge readiness.
 6. Output MUST follow structured findings format (per E2). "LGTM" without findings table = INVALID, rerun.
 7. Standard-mode hard checks (skipped in Lite):
-   - **AC coverage** — every PRD AC listed in the plan's Story Table has at least one passing test in scope (`ac_coverage_status: PASS`).
+   - **AC coverage** — every PRD AC listed in some story's `AC` has at least one passing test inside one of that story's tasks' `Diff Scope` (`ac_coverage_status: PASS`).
    - **Scope drift** — every file in the diff appears in some story's declared `Diff Scope`, or is recorded as an intentional deviation with rationale (`scope_drift_status: PASS`).
    - **Spec alignment / baseline deviation** — already in the skill's contract; baseline deviations need ADR + approval.
 8. Uses `woos-review-context` for cumulative findings.
 9. Reviewer-conflict rule: any REQUEST_CHANGES → overall REQUEST_CHANGES. Both reviewers' findings are merged in the structured output table.
-10. **PASS** → Gate 4. **REQUEST_CHANGES** → return to Gate 2 (specific story or plan update).
+10. **PASS** → Gate 4. **REQUEST_CHANGES** → return to Gate 2 (specific task or plan update).
 11. 2 rounds without convergence → `woos-human-handoff`.
 
 ### Gate 4 — Ship
 
 **Skill:** `woos-pr-readiness` (readiness check + traceability matrix) + `git-workflow` (PR creation)
 
-1. Re-run `verification-loop` as a final safety net (catches any regression introduced after the last Gate 2 story finished).
+1. Re-run `verification-loop` as a final safety net (catches any regression introduced after the last Gate 2 task finished).
 2. All tests pass (unit + integration + e2e as applicable). Lint clean, type check passes.
 3. No TODO/FIXME/HACK without linked issues.
-4. **Generate** `docs/traceability/<version>/<feature-id>-traceability.md` mechanically from the plan's Story Table + last verification-loop test outcomes (Standard mode only; skipped in Lite). The same matrix is inlined into the PR body.
+4. **Generate** `docs/traceability/<version>/<feature-id>-traceability.md` mechanically from the plan's Stories/Tasks + last verification-loop test outcomes (Standard mode only; skipped in Lite). The same matrix is inlined into the PR body.
 5. Conventional commit messages.
 6. PR description includes: story summary, test plan, traceability matrix, blocked stories (if any with DCR refs).
 7. When `woos-pr-readiness` returns `PASS`, dispatch `git-workflow` to run `gh pr create`. PR creation is NOT performed by the readiness skill. Record the resulting PR URL in `run-manifest.yaml` under `gate-4-pr.pr_url`.
@@ -445,7 +447,7 @@ Persistence:
 
 - Run manifest: `<workspace_root>/.ratchet/runs/<run_id>/run-manifest.yaml`
 - Review context: `<workspace_root>/.ratchet/review-context/<run_id>.yaml`
-- Engineering plan (incl. Story Table): `<workspace_root>/docs/engineering/<version>/<feature-id>-plan.md`
+- Engineering plan (incl. Stories & Tasks): `<workspace_root>/docs/engineering/<version>/<feature-id>-plan.md`
 - For gated runs, `run_id` is mandatory; if missing, return `BLOCKED`.
 
 ## File Layout
@@ -462,7 +464,7 @@ Persistence:
 │   ├── prd/<version>/<feature-id>.md     ← required input
 │   ├── prd/<version>/<feature-id>-interface.md ← optional product input
 │   ├── design/<version>/<feature-id>-ui-brief.md ← optional product input if UI
-│   ├── engineering/<version>/<feature-id>-plan.md ← output of Gate 1 (incl. Story Table)
+│   ├── engineering/<version>/<feature-id>-plan.md ← output of Gate 1 (incl. Stories & Tasks)
 │   ├── feedback/<version>/<feature-id>-dcr-<NNN>.md ← DCR output (back to product-design stage, one file per DCR)
 │   └── traceability/<version>/<feature-id>-traceability.md ← traceability output
 └── (implementation files)

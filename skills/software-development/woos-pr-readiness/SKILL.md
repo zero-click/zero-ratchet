@@ -1,6 +1,6 @@
 ---
 name: woos-pr-readiness
-description: Final pre-PR gate. Reruns verification-loop, auto-generates the traceability matrix from the plan's Story Table + test outcomes, confirms commit/PR discipline, then triggers PR creation.
+description: Final pre-PR gate. Reruns verification-loop, auto-generates the traceability matrix from the plan's Stories/Tasks section + test outcomes, confirms commit/PR discipline, then triggers PR creation.
 version: 2.0.0
 author: Hermes Profile
 license: MIT
@@ -14,7 +14,7 @@ Confirm work is ready for commit/PR handoff, and produce the artifacts the PR de
 
 ## Required Invocation (hard gate)
 
-- MUST invoke `verification-loop` first (final pass — Gate 2 already ran it per-story; this run catches any regression introduced after the last story finished).
+- MUST invoke `verification-loop` first (final pass — Gate 2 already ran it per-task; this run catches any regression introduced after the last task finished).
 - If `verification-loop` is not invoked, return `NOT_RUN` and stop.
 - If unavailable, return `BLOCKED` and stop.
 - Do not replace with manual "looks good" checks only.
@@ -44,29 +44,29 @@ Gate passes only when `artifact_sync_status` is `PASS`.
 
 ## Traceability Matrix Generation (Standard mode)
 
-This skill OWNS the traceability artifact. Generation is a pure join over the plan's Story Table and the last `verification-loop` results — no LLM judgment required.
+This skill OWNS the traceability artifact. Generation is a pure join over the plan's Stories/Tasks section and the last `verification-loop` results — no LLM judgment required.
 
 **Inputs:**
-- Plan's Story Table at `docs/engineering/<version>/<feature-id>-plan.md` (columns `ID | AC | Depends | Diff Scope`)
+- Plan's Stories section at `docs/engineering/<version>/<feature-id>-plan.md` (each story declares `AC`; each task under a story declares `Diff Scope`)
 - The last `verification-loop` run's per-file test outcome (PASS/FAIL counts per test file)
 
-**Procedure:** for each row of the Story Table, attribute every test file inside that row's `Diff Scope` to every AC ID in that row's `AC` column. Within each file, count PASS/FAIL from the verification-loop output. No test-name → AC mapping is required, because the plan's `Diff Scope` already declares which test files belong to which AC(s).
+**Procedure:** for each PRD AC, find the story whose `AC` list contains it; collect every task under that story; attribute every test file inside any of those tasks' `Diff Scope` to the AC. Within each file, count PASS/FAIL from the verification-loop output. No test-name → AC mapping is required, because the plan's task `Diff Scope` already declares which test files belong to which story (and thus which AC).
 
 **Output:** `docs/traceability/<version>/<feature-id>-traceability.md`
 
 ```markdown
 # <feature-id> Traceability
 
-| PRD AC | Story | Test File(s) (from Diff Scope) | Last Run |
-|--------|-------|--------------------------------|----------|
-| FR-1.a | s01   | store/persist_test.go          | ✅ 4/4 PASS |
-| FR-1.b | s02   | store/persist_test.go          | ✅ 4/4 PASS |
-| FR-3.a | s03   | store/lifecycle_test.go        | ✅ 2/2 PASS |
+| PRD AC | Story | Task(s) | Test File(s) (from Diff Scope) | Last Run |
+|--------|-------|---------|--------------------------------|----------|
+| FR-1.a | S1    | S1.t1   | store/persist_test.go          | ✅ 4/4 PASS |
+| FR-1.b | S1    | S1.t2   | store/persist_test.go          | ✅ 4/4 PASS |
+| FR-3.a | S2    | S2.t1   | store/lifecycle_test.go        | ✅ 2/2 PASS |
 ```
 
 Embed the same table in the PR body (via `traceability_matrix_inline`).
 
-If any AC has no test file in its story's `Diff Scope`, or any test file shows a FAIL, return `REQUEST_CHANGES`. (This is a safety net — Gate 3's AC-coverage check should have caught it first.)
+If any AC has no test file in any of its story's tasks' `Diff Scope`, or any test file shows a FAIL, return `REQUEST_CHANGES`. (This is a safety net — Gate 3's AC-coverage check should have caught it first.)
 
 ## Post-Pass Action (PR creation)
 

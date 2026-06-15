@@ -19,9 +19,9 @@ Product inputs (PRD + roadmap + architecture)
    │
    ▼  Bootstrap   woos-run-orchestrator → git-workflow
    ▼  Gate 0      Product Intake — validate inputs, record in run-manifest
-   ▼  Gate 1      Feature Plan (architecture + story table)   woos-feature-plan
+   ▼  Gate 1      Feature Plan (architecture + stories & tasks)   woos-feature-plan
    ▼  Gate 1R     Plan Review (fresh context, 2 reviewers)    woos-plan-review-gate
-   ▼  Gate 2      Story Loop (per story in DAG order)
+   ▼  Gate 2      Task Loop (tasks in DAG order; story `Depends` orders stories, task order is declared)
    │              ├─ 2.1 TDD             tdd-workflow
    │              ├─ 2.2 Implement       coding-standards
    │              └─ 2.3 Verify          verification-loop
@@ -48,27 +48,31 @@ Mode is determined by PRD scope and risk, not by the developer.
 | Gate | Skill | What it produces |
 |------|-------|------------------|
 | 0 Product Intake | (built-in) | Validates PRD + roadmap + architecture; records paths in `run-manifest.yaml`. First run on a repo: invokes `codebase-onboarding`. |
-| 1 Feature Plan | `woos-feature-plan` (uses `woos-architect` `mode: author` + `woos-product-planner` `mode: planning`) | Single per-feature `docs/engineering/<version>/<feature-id>-plan.md` containing Architecture / Test Strategy / Rollout & Rollback / Security & Risk / Baseline & Deviation / **Story Table** (`ID \| AC \| Depends \| Diff Scope`). Interface/API contracts and data model live in the PRD's `<feature-id>-interface.md`, not here. |
-| 1R Plan Review | `woos-plan-review-gate` (uses `woos-architect` `mode: review` + `woos-product-planner` `mode: story-review`) | One review covering both architecture decisions and story decomposition in fresh contexts; `PASS` / `REQUEST_CHANGES`. 2 failed rounds → `woos-human-handoff`. |
-| 2 Story Loop | `tdd-workflow`, `coding-standards`, `verification-loop` | Per story (DAG order from the plan's Story Table): RED→GREEN→REFACTOR → implement → verify. Conditional: `database-migrations`, `e2e-testing`, `browser-qa`. A blocked story does NOT block independent stories. |
-| 3 Review | `woos-code-review-gate` → `woos-code-reviewer` (+ `woos-security-reviewer` when triggered, `woos-production-audit` when applicable) | Fresh-context review with knowledge injection (E1). Hard checks in one pass: code/security findings (structured table per E2), **AC coverage** (every PRD AC has a passing test), **scope drift** (every changed file is in some story's Diff Scope), baseline/deviation alignment. |
-| 4 Ship | `woos-pr-readiness` + `git-workflow` | Re-runs `verification-loop` as a safety net, mechanically generates `docs/traceability/<version>/<feature-id>-traceability.md` from the plan's Story Table + last test outcomes, attaches it to the PR body, then creates the PR via `gh pr create`. |
+| 1 Feature Plan | `woos-feature-plan` (uses `woos-architect` `mode: author` + `woos-product-planner` `mode: planning`) | Single per-feature `docs/engineering/<version>/<feature-id>-plan.md` containing Architecture / Test Strategy / Rollout & Rollback / Security & Risk / Baseline & Deviation / **Stories** (agile `As a / I want / so that` + AC list + commit-sized Tasks with concrete `Diff Scope`). Interface/API contracts and data model live in the PRD's `<feature-id>-interface.md`, not here. |
+| 1R Plan Review | `woos-plan-review-gate` (uses `woos-architect` `mode: review` + `woos-product-planner` `mode: story-review`) | One review covering both architecture decisions and stories/tasks decomposition in fresh contexts; `PASS` / `REQUEST_CHANGES`. 2 failed rounds → `woos-human-handoff`. |
+| 2 Task Loop | `tdd-workflow`, `coding-standards`, `verification-loop` | Per task (DAG order: stories ordered by `Depends`, tasks inside a story in declared order): RED→GREEN→REFACTOR → implement → verify. Conditional: `database-migrations`, `e2e-testing`, `browser-qa`. A blocked task does NOT block independent tasks/stories. |
+| 3 Review | `woos-code-review-gate` → `woos-code-reviewer` (+ `woos-security-reviewer` when triggered, `woos-production-audit` when applicable) | Fresh-context review with knowledge injection (E1). Hard checks in one pass: code/security findings (structured table per E2), **AC coverage** (every PRD AC has a passing test under its story), **scope drift** (every changed file is in some task's Diff Scope), baseline/deviation alignment. |
+| 4 Ship | `woos-pr-readiness` + `git-workflow` | Re-runs `verification-loop` as a safety net, mechanically generates `docs/traceability/<version>/<feature-id>-traceability.md` from the plan's Stories/Tasks + last test outcomes, attaches it to the PR body, then creates the PR via `gh pr create`. |
 | Post Workflow Memory | `woos-workflow-memory` | Persists failure/rework patterns and plan-quality signals for future runs. |
 | Post Workflow Memory | `woos-workflow-memory` | Persists failure/rework patterns and plan-quality signals for future runs. |
 
-## Story Table (inside the Gate 1 plan)
+## Stories & Tasks (inside the Gate 1 plan)
 
-Gate 1 embeds the story execution table as a section of `docs/engineering/<version>/<feature-id>-plan.md`. A 4-column table is the whole story-side product:
+Gate 1 embeds the stories/tasks section in `docs/engineering/<version>/<feature-id>-plan.md`. A **Story** is a vertical slice of user-perceivable value (agile INVEST); **Tasks** are the commit-sized implementation units under a story:
 
 ```markdown
-| ID  | AC           | Depends | Diff Scope                              |
-|-----|--------------|---------|-----------------------------------------|
-| s01 | FR-1.a       | -       | store/persist.go, store/persist_test.go |
-| s02 | FR-1.b       | s01     | store/persist.go, store/persist_test.go |
-| s03 | FR-3.a       | s01     | store/lifecycle.go, store/lifecycle_test.go |
+### S1 — Persist sessions across restart
+**As a** returning operator, **I want** my open session restored after a restart, **so that** I don't lose context.
+- **AC**: FR-1.a, FR-1.b
+- **Tasks**:
+  | Task | Diff Scope | Notes |
+  |------|------------|-------|
+  | t1: write session to disk | store/persist.go, store/persist_test.go | TDD; covers FR-1.a |
+  | t2: load session on boot  | store/persist.go, store/persist_test.go | covers FR-1.b |
+- **Depends**: -
 ```
 
-Why so thin: PRD AC is the spec, tests inside the diff scope are the verification, `git restore -- <diff_scope>` is the rollback. Story status and failure logs are runtime state in `run-manifest.yaml`. Sizing rule: 1 PRD AC per story (hard cap 3 strongly-coupled AC sharing test setup); no two unordered stories may share a file. See `woos-feature-plan/SKILL.md` for the authoritative schema.
+Why this shape: the agile story names a real persona and value; PRD AC is the spec; tests inside each task's diff scope are the verification; `git restore -- <diff_scope>` is the per-task rollback. Story/task status and failure logs are runtime state in `run-manifest.yaml`. Sizing: stories by INVEST (user value, one review-round), tasks by commit atomicity — no AC-count cap. Two tasks under non-dependent stories may not share a file. See `woos-feature-plan/SKILL.md` for the authoritative schema.
 
 ## Enforcement Rules
 
@@ -91,7 +95,7 @@ Three non-negotiable rules learned from production agent failures:
 When engineering hits a design issue it cannot resolve inside scope:
 
 1. Write `docs/feedback/<version>/<feature-id>-dcr-<NNN>.md` (issue, impact, proposed fix, priority). `NNN` is zero-padded from `001`; never overwrite — always allocate the next free number.
-2. Stop affected stories. Continue unaffected ones.
+2. Stop affected stories/tasks. Continue unaffected ones.
 3. Product pipeline updates the PRD and re-issues. Engineering resumes from the affected gate.
 
 ## File Layout
@@ -99,7 +103,7 @@ When engineering hits a design issue it cannot resolve inside scope:
 ```
 <project-root>/
 ├── .ratchet/
-│   ├── runs/<run_id>/run-manifest.yaml      ← gate progress + runtime story state
+│   ├── runs/<run_id>/run-manifest.yaml      ← gate progress + runtime story/task state
 │   └── review-context/<run_id>.yaml         ← cumulative cross-gate findings
 └── docs/
     ├── product/<project>-roadmap.md         ← input
@@ -107,7 +111,7 @@ When engineering hits a design issue it cannot resolve inside scope:
     ├── prd/<version>/<feature-id>.md        ← input
     ├── prd/<version>/<feature-id>-interface.md     ← optional (Strict)
     ├── design/<version>/<feature-id>-ui-brief.md   ← optional (when UI)
-    ├── engineering/<version>/<feature-id>-plan.md  ← Gate 1 (incl. Story Table)
+    ├── engineering/<version>/<feature-id>-plan.md  ← Gate 1 (incl. Stories & Tasks)
     ├── adr/                                  ← ADR captures
     ├── feedback/<version>/<feature-id>-dcr-<NNN>.md  ← DCR
     └── traceability/<version>/<feature-id>-traceability.md  ← Gate 4 (auto-generated)

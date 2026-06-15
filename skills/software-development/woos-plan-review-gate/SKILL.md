@@ -1,6 +1,6 @@
 ---
 name: woos-plan-review-gate
-description: Independent feature plan review gate. Reviews the combined engineering plan (architecture decisions + story table) produced by woos-feature-plan, using woos-architect and woos-product-planner in fresh contexts. Returns PASS or REQUEST_CHANGES.
+description: Independent feature plan review gate. Reviews the combined engineering plan (architecture decisions + Stories/Tasks section) produced by woos-feature-plan, using woos-architect and woos-product-planner in fresh contexts. Returns PASS or REQUEST_CHANGES.
 version: 2.0.0
 author: Hermes Profile
 license: MIT
@@ -20,14 +20,14 @@ Replaces the prior Gate 1R (`woos-design-review-gate`) and the planner-review st
 ## Required reviewers
 
 - `woos-architect` — architecture / baseline / risk dimensions
-- `woos-product-planner` (`mode: story-review`) — story-table dimensions
+- `woos-product-planner` (`mode: story-review`) — stories/tasks dimensions
 
 Both MUST run; a one-reviewer pass is invalid.
 
 ## Required Invocation (hard gate)
 
 - MUST invoke `woos-architect` with `mode: review` on the architecture / baseline / risk / rollout / security sections of the plan.
-- MUST invoke `woos-product-planner` with `mode: story-review` on the Story Table section of the plan.
+- MUST invoke `woos-product-planner` with `mode: story-review` on the Stories section of the plan.
 - MUST invoke `woos-review-context` before and after each reviewer execution.
 - If any required reviewer is not invoked, return `NOT_RUN` and stop.
 - If a required reviewer is unavailable, return `BLOCKED` and stop.
@@ -59,23 +59,26 @@ Both MUST run; a one-reviewer pass is invalid.
   - `approval_ref` (required when `deviation_detected=true`)
   - `unconfirmed_constraints_frozen: true|false`
   - `ac_coverage_complete: true|false`
+  - `story_statements_valid: true|false`
   - `dag_validated: true|false`
   - `diff_scopes_concrete: true|false`
   - `no_unordered_overlaps: true|false`
+  - `invest_sizing_ok: true|false`
+  - `doc_only_cap_ok: true|false`
   - `blocking_findings`
 
 ## Mandatory Review Protocol
 
 1. Load prior findings through `woos-review-context`.
 2. Dispatch `woos-architect` (`mode: review`) with the full plan + supporting artifacts; require all architect dimensions to be checked.
-3. Dispatch `woos-product-planner` (`mode: story-review`) with the plan's Story Table and supporting artifacts; require all five story-review dimensions to be checked (AC coverage, DAG, sizing, diff-scope concreteness, non-overlap).
+3. Dispatch `woos-product-planner` (`mode: story-review`) with the plan's Stories section and supporting artifacts; require all story-review dimensions to be checked (agile statement + persona, AC coverage, story-level DAG, INVEST sizing, task-level diff-scope concreteness, task-level non-overlap across non-dependent stories, doc-only story cap).
 4. Require one-pass complete findings from each reviewer; partial-first feedback is invalid.
 5. Reviewer-conflict rule: any REQUEST_CHANGES → overall REQUEST_CHANGES (e.g. architect says PASS, planner says REQUEST_CHANGES → overall REQUEST_CHANGES). Both reviewers' findings are merged into the structured output table.
 6. Update `woos-review-context` with resolved / carry-forward findings.
 7. Persist review result to `<workspace_root>/.ratchet/review-context/<run_id>.yaml`.
 8. Reject baseline deviations without ADR + approval.
 9. Reject unconfirmed architectural freezes.
-10. Reject story tables with orphan AC, DAG cycles, vague diff scopes, or unordered overlap.
+10. Reject Stories sections with orphan AC, missing agile statements, cycles in story-level DAG, vague task diff scopes, task-level file overlap across non-dependent stories, or doc-only story counts above the cap.
 
 ## Escalation Policy
 
@@ -106,7 +109,7 @@ Both MUST run; a one-reviewer pass is invalid.
         "mode": "story-review",
         "dispatch_mode": "fresh_context",
         "invoked_at": "2026-06-13T22:03:00Z",
-        "artifact_ref": "docs/engineering/<version>/<feature-id>-plan.md#story-table",
+        "artifact_ref": "docs/engineering/<version>/<feature-id>-plan.md#stories",
         "output_digest": "sha256:..."
       }
     ],
