@@ -8,6 +8,13 @@
 
 Who has this problem and what pain does it cause?
 
+- **Affected user / operator:** [Who feels this]
+- **Observable problem:** [What goes wrong today in plain language]
+- **Root cause or mismatch (if known):** [Why it happens]
+- **Current workaround:** [How they cope today]
+- **Cost of status quo:** [What this confusion / failure costs]
+- **Current example (optional):** [If one channel / environment exposed the problem, name it here as an example, not as the whole problem]
+
 ## Goals
 
 - [Goal 1 — measurable outcome]
@@ -19,9 +26,18 @@ Who has this problem and what pain does it cause?
 
 **As a** [user type], **I want** [capability], **so that** [value].
 
+[This story should express one capability or one relationship only. Do not combine the problem, implementation guess, precedence rules, and observability requirements in one story.]
+
 **Acceptance Criteria:**
 - Given [context], When [action], Then [expected result]
 - Given [context], When [action], Then [expected result]
+
+**Consequences (testable):**
+- [Atomic, observable condition with a concrete threshold or outcome — not "system handles X gracefully"]
+- [Another testable consequence]
+
+**Out of Scope:** *(optional — adjacent capability this story explicitly does NOT cover)*
+- [Bound]
 
 ### US-2: <Title> (Priority: P1)
 
@@ -29,6 +45,9 @@ Who has this problem and what pain does it cause?
 
 **Acceptance Criteria:**
 - Given [context], When [action], Then [expected result]
+
+**Consequences (testable):**
+- [Atomic, observable condition]
 
 ## Non-Goals
 
@@ -44,9 +63,16 @@ Who has this problem and what pain does it cause?
 - [Risk]: [mitigation or NEEDS CLARIFICATION]
 - [Unknown]: [NEEDS CLARIFICATION: what decision is blocked by this?]
 
-## Open Questions
+## Open Questions *(optional — omit if none)*
 
 - [Question that affects scope or priority — NEEDS CLARIFICATION]
+
+## Assumptions Index *(required if any `[ASSUMPTION]` tags appear inline)*
+
+Every `[ASSUMPTION: ...]` tag used anywhere above must be surfaced here for explicit confirmation.
+
+- §[section] — [ASSUMPTION restated in one line so a reviewer can confirm or reject it]
+- ...
 
 ---
 

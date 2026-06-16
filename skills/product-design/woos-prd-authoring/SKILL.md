@@ -46,13 +46,26 @@ When referencing shared concepts (status enums, data models, event types, API en
 ## Required Sections
 
 1. `## Background`
-2. `## User Personas`
-3. `## Functional Requirements`
-4. `## Non-Functional Requirements`
-5. `## User Flows`
-6. `## Edge Cases`
-7. `## Non-Goals`
-8. `## Success Metrics`
+2. `## Functional Requirements`
+3. `## Non-Functional Requirements`
+4. `## Edge Cases`
+5. `## Non-Goals`
+6. `## Success Metrics`
+
+## Conditionally Required Sections
+
+- `## User Personas` — **required** when the feature has user-facing UI OR serves multiple distinct user types. **Optional** for internal-tool / single-operator / CLI features (in which case omit the section entirely rather than write a one-row table just to satisfy a check).
+- `## User Flows` — same condition as `## User Personas`.
+- `## Assumptions Index` — **required** whenever any `[ASSUMPTION: ...]` tag appears inline anywhere in the PRD. Every inline tag must be surfaced in the index for explicit confirmation. Omit only if the PRD contains no inline assumption tags.
+
+The PRD MUST state its feature shape in a one-liner at the top of `## Background`, e.g. `Shape: internal-tool / single-operator` or `Shape: consumer-product / multi-stakeholder`. The review gate uses this to decide whether to enforce the conditional sections.
+
+## Optional Sections
+
+Include only when they add real decision value:
+
+- `## Dependencies`
+- `## Open Questions`
 
 ## Authoring Rules
 
@@ -60,3 +73,16 @@ When referencing shared concepts (status enums, data models, event types, API en
 - Give full detail to `P0` scope; keep `P2` brief
 - Mark unresolved items as `[NEEDS CLARIFICATION: ...]`
 - Do not embed review verdicts or gate outcomes in the PRD itself
+- Start from the actual problem, not from the template furniture
+- In `## Background`, separate **observable problem**, **root cause / mismatch** (if known), **current workaround**, and **user impact**
+- If a concrete system/channel/environment exposed the issue, explicitly say whether it is **the product problem itself** or **the current example that surfaced the general problem**
+- Do NOT let sample paths, deployment conventions, or current operator habits harden into product requirements unless the feature truly depends on them
+- Each FR should describe one capability or one relationship. Split FRs that combine multiple concerns such as precedence, routing, observability, fallback behavior, and scope boundaries
+- Each FR MUST include at least one `**Consequences (testable):**` bullet — an atomic, observable condition with a concrete threshold or outcome. Phrases like "system handles X gracefully", "reasonable performance", or "user-friendly" are not consequences and MUST be rewritten as concrete bounds
+- Use per-FR `**Out of Scope:**` to draw boundaries between adjacent FRs whenever confusion between them is plausible
+- Any inference made without explicit user confirmation MUST be tagged inline with `[ASSUMPTION: <one-line statement>]` and surfaced in `## Assumptions Index`. Do not bury inferences in prose.
+- **Inferences inherited from `requirements.md` are still inferences.** If a decision in the PRD cannot be traced to a direct quote in the original idea capture, the roadmap entry, or an explicit user confirmation in the conversation, it MUST be tagged `[ASSUMPTION]` — even when it appears verbatim in `requirements.md`. The requirements doc is AI-authored and does not count as ground truth.
+- `## Success Metrics` MUST contain at least one quantitative primary metric with a target value, AND at least one counter-metric or explicit `[NEEDS CLARIFICATION: counter-metric]` tag. Bare bullets like "users complete without confusion" are not metrics.
+- For internal tools or single-operator features, omit `User Personas` and `User Flows` rather than write trivial placeholders to satisfy a structural check
+- Only include `Dependencies` when downstream planning or implementation genuinely depends on them
+- Only include `Open Questions` when there are real unresolved decisions; do not use that section for rhetorical filler

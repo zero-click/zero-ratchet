@@ -7,9 +7,13 @@
 
 ## Background
 
+**Shape:** [internal-tool / single-operator / CLI | consumer-product / multi-stakeholder | other — required; the review gate keys conditional sections off this]
+
 Why this feature exists. Link to roadmap context and problem statement.
 
-## User Personas
+[State the real problem in plain language before describing the solution shape. Separate: (1) observable problem, (2) root cause or mismatch if known, (3) current workaround, and (4) user/operator impact. If a concrete channel, environment, or path exposed the issue, clarify whether it is the problem itself or merely the example that revealed the general problem.]
+
+## User Personas *(conditionally required — include when shape is `consumer-product` / `multi-stakeholder` or the feature has user-facing UI / multiple distinct user types; omit entirely for `internal-tool` / `single-operator` / `CLI` rather than write a one-row placeholder)*
 
 | Persona | Description | Primary Need |
 |---------|-------------|--------------|
@@ -19,11 +23,18 @@ Why this feature exists. Link to roadmap context and problem statement.
 
 ### FR-1: <Capability>
 
-[Description of what the system must do]
+[Description of one capability or one relationship the system must make true. Avoid combining multiple concerns such as precedence, routing, observability, fallback behavior, and policy boundaries in one FR.]
 
 **Acceptance Criteria:**
 - Given [context], When [action], Then [expected result]
 - Given [context], When [action], Then [expected result]
+
+**Consequences (testable):**
+- [Specific atomic condition with a concrete threshold or observable outcome, e.g. "System returns HTTP 429 when request rate exceeds 100/sec per merchant."]
+- [Another specific testable condition. Avoid "system handles X gracefully" or "reasonable performance" — those are not consequences.]
+
+**Out of Scope:** *(optional — what this FR explicitly does NOT cover)*
+- [Adjacent capability that could be confused with this FR but is deliberately excluded]
 
 **User value:** [Why this matters to the user]
 
@@ -34,6 +45,9 @@ Why this feature exists. Link to roadmap context and problem statement.
 **Acceptance Criteria:**
 - Given [context], When [action], Then [expected result]
 
+**Consequences (testable):**
+- [Atomic, measurable condition]
+
 **User value:** [Why this matters]
 
 ## Non-Functional Requirements
@@ -43,7 +57,7 @@ Why this feature exists. Link to roadmap context and problem statement.
 - **Security**: [auth, data sensitivity, compliance]
 - **Accessibility**: [WCAG level or N/A]
 
-## User Flows
+## User Flows *(conditionally required — same condition as `## User Personas`; omit entirely when shape is `internal-tool` / `single-operator` / `CLI`)*
 
 ### Flow 1: <Happy Path Name>
 
@@ -70,15 +84,25 @@ Why this feature exists. Link to roadmap context and problem statement.
 
 - [Explicitly excluded — carried from requirements]
 
-## Dependencies
+## Dependencies *(optional — include only if they matter downstream)*
 
 - [Dependency on other feature or service — or "none"]
 
-## Open Questions
+## Open Questions *(optional — omit if none)*
 
 - [Unresolved question] — [NEEDS CLARIFICATION: impact if unresolved]
 
+## Assumptions Index *(required if any `[ASSUMPTION]` tags appear inline)*
+
+Every `[ASSUMPTION: ...]` tag used anywhere above must be surfaced here for explicit confirmation. Each entry: section reference + the assumption statement.
+
+- §[X.Y] — [ASSUMPTION restated in one line so a reviewer can confirm or reject it]
+- ...
+
 ## Success Metrics
 
-- [Measurable outcome that proves this feature works]
-- [User behavior signal or business metric]
+At least one **quantitative primary metric with a target value**, AND at least one **counter-metric** (the thing this feature must NOT degrade). Qualitative-only bullets like "users complete without confusion" are not metrics.
+
+- **Primary:** [Measurable outcome with target value, e.g. "P95 envelope-to-handler latency ≤ 2s for X% of events over a 7-day window"]
+- **Counter-metric:** [The thing this feature must NOT regress, e.g. "Daemon memory steady-state stays under 200 MB"] or `[NEEDS CLARIFICATION: counter-metric]`
+- [Additional supporting signal — optional]

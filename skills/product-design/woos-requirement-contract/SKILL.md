@@ -20,7 +20,7 @@ Turn one selected roadmap feature into a structured requirements file before any
 
 ## Required Load Set (mandatory)
 
-- `references/framework-prd.md`
+- `references/framework-requirements.md`
 - `templates/requirements-template.md`
 - **Standard / Strict:** `docs/product/<project>-roadmap.md`
 - **Lite:** the idea capture file (`ideas/<slug>.md` for Quick Note, or `ideas/<slug>/00-idea-capture.md` for Guided Interview) in place of the roadmap
@@ -49,6 +49,16 @@ These interface summaries define shared terminology, enums, data models, and API
 6. `## Risks & Unknowns`
 7. `## Priority Ranking`
 
+## Conditionally Required Sections
+
+- `## Assumptions Index` — **required** whenever any `[ASSUMPTION: ...]` tag appears inline anywhere in the document. Every inline tag must be surfaced for explicit confirmation. Omit only if no inline assumption tags are used.
+
+## Optional Sections
+
+Include only when they add real decision value:
+
+- `## Open Questions`
+
 ## Authoring Rules
 
 - Follow the template structure exactly
@@ -56,3 +66,14 @@ These interface summaries define shared terminology, enums, data models, and API
 - Mark unresolved items as `[NEEDS CLARIFICATION: ...]`
 - Do not fold this output into the PRD
 - Include an explicit `P0 / P1 / P2` ranking and ship cut-line in `## Priority Ranking`
+- Write the actual problem in plain language before writing formal user stories
+- Separate **observable problem**, **root cause / mismatch** (if known), **current workaround**, and **user impact**
+- If a concrete channel / integration / environment exposed the issue, state whether it is **the problem itself** or merely **the current example that revealed the problem**
+- Do NOT turn deployment conventions, sample paths, or current operator habits into product requirements unless the feature explicitly depends on them
+- Each user story should express **one capability or relationship**; split stories that mix multiple decisions, precedence rules, observability requirements, and edge-case policy into separate stories
+- Each user story MUST include at least one `**Consequences (testable):**` bullet — an atomic, observable condition with a concrete threshold or outcome. Reject "system handles X gracefully" style phrasing; rewrite as concrete bounds
+- Use per-story `**Out of Scope:**` to draw boundaries when adjacent stories could be confused
+- Any inference made without explicit user confirmation MUST be tagged inline with `[ASSUMPTION: <one-line statement>]` and surfaced in `## Assumptions Index` at the end. Do not let inferences hide in prose
+- **The roadmap/idea-capture is the source of truth for "explicit user input".** Any decision in this requirements doc that cannot be traced to a direct quote in the roadmap entry (Standard/Strict) or the idea capture file (Lite) MUST be tagged `[ASSUMPTION]`. An inference is no less an inference just because it sounds reasonable.
+- For internal tools or single-operator features, prefer concrete capability wording over inflated persona theater
+- Only include `Open Questions` when there are real unresolved decisions that affect scope, sequencing, or acceptance
