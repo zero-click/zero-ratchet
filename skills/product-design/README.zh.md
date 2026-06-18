@@ -36,9 +36,9 @@ docs/design/<version>/<feature-id>-ui-brief.md（涉及 UI 时）
 
 | 模式 | 何时 | Phase 3 步骤 |
 |------|------|--------------|
-| Lite | 琐碎，< 2 天 | Requirements → PRD |
-| Standard | 单 feature，中等风险 | Requirements → PRD → PRD Review |
-| Strict | 多 feature、UX 重、高不确定性 | 每个 feature 跑全：Requirements → PRD → PRD Review → UI → UI Review → Analyze → Interface Summary → Integration |
+| Lite | 琐碎，< 2 天 | PRD |
+| Standard | 单 feature，中等风险 | PRD → PRD Review |
+| Strict | 多 feature、UX 重、高不确定性 | 每个 feature 跑全：PRD → PRD Review → UI → UI Review → Analyze → Interface Summary → Integration |
 
 ## Phase 1 —— Capture
 
@@ -72,14 +72,13 @@ Strict 模式的步骤：
 |------|--------------|------|
 | 1 | Orchestrator 选定版本范围 | — |
 | 1.5 | Orchestrator 分析 feature 依赖、确定执行顺序 | — |
-| 2 | `woos-requirement-contract` | `<feature-id>-requirements.md`，含 P0/P1/P2 cut-line |
-| 3 | `woos-prd-authoring` | `<feature-id>.md` |
-| 4 | `woos-product-prd-review-gate`（fresh context） | PRD 评审结论 |
-| 5 | `woos-ui-design-brief`（涉及 UI 时） | `<feature-id>-ui-brief.md` |
-| 5R | `woos-ui-brief-review`（fresh context） | UI 评审结论 |
-| 6 | `woos-prd-consistency-audit`（fresh context） | 一致性审计结论 |
-| 6.5 | Orchestrator 抽取共享接口契约 | `<feature-id>-interface.md` |
-| 7 | `woos-version-integration-audit`（fresh context，从第 2 个 feature 起增量执行） | 集成审计结论 |
+| 2 | `woos-prd-authoring` | `<feature-id>.md` |
+| 3 | `woos-product-prd-review-gate`（fresh context） | PRD 评审结论 |
+| 4 | `woos-ui-design-brief`（涉及 UI 时） | `<feature-id>-ui-brief.md` |
+| 4R | `woos-ui-brief-review`（fresh context） | UI 评审结论 |
+| 5 | `woos-prd-consistency-audit`（fresh context） | 一致性审计结论 |
+| 5.5 | Orchestrator 抽取共享接口契约 | `<feature-id>-interface.md` |
+| 6 | `woos-version-integration-audit`（fresh context，从第 2 个 feature 起增量执行） | 集成审计结论 |
 
 Lite 和 Standard 只跑子集——逐模式步骤清单见 [`woos-product-design-flow` SKILL](./woos-product-design-flow/SKILL.md)。
 
@@ -111,5 +110,6 @@ Lite 和 Standard 只跑子集——逐模式步骤清单见 [`woos-product-desi
 - **Personas**：注入到特定评审步骤（UX Designer "Sally" 用于 UI brief 评审，PRD Validator 用于 PRD 和 roadmap 评审）
 - **Frameworks**：PRD 形态、UX 校验、市场调研、架构一致性
 - **Templates**：带 `[NEEDS CLARIFICATION: …]` 标记，阻止弱规格过 gate
+- **单 PRD artifact 形态**：requirements 直接写进 PRD，不再额外维护一份并行的 per-feature `requirements.md`
 
 权威细节在每个 skill 的 `SKILL.md` 及其引用的 framework 文件里。

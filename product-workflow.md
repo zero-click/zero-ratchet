@@ -62,16 +62,16 @@ Use the feature ID in **all feature-specific document filenames** so the deliver
 
 | Mode | When | Steps | Reviews |
 |------|------|-------|---------|
-| **Lite** | Small scope, obvious, 1-2 days | Requirements → PRD | None |
-| **Standard** | Single feature, moderate complexity | Requirements → PRD → PRD Review | 1 (PRD) |
-| **Strict** | Multi-feature version, high uncertainty | Full: Requirements → PRD → Review → UI → Review → Analyze → Integration | All |
+| **Lite** | Small scope, obvious, 1-2 days | PRD | None |
+| **Standard** | Single feature, moderate complexity | PRD → PRD Review | 1 (PRD) |
+| **Strict** | Multi-feature version, high uncertainty | Full: PRD → Review → UI → Review → Analyze → Integration | All |
 
 ### Strict Mode (full pipeline, per version)
 
 ```
 Step 1: Select Version → extract feature list
   → For each feature (in dependency order):
-      Steps 2–6 (Requirements → Analyze Gate)
+      Steps 2–5 (PRD → Analyze Gate)
       → Interface Summary extraction
       → Integration Gate (after 2nd+ feature)
       → ⭐ Feature design complete
@@ -84,31 +84,29 @@ Step 1: Select Version → extract feature list
 |------|------|:----------:|---------|--------|
 | 1 | Select Version Scope | ❌ orchestrator | — | _(version + feature list)_ |
 | 1.5 | Feature Dependency Analysis | ❌ orchestrator | — | _(execution order + feature IDs)_ |
-| 2 | Requirement Contract | ✅ | pm | `docs/prd/<version>/<feature-id>-requirements.md` |
-| 3 | PRD Authoring | ✅ | pm | `docs/prd/<version>/<feature-id>.md` |
-| 4 | PRD Review | ✅ | prd-reviewer (`woos-product-prd-review-gate`) | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
-| 5 | UI Design Brief (opt-in) | ✅ | ux-designer | `docs/design/<version>/<feature-id>-ui-brief.md` |
-| 5R | UI Brief Review | ✅ | ux-reviewer | `docs/reviews/<version>/<feature-id>-ui-review-rN.md` |
-| 6 | Analyze Gate | ✅ | qa | `docs/reviews/<version>/<feature-id>-analyze-report.md` |
-| 6.5 | Interface Summary | ❌ orchestrator | — | `docs/prd/<version>/<feature-id>-interface.md` |
-| 7 | Integration Gate | ✅ | pm | `docs/reviews/<version>/integration-report.md` |
+| 2 | PRD Authoring | ✅ | pm | `docs/prd/<version>/<feature-id>.md` |
+| 3 | PRD Review | ✅ | prd-reviewer (`woos-product-prd-review-gate`) | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
+| 4 | UI Design Brief (opt-in) | ✅ | ux-designer | `docs/design/<version>/<feature-id>-ui-brief.md` |
+| 4R | UI Brief Review | ✅ | ux-reviewer | `docs/reviews/<version>/<feature-id>-ui-review-rN.md` |
+| 5 | Analyze Gate | ✅ | qa | `docs/reviews/<version>/<feature-id>-analyze-report.md` |
+| 5.5 | Interface Summary | ❌ orchestrator | — | `docs/prd/<version>/<feature-id>-interface.md` |
+| 6 | Integration Gate | ✅ | pm | `docs/reviews/<version>/integration-report.md` |
 | | **⭐ CHECKPOINT: deliver to engineering?** | | | |
 
-**Step 5 trigger:** Orchestrator asks user "Does this feature have UI?" — Yes → run, No → skip 5+5R.
-**Step 7 trigger:** Runs incrementally after 2nd+ feature completes. Skipped if only 1 feature in version.
+**Step 4 trigger:** Orchestrator asks user "Does this feature have UI?" — Yes → run, No → skip 4+4R.
+**Step 6 trigger:** Runs incrementally after 2nd+ feature completes. Skipped if only 1 feature in version.
 **Checkpoint:** After each feature passes all gates, orchestrator asks user whether to deliver to engineering now.
 
 ### Standard Mode (single feature)
 
 ```
-Requirements → PRD → PRD Review → ⭐ Deliver to engineering
+PRD → PRD Review → ⭐ Deliver to engineering
 ```
 
 | Step | Name | Sub-agent? | Output |
 |------|------|:----------:|--------|
-| S1 | Requirement Contract | ✅ (pm) | `docs/prd/<version>/<feature-id>-requirements.md` |
-| S2 | PRD Authoring | ✅ (pm) | `docs/prd/<version>/<feature-id>.md` |
-| S3 | PRD Review | ✅ (prd-reviewer / `woos-product-prd-review-gate`) | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
+| S1 | PRD Authoring | ✅ (pm) | `docs/prd/<version>/<feature-id>.md` |
+| S2 | PRD Review | ✅ (prd-reviewer / `woos-product-prd-review-gate`) | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
 
 PRD Review PASS → deliver to engineering.
 
@@ -116,8 +114,7 @@ PRD Review PASS → deliver to engineering.
 
 | Step | What | Output |
 |------|------|--------|
-| L1 | Requirements | `docs/prd/<version>/<feature-id>-requirements.md` |
-| L2 | PRD (lightweight) | `docs/prd/<version>/<feature-id>.md` |
+| L1 | PRD (lightweight) | `docs/prd/<version>/<feature-id>.md` |
 
 No review gates. PRD written → deliver to engineering.
 
@@ -170,8 +167,7 @@ Templates in `skills/product-design/templates/` define the structure each step m
 
 | Template | Used By |
 |----------|---------|
-| `requirements-template.md` | Step 2 (Requirement Contract) |
-| `prd-template.md` | Step 3 (PRD Authoring) |
+| `prd-template.md` | Step 2 (PRD Authoring) |
 
 **Convention:** When a sub-agent encounters an unknown or unresolved decision, it MUST mark it as `[NEEDS CLARIFICATION: <what is needed>]` rather than inventing an answer. The orchestrator collects these markers and asks the user before proceeding to the next step.
 
@@ -200,14 +196,13 @@ Every step declares explicit `input` and `output` so the next agent knows exactl
 |------|-------|--------|
 | 1 Select Scope | `docs/product/<project>-roadmap.md` | _(confirmed version + feature list)_ |
 | 1.5 Dependency Analysis | `docs/product/<project>-roadmap.md` § selected version | _(execution order + feature IDs + interface pass-through plan)_ |
-| 2 Requirements | `docs/product/<project>-roadmap.md` § target version § feature | `docs/prd/<version>/<feature-id>-requirements.md` |
-| 3 PRD Authoring | `docs/prd/<version>/<feature-id>-requirements.md` | `docs/prd/<version>/<feature-id>.md` |
-| 4 PRD Review | `docs/prd/<version>/<feature-id>.md` + requirements | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
-| 5 UI Brief (opt-in) | `docs/prd/<version>/<feature-id>.md` | `docs/design/<version>/<feature-id>-ui-brief.md` |
-| 5R UI Review | UI brief + PRD | `docs/reviews/<version>/<feature-id>-ui-review-rN.md` |
-| 6 Analyze Gate | PRD + UI brief (if exists) | `docs/reviews/<version>/<feature-id>-analyze-report.md` |
-| 6.5 Interface Summary | PRD + requirements | `docs/prd/<version>/<feature-id>-interface.md` |
-| 7 Integration | All `*-interface.md` + architecture | `docs/reviews/<version>/integration-report.md` |
+| 2 PRD Authoring | `docs/product/<project>-roadmap.md` § target version § feature + `docs/product/<project>-architecture.md` | `docs/prd/<version>/<feature-id>.md` |
+| 3 PRD Review | `docs/prd/<version>/<feature-id>.md` + roadmap + architecture | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
+| 4 UI Brief (opt-in) | `docs/prd/<version>/<feature-id>.md` | `docs/design/<version>/<feature-id>-ui-brief.md` |
+| 4R UI Review | UI brief + PRD | `docs/reviews/<version>/<feature-id>-ui-review-rN.md` |
+| 5 Analyze Gate | PRD + UI brief (if exists) | `docs/reviews/<version>/<feature-id>-analyze-report.md` |
+| 5.5 Interface Summary | PRD | `docs/prd/<version>/<feature-id>-interface.md` |
+| 6 Integration | All `*-interface.md` + architecture + newest/full PRD set per mode | `docs/reviews/<version>/integration-report.md` |
 | | **⭐ CHECKPOINT: deliver to engineering?** | |
 
 ---

@@ -31,7 +31,7 @@ metadata:
 
 ## Purpose
 
-Run Step 6 of `woos-product-design-flow` as an isolated audit skill.
+Run Step 5 of `woos-product-design-flow` as an isolated audit skill.
 
 This skill exists to stop the parent orchestrator from skipping straight to a soft summary like "looks consistent enough."
 

@@ -10,7 +10,6 @@ metadata:
     stage: 3
     flow: woos-idea-to-design
     related_skills:
-      - woos-requirement-contract
       - woos-prd-authoring
       - woos-product-prd-review-gate
       - woos-ui-design-brief
@@ -43,7 +42,7 @@ metadata:
 
 ## Design Principles
 
-1. **PRD is the source of truth.** Coding agents receive the full PRD directly. No intermediate "handoff" layer.
+1. **PRD is the source of truth.** Coding agents receive the full PRD directly. No intermediate "handoff" layer, and no separate per-feature `requirements.md` artifact.
 2. **Per-feature checkpoint.** After each feature completes its design pipeline, the orchestrator pauses and asks the user whether to deliver it to engineering now or continue designing the next feature.
 3. **Sequential execution.** Features are designed one at a time, in dependency order.
 4. **Product defines WHAT/WHY, Engineering decides HOW.** Including task decomposition and ordering.
@@ -64,7 +63,7 @@ The orchestrator may directly execute only:
 
 - Step 1: version scope selection
 - Step 1.5: feature dependency analysis
-- Step 6.5: interface summary extraction (bookkeeping, not creative)
+- Step 5.5: interface summary extraction (bookkeeping, not creative)
 
 All other outputs must come from their declared skills.
 
@@ -74,7 +73,7 @@ All other outputs must come from their declared skills.
 - Steps run in order
 - Failures are fixed and retried, not skipped
 - Optional UI steps may be skipped only when the user confirms there is no user-facing UI
-- Step 7 may be skipped only when the version has a single feature
+- Step 6 may be skipped only when the version has a single feature
 
 ### P3: Validate Output Before Advancing
 
@@ -83,15 +82,14 @@ After each step, verify the declared output exists and is substantive.
 | Step | Required result |
 |------|-----------------|
 | Step 1.5 | execution order + feature IDs + interface pass-through plan stated (Strict only) |
-| Step 2 | `docs/prd/<version>/<feature-id>-requirements.md` exists with required sections and `## Priority Ranking` |
-| Step 3 | `docs/prd/<version>/<feature-id>.md` exists with required sections |
-| Step 4 | PRD review file exists with explicit `PASS` or `REQUEST_CHANGES` |
-| Step 5 | UI brief exists when UI is in scope |
-| Step 5R | UI review file exists with explicit `PASS` or `REQUEST_CHANGES` |
-| Step 6 | Analyze report exists with explicit `PASS` or `GAPS_FOUND` |
-| Step 6.5 | `docs/prd/<version>/<feature-id>-interface.md` exists (Strict only) |
-| Step 7 | Integration report exists with explicit `PASS` or `CONFLICTS_FOUND` **and** a `## Verdict` section authored by the semantic phase (raw `SIGNALS_CLEAR` / `HOTSPOTS_FOUND` script output is not a completed gate output) |
-| Step 7-Final | `docs/reviews/<version>/integration-report.md` exists with verdict `PASS` after a `--final-run` invocation that loads full requirements/PRD/UI for every audited feature (Strict, 2+ features only) |
+| Step 2 | `docs/prd/<version>/<feature-id>.md` exists with required sections including `## Goals` and `## MVP Scope` |
+| Step 3 | PRD review file exists with explicit `PASS` or `REQUEST_CHANGES` |
+| Step 4 | UI brief exists when UI is in scope |
+| Step 4R | UI review file exists with explicit `PASS` or `REQUEST_CHANGES` |
+| Step 5 | Analyze report exists with explicit `PASS` or `GAPS_FOUND` |
+| Step 5.5 | `docs/prd/<version>/<feature-id>-interface.md` exists (Strict only) |
+| Step 6 | Integration report exists with explicit `PASS` or `CONFLICTS_FOUND` **and** a `## Verdict` section authored by the semantic phase (raw `SIGNALS_CLEAR` / `HOTSPOTS_FOUND` script output is not a completed gate output) |
+| Step 6-Final | `docs/reviews/<version>/integration-report.md` exists with verdict `PASS` after a `--final-run` invocation that loads full PRD/UI for every audited feature (Strict, 2+ features only) |
 
 After all steps pass: **feature design is complete → CHECKPOINT.**
 
@@ -104,9 +102,9 @@ Review and audit steps must always use their dedicated skills in fresh context.
 The following steps MUST run in isolated subagent contexts so their skill loads, review logic, and audit evidence do not pollute the orchestrator context:
 
 - Step 4: `woos-product-prd-review-gate`
-- Step 5R: `woos-ui-brief-review`
+- Step 4R: `woos-ui-brief-review`
 - Step 6: `woos-prd-consistency-audit`
-- Step 7: `woos-version-integration-audit`
+- Step 6: `woos-version-integration-audit`
 
 ### P6: Fix Propagation (Global Sync)
 
@@ -164,9 +162,9 @@ All file paths (`docs/`) are relative to a project root directory which must be 
 
 | Mode | When | Blocking Steps | Checkpoint |
 |------|------|----------------|------------|
-| **Lite** | Small scope, obvious, 1-2 days work | Requirements → PRD | After PRD |
-| **Standard** | Single feature, moderate complexity | Requirements → PRD → PRD Review | After PRD Review |
-| **Strict** | Multi-feature version, higher uncertainty, UX-heavy | Select Scope → Dependency Analysis → [per feature: Requirements → PRD → Review → UI → UI Review → Analyze → Interface Summary → Integration] | After each feature completes all gates |
+| **Lite** | Small scope, obvious, 1-2 days work | PRD | After PRD |
+| **Standard** | Single feature, moderate complexity | PRD → PRD Review | After PRD Review |
+| **Strict** | Multi-feature version, higher uncertainty, UX-heavy | Select Scope → Dependency Analysis → [per feature: PRD → Review → UI → UI Review → Analyze → Interface Summary → Integration] | After each feature completes all gates |
 
 ---
 
@@ -178,13 +176,13 @@ The orchestrator runs per feature:
 Step 1:   Select Version Scope
 Step 1.5: Feature Dependency Analysis (auto, Strict only)
   → For each feature (in dependency order):
-      Steps 2–6.5 (Requirements → Interface Summary)
-      Step 7 (incremental Integration, after 2nd+ feature)
+      Steps 2–5.5 (PRD → Interface Summary)
+      Step 6 (incremental Integration, after 2nd+ feature)
       → ⭐ CHECKPOINT: "Should this feature be delivered to engineering now?"
           Yes → deliver to engineering, continue to next feature
           No  → continue to next feature, deliver later
   → After ALL features have completed their per-feature loop:
-      Step 7-Final (full-doc integration audit across every feature)
+      Step 6-Final (full-doc integration audit across every feature)
       → ⭐ FINAL CHECKPOINT: any features not yet delivered → deliver now
 ```
 
@@ -219,7 +217,7 @@ The orchestrator scans the roadmap features for shared entities:
 3. **Determine execution order:**
    - `independent` features: process in roadmap-listed order (arbitrary but deterministic)
    - `feeds` relationships: process upstream feature first
-   - `mutual` relationships: process in roadmap-listed order, but flag for Step 7 integration focus
+   - `mutual` relationships: process in roadmap-listed order, but flag for Step 6 integration focus
 
 **Output format (stated before proceeding):**
 
@@ -240,39 +238,27 @@ Interface pass-through:
 
 ---
 
-### Step 2: Requirement Contract
-
-| | |
-|---|---|
-| **Skill** | `woos-requirement-contract` |
-| **Input** | `docs/product/<project>-roadmap.md` § selected version |
-| **Conditional input** | `docs/prd/<version>/<upstream-feature-id>-interface.md` for each upstream dependency (per Step 1.5 graph) |
-| **Output** | `docs/prd/<version>/<feature-id>-requirements.md` |
-
-**Advance when:** the requirements file exists, passes structural validation, and includes an explicit `P0/P1/P2` ranking with cut-line.
-
----
-
-### Step 3: PRD Authoring
+### Step 2: PRD Authoring
 
 | | |
 |---|---|
 | **Skill** | `woos-prd-authoring` |
-| **Input** | `docs/prd/<version>/<feature-id>-requirements.md` |
-| **Conditional input** | `docs/prd/<version>/<upstream-feature-id>-interface.md` for each upstream dependency |
+| **Standard / Strict input** | `docs/product/<project>-roadmap.md` § selected version + `docs/product/<project>-architecture.md` |
+| **Lite input** | idea capture file (`ideas/<slug>.md` or `ideas/<slug>/00-idea-capture.md`) |
+| **Conditional input** | `docs/prd/<version>/<upstream-feature-id>-interface.md` for each upstream dependency (per Step 1.5 graph) |
 | **Output** | `docs/prd/<version>/<feature-id>.md` |
 
-**Advance when:** the PRD file exists and proceeds to Step 4.
+**Advance when:** the PRD exists, passes structural validation, and carries the product boundary directly in the PRD itself (`## Goals`, `## MVP Scope`, `## Non-Goals`, FRs, Success Metrics).
 
 ---
 
-### Step 4: PRD Review Gate
+### Step 3: PRD Review Gate
 
 | | |
 |---|---|
 | **Skill** | `woos-product-prd-review-gate` |
 | **Execution** | isolated subagent |
-| **Input** | `docs/prd/<version>/<feature-id>.md` + `docs/prd/<version>/<feature-id>-requirements.md` + `docs/product/<project>-architecture.md` |
+| **Input** | `docs/prd/<version>/<feature-id>.md` + `docs/product/<project>-roadmap.md` + `docs/product/<project>-architecture.md` |
 | **Conditional input** | `docs/prd/<version>/<upstream-feature-id>-interface.md` for each upstream dependency |
 | **Output** | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
 
@@ -280,7 +266,7 @@ Interface pass-through:
 
 ---
 
-### Step 5: UI Design Brief
+### Step 4: UI Design Brief
 
 | | |
 |---|---|
@@ -290,12 +276,12 @@ Interface pass-through:
 
 **Trigger:** ask whether the feature has user-facing UI.
 
-- `Yes` → run Step 5, then Step 5R
-- `No` → skip Step 5 and Step 5R, continue to Step 6
+- `Yes` → run Step 4, then Step 4R
+- `No` → skip Step 4 and Step 4R, continue to Step 5
 
 ---
 
-### Step 5R: UI Brief Review Gate
+### Step 4R: UI Brief Review Gate
 
 | | |
 |---|---|
@@ -308,7 +294,7 @@ Interface pass-through:
 
 ---
 
-### Step 6: Analyze Gate
+### Step 5: Analyze Gate
 
 | | |
 |---|---|
@@ -320,23 +306,22 @@ Interface pass-through:
 
 **Advance when:** semantic review verdict is `PASS`.
 
-Script extraction output alone does NOT complete Step 6. The final report must include the semantic-review sections required by `woos-prd-consistency-audit`, including `## Semantic Audit Verdict`.
+Script extraction output alone does NOT complete Step 5. The final report must include the semantic-review sections required by `woos-prd-consistency-audit`, including `## Semantic Audit Verdict`.
 
 **If `GAPS_FOUND`:**
 
-- requirements gap (broken priority cut-line, missing/untestable story originating in the contract, missing ranking) → return to Step 2 (apply P6: global sync). Re-run Step 3 and Step 4 afterward.
-- PRD gap → return to Step 3 (apply P6: global sync)
-- UI gap → return to Step 5 (apply P6: global sync)
+- PRD gap → return to Step 2 (apply P6: global sync)
+- UI gap → return to Step 4 (apply P6: global sync)
 
 ---
 
-### Step 6.5: Interface Summary Extraction
+### Step 5.5: Interface Summary Extraction
 
 | | |
 |---|---|
 | **Skill** | direct orchestrator step |
-| **Trigger** | Strict mode, after Step 6 PASS |
-| **Input** | `docs/prd/<version>/<feature-id>-requirements.md` + `docs/prd/<version>/<feature-id>.md` |
+| **Trigger** | Strict mode, after Step 5 PASS |
+| **Input** | `docs/prd/<version>/<feature-id>.md` |
 | **Output** | `docs/prd/<version>/<feature-id>-interface.md` |
 
 The orchestrator extracts the feature's **shared interface contract** — a lightweight summary (~500 bytes–1KB) of concepts that other features may depend on:
@@ -372,20 +357,20 @@ The orchestrator extracts the feature's **shared interface contract** — a ligh
 
 ---
 
-### Step 7: Version Integration Gate
+### Step 6: Version Integration Gate
 
 | | |
 |---|---|
 | **Skill** | `woos-version-integration-audit` |
 | **Execution** | isolated subagent |
-| **Input** | roadmap + architecture + all completed feature interface summaries, plus newest-feature full requirements/PRD/UI inputs on incremental runs (`--newest-feature`), or all full feature docs on the final run (`--final-run` + one `--feature` per audited feature) |
+| **Input** | roadmap + architecture + all completed feature interface summaries, plus newest-feature full PRD/UI inputs on incremental runs (`--newest-feature`), or all full feature docs on the final run (`--final-run` + one `--feature` per audited feature) |
 | **Output** | `docs/reviews/<version>/integration-report.md` (or `integration-report-after-<feature-id>.md` for incremental runs) |
 
 **Trigger:** Strict mode with 2+ features. Runs **incrementally**:
 
-- After the **2nd feature** completes Step 6.5 → first integration check (F1 + F2)
-- After each subsequent feature completes Step 6.5 → incremental integration check
-- After the **last feature's per-feature loop and checkpoint** complete → **Step 7-Final** (mandatory, see below)
+- After the **2nd feature** completes Step 5.5 → first integration check (F1 + F2)
+- After each subsequent feature completes Step 5.5 → incremental integration check
+- After the **last feature's per-feature loop and checkpoint** complete → **Step 6-Final** (mandatory, see below)
 
 **Results:**
 
@@ -396,25 +381,25 @@ The orchestrator extracts the feature's **shared interface contract** — a ligh
 
 ---
 
-### Step 7-Final: Full-Doc Integration Gate (Strict, 2+ features)
+### Step 6-Final: Full-Doc Integration Gate (Strict, 2+ features)
 
 | | |
 |---|---|
 | **Skill** | `woos-version-integration-audit` |
 | **Execution** | isolated subagent, MUST invoke `integration_gate.py` with `--final-run` plus one `--feature <feature-id>` for every audited feature |
-| **Input** | roadmap + architecture + full requirements/PRD/UI for EVERY audited feature + all interface summaries |
+| **Input** | roadmap + architecture + full PRD/UI for EVERY audited feature + all interface summaries |
 | **Output** | `docs/reviews/<version>/integration-report.md` |
 
-**Purpose:** The incremental Step 7 runs only compare the newest feature's full PRD against prior interface summaries. C1 (AC conflicts) and C2 (flow connectivity) can only be verified across **all full PRDs** of the version. This final pass is the only place that comparison happens.
+**Purpose:** The incremental Step 6 runs only compare the newest feature's full PRD against prior interface summaries. C1 (AC conflicts) and C2 (flow connectivity) can only be verified across **all full PRDs** of the version. This final pass is the only place that comparison happens.
 
 **Trigger (mandatory):** After the last feature's per-feature CHECKPOINT, before any final delivery. The orchestrator MUST schedule this run; it is not optional and is not satisfied by the last incremental run.
 
 **Results:**
 
 - `PASS` → version design is closed; honor the final checkpoint for any undelivered features
-- `CONFLICTS_FOUND` → fix the offending feature(s) and re-run Step 7-Final (apply P6: global sync). Per-feature loops do not re-open unless a fix requires PRD/UI changes in a specific feature.
+- `CONFLICTS_FOUND` → fix the offending feature(s) and re-run Step 6-Final (apply P6: global sync). Per-feature loops do not re-open unless a fix requires PRD/UI changes in a specific feature.
 
-**Skip when:** the version has only one feature (already skipped Step 7 too).
+**Skip when:** the version has only one feature (already skipped Step 6 too).
 
 ---
 
@@ -424,9 +409,9 @@ After a feature passes all gates required for its mode, the orchestrator **pause
 
 > "Feature <feature-id> design is complete. Deliver it to engineering now, or continue designing the next feature?"
 
-- **Standard:** checkpoint happens after Step 4 (PRD Review).
-- **Strict, first feature:** checkpoint happens after Step 6.5 (there is no cross-feature integration context yet).
-- **Strict, second and later features:** checkpoint happens after Step 7.
+- **Standard:** checkpoint happens after Step 3 (PRD Review).
+- **Strict, first feature:** checkpoint happens after Step 5.5 (there is no cross-feature integration context yet).
+- **Strict, second and later features:** checkpoint happens after Step 6.
 
 - **Yes** → deliver PRD + supporting docs to engineering, continue to next feature
 - **No** → continue to next feature, batch deliver later
@@ -441,9 +426,8 @@ Single feature, no UI/analyze/integration path.
 
 | Step | Skill | Output |
 |------|-------|--------|
-| S1 | `woos-requirement-contract` | `docs/prd/<version>/<feature-id>-requirements.md` |
-| S2 | `woos-prd-authoring` | `docs/prd/<version>/<feature-id>.md` |
-| S3 | `woos-product-prd-review-gate` | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
+| S1 | `woos-prd-authoring` | `docs/prd/<version>/<feature-id>.md` |
+| S2 | `woos-product-prd-review-gate` | `docs/reviews/<version>/<feature-id>-prd-review-rN.md` |
 
 PRD Review PASS → ⭐ checkpoint: deliver to engineering.
 
@@ -461,8 +445,7 @@ Lite skips review gates and does not require a roadmap. The idea capture file is
 
 **Steps:**
 
-1. **Requirements (brief)** — run `woos-requirement-contract` in **Lite mode**: load the idea capture file in place of the roadmap; produce a brief `## Priority Ranking` (P0/P1 only is fine for Lite). Output: `docs/prd/lite/01-<slug>-requirements.md`.
-2. **PRD (focused)** — run `woos-prd-authoring`: FRs + ACs, no extensive edge cases. Output: `docs/prd/lite/01-<slug>.md`.
+1. **PRD (focused)** — run `woos-prd-authoring` in **Lite mode**: load the idea capture file in place of the roadmap; produce a single BMAD-style PRD artifact with goals, MVP scope, FRs + ACs, and non-goals. Output: `docs/prd/lite/01-<slug>.md`.
 
 PRD written → ⭐ deliver to engineering (no checkpoint needed, single trivial feature).
 
@@ -475,7 +458,7 @@ When engineering sends `docs/feedback/<version>/<feature-id>-dcr-<NNN>.md` (one 
 1. Read the DCR
 2. Assess impact
 3. Small change → update PRD directly, notify engineering
-4. Large change → return to Step 3 or Step 5, re-run affected gates
+4. Large change → return to Step 2 or Step 4, re-run affected gates
 
 ## Deliverable to Engineering
 

@@ -31,7 +31,7 @@ metadata:
 
 ## Purpose
 
-Run Step 7 of `woos-product-design-flow` as a standalone audit skill with its own completion contract.
+Run Step 6 of `woos-product-design-flow` as a standalone audit skill with its own completion contract.
 
 This skill exists because cross-feature review is where agents most often pretend they checked everything and then write a shallow PASS.
 
@@ -39,13 +39,13 @@ This skill exists because cross-feature review is where agents most often preten
 
 This skill runs **incrementally** — not just once at the end:
 
-- After the 2nd feature completes Step 6.5 → first run (F1 + F2)
+- After the 2nd feature completes Step 5.5 → first run (F1 + F2)
 - After each subsequent feature → incremental run (all completed features so far)
 - Final run after last feature → full integration report
 
 **Context management:** To avoid context explosion, each incremental run loads:
 
-- Full docs: ONLY the newest completed feature (requirements + PRD + UI brief when present)
+- Full docs: ONLY the newest completed feature (PRD + UI brief when present)
 - Interface summaries: ALL completed features (`*-interface.md`), including the newest when produced
 - Script pre-filter: `integration_gate.py` extracts conflict candidates BEFORE semantic review
 - Roadmap + architecture: always loaded (shared context)
@@ -69,7 +69,6 @@ Before auditing, load and report:
 - `scripts/integration_gate.py`
 - `docs/product/<project>-roadmap.md`
 - `docs/product/<project>-architecture.md`
-- `docs/prd/<version>/<newest-feature>-requirements.md` (full doc for newest feature)
 - `docs/prd/<version>/<newest-feature>.md` (full doc for newest feature)
 - `docs/design/<version>/<newest-feature>-ui-brief.md` (if present, for newest feature)
 - `docs/prd/<version>/<feature-id>-interface.md` for ALL completed features when produced
@@ -89,7 +88,6 @@ If any required file is not loaded, return `BLOCKED`.
 
 **Incremental run additional full-doc scope:**
 
-- `docs/prd/<version>/<newest-feature>-requirements.md`
 - `docs/prd/<version>/<newest-feature>.md`
 - `docs/design/<version>/<newest-feature>-ui-brief.md` (if present)
 
@@ -100,7 +98,6 @@ For every run it MUST pass `--feature <feature-id>` for each audited feature in 
 
 **Final run additional full-doc scope:**
 
-- `docs/prd/<version>/<feature-id>-requirements.md` for all features
 - `docs/prd/<version>/<feature-id>.md` for all features
 - `docs/design/<version>/<feature-id>-ui-brief.md` for all features that have one
 
@@ -145,11 +142,11 @@ Review the extracted evidence and decide whether candidate mismatches are:
 
 ### Part B — Completeness & Traceability
 
-- B1 Roadmap → Requirements coverage
-- B2 Requirements → PRD coverage
-- B3 PRD → Interface Summary coverage
-- B4 Architecture → PRD alignment
-- B5 UI → PRD traceability
+- B1 Roadmap → PRD coverage
+- B2 PRD → Interface Summary coverage
+- B3 Architecture → PRD alignment
+- B4 UI → PRD traceability
+- B5 Version-scope file coverage
 
 ### Part C — Cross-Feature Integration
 

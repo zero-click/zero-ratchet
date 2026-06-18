@@ -30,7 +30,7 @@ metadata:
 
 ## Purpose
 
-Run Step 4 of `woos-product-design-flow` as an isolated review skill so the reviewer cannot coast on the parent orchestrator's momentum.
+Run Step 3 of `woos-product-design-flow` as an isolated review skill so the reviewer cannot coast on the parent orchestrator's momentum.
 
 This skill exists to enforce:
 
@@ -54,7 +54,7 @@ Before reviewing, load and report:
 - `references/persona-prd-validator.md`
 - `references/template-prd-validation-checklist.md`
 - `docs/prd/<version>/<feature-id>.md`
-- `docs/prd/<version>/<feature-id>-requirements.md`
+- `docs/product/<project>-roadmap.md`
 - `docs/product/<project>-architecture.md`
 
 If any required file is not loaded, return `BLOCKED`.
@@ -98,11 +98,13 @@ Read the `Shape:` declaration at the top of the PRD's `## Background` (e.g. `Sha
 **Always required:**
 
 1. `## Background` (with Shape declaration)
-2. `## Functional Requirements`
-3. `## Non-Functional Requirements`
-4. `## Edge Cases`
-5. `## Non-Goals`
-6. `## Success Metrics`
+2. `## Goals`
+3. `## Functional Requirements`
+4. `## Non-Functional Requirements`
+5. `## MVP Scope`
+6. `## Edge Cases`
+7. `## Non-Goals`
+8. `## Success Metrics`
 
 **Conditionally required:**
 
@@ -124,7 +126,7 @@ If a required section is missing, the result is immediately `REQUEST_CHANGES`. I
 | P5 | Real user behavior and shape fit | Replace developer-centric wording with user-observable behavior. Reject persona/flow theater when shape is internal-tool. Reject under-specified personas/flows when shape is consumer-product. |
 | P6 | No internal contradictions | Resolve conflicting statements or move scope to non-goals |
 | P7 | Architecture reference check | Compare routes/constants/state names against architecture and annotate divergence; flag deployment conventions accidentally promoted into product contract without architectural basis |
-| P9 | Assumptions surfaced and indexed | Two checks: (a) **Roundtrip** — every inline `[ASSUMPTION]` tag is in the index; every index entry can be located inline. (b) **Positive evidence** — reviewer MUST proactively identify at least **two domain-specific inferences** in the PRD (specific paths, enum values, default behaviors, precedence rules, timeout values, threshold numbers not stated in the requirements doc or roadmap quote) and verify they are either tagged or genuinely traced to explicit input. **A non-trivial PRD with zero `[ASSUMPTION]` tags is a red flag** and MUST be marked `critical` unless the reviewer can affirmatively list the inferences and show their source quotes. |
+| P9 | Assumptions surfaced and indexed | Two checks: (a) **Roundtrip** — every inline `[ASSUMPTION]` tag is in the index; every index entry can be located inline. (b) **Positive evidence** — reviewer MUST proactively identify at least **two domain-specific inferences** in the PRD (specific paths, enum values, default behaviors, precedence rules, timeout values, threshold numbers not stated in the roadmap, idea capture, or explicit user quote) and verify they are either tagged or genuinely traced to explicit input. **A non-trivial PRD with zero `[ASSUMPTION]` tags is a red flag** and MUST be marked `critical` unless the reviewer can affirmatively list the inferences and show their source quotes. |
 | P10 | Strategic coherence | Does the PRD have a thesis? Do FRs serve a unified arc, or is it a backlog with section headers? Does at least one Success Metric validate the thesis rather than just measure activity? Is a counter-metric named for the primary metric? Flag PRDs that read as feature lists with no central bet. |
 | P11 | Downstream usability *(only when this PRD feeds engineering / UX)* | Are domain nouns used consistently across FRs / NFRs / Success Metrics (no synonym drift)? Do FR / US IDs resolve? For terminology-heavy features, recommend (do not require) a Glossary subsection. |
 
@@ -157,7 +159,7 @@ The output MUST include:
 2. Full P0-P11 review table (skip P8 unless upstream interface summaries are present; skip P11 if the PRD does not feed downstream engineering or UX). P0 row MUST state `strong | adequate | thin | broken` before its finding; other rows use concrete PASS/FAIL per fix-hint.
 3. `## Architecture Divergences` section when needed
 4. `## Upstream Interface Alignment` section when P8 applies
-5. `## Assumptions Roundtrip` section — list (a) inline `[ASSUMPTION]` tags missing from the index, (b) index entries that cannot be located inline, and (c) **the ≥2 inferences the reviewer proactively identified for P9 positive-evidence**, each with its source quote from roadmap/requirements OR `UNVERIFIED — should be tagged`.
+5. `## Assumptions Roundtrip` section — list (a) inline `[ASSUMPTION]` tags missing from the index, (b) index entries that cannot be located inline, and (c) **the ≥2 inferences the reviewer proactively identified for P9 positive-evidence**, each with its source quote from roadmap / idea capture / explicit user input OR `UNVERIFIED — should be tagged`.
 6. `## Summary` with explicit verdict
 
 ## Verdicts

@@ -2,13 +2,14 @@
 
 ## Purpose
 
-Write a detailed Product Requirements Document for a specific feature within an existing product roadmap. This is per-feature PRD authoring, not greenfield product definition.
+Write a detailed Product Requirements Document for a specific feature within an existing product roadmap. This is per-feature PRD authoring, not greenfield product definition. In BMAD style, the PRD itself carries the requirements — do not create a parallel per-feature `requirements.md` contract.
 
 ## Input
 
 - Product roadmap (versioned scope, personas, success metrics)
 - System architecture (components, boundaries, constraints)
 - Feature scope from roadmap (which feature this PRD covers)
+- Lite mode alternative: idea capture file as the single input artifact
 
 ## Methodology
 
@@ -89,6 +90,9 @@ Use `templates/prd-template.md` as the authoring template — it defines the can
 ## Background
 [The real problem in plain language: observable problem, root cause/mismatch if known, workaround, user impact]
 
+## Goals
+[The product outcomes this feature should move]
+
 ## User Personas
 [Relevant personas only. Internal tools / single-operator features may keep this extremely lean.]
 
@@ -98,6 +102,9 @@ Use `templates/prd-template.md` as the authoring template — it defines the can
 
 ## Non-Functional Requirements
 [Performance, scale, security, accessibility — use concrete bounds, not adjectives]
+
+## MVP Scope
+[What is in for this version vs. out of scope / deferred]
 
 ## User Flows
 [Operational or user-observable flows. Internal-tool features may keep these minimal.]
@@ -127,6 +134,7 @@ Use `templates/prd-template.md` as the authoring template — it defines the can
 ## Quality Criteria
 
 - Background names the real problem plainly before diving into feature structure
+- Goals and MVP scope make the feature boundary explicit inside the PRD itself
 - The PRD distinguishes the general problem from the current example that exposed it
 - Deployment conventions and examples are not silently promoted to product contract
 - Personas and flows are as light or as heavy as the product shape justifies

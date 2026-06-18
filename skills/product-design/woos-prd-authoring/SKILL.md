@@ -1,6 +1,6 @@
 ---
 name: woos-prd-authoring
-description: Write the per-feature PRD from the ranked requirements contract using the mandatory PRD template.
+description: Write the per-feature PRD directly from the approved roadmap scope or Lite idea capture using the mandatory PRD template.
 version: 1.0.0
 author: Hermes Profile
 license: MIT
@@ -9,7 +9,6 @@ metadata:
     tags: [product, prd, authoring, design-flow]
     related_skills:
       - woos-product-design-flow
-      - woos-requirement-contract
       - woos-product-prd-review-gate
 ---
 
@@ -32,13 +31,14 @@ metadata:
 
 ## Purpose
 
-Convert the ranked requirements contract into a full PRD for one feature.
+Write a full PRD for one feature directly from the approved roadmap scope (Standard / Strict) or Lite idea capture.
 
 ## Required Load Set (mandatory)
 
 - `references/framework-prd.md` — authoring framework / reference reading
-- `templates/prd-template.md` — **the authoring template; the output PRD MUST match this template's section structure** (Background / User Personas / Functional Requirements / Non-Functional Requirements / User Flows / Edge Cases / Non-Goals / Success Metrics). This template is the source of truth for Step 4's section checks.
-- `docs/prd/<version>/<feature-id>-requirements.md`
+- `templates/prd-template.md` — **the authoring template; the output PRD MUST match this template's section structure** (Background / Goals / User Personas / Functional Requirements / Non-Functional Requirements / MVP Scope / User Flows / Edge Cases / Non-Goals / Success Metrics). This template is the source of truth for Step 3's section checks.
+- **Standard / Strict:** `docs/product/<project>-roadmap.md` + `docs/product/<project>-architecture.md`
+- **Lite:** the idea capture file (`ideas/<slug>.md` or `ideas/<slug>/00-idea-capture.md`) in place of the roadmap/architecture pair
 
 ## Supplemental Reference (optional, do not author against)
 
@@ -61,11 +61,13 @@ When referencing shared concepts (status enums, data models, event types, API en
 ## Required Sections
 
 1. `## Background`
-2. `## Functional Requirements`
-3. `## Non-Functional Requirements`
-4. `## Edge Cases`
-5. `## Non-Goals`
-6. `## Success Metrics`
+2. `## Goals`
+3. `## Functional Requirements`
+4. `## Non-Functional Requirements`
+5. `## MVP Scope`
+6. `## Edge Cases`
+7. `## Non-Goals`
+8. `## Success Metrics`
 
 ## Conditionally Required Sections
 
@@ -85,7 +87,7 @@ Include only when they add real decision value:
 ## Authoring Rules
 
 - Follow the template exactly
-- Give full detail to `P0` scope; keep `P2` brief
+- Use the roadmap entry (Standard / Strict) or idea capture file (Lite) as the product source of truth; do not invent an intermediate `requirements.md`
 - Mark unresolved items as `[NEEDS CLARIFICATION: ...]`
 - Do not embed review verdicts or gate outcomes in the PRD itself
 - Start from the actual problem, not from the template furniture
@@ -95,8 +97,9 @@ Include only when they add real decision value:
 - Each FR should describe one capability or one relationship. Split FRs that combine multiple concerns such as precedence, routing, observability, fallback behavior, and scope boundaries
 - Each FR MUST include at least one `**Consequences (testable):**` bullet — an atomic, observable condition with a concrete threshold or outcome. Phrases like "system handles X gracefully", "reasonable performance", or "user-friendly" are not consequences and MUST be rewritten as concrete bounds
 - Use per-FR `**Out of Scope:**` to draw boundaries between adjacent FRs whenever confusion between them is plausible
+- `## Goals` states the product outcomes this feature is meant to move; `## MVP Scope` states what is in for this version, what is out, and the cut-line. This is where the old requirements-contract ranking now lives
 - Any inference made without explicit user confirmation MUST be tagged inline with `[ASSUMPTION: <one-line statement>]` and surfaced in `## Assumptions Index`. Do not bury inferences in prose.
-- **Inferences inherited from `requirements.md` are still inferences.** If a decision in the PRD cannot be traced to a direct quote in the original idea capture, the roadmap entry, or an explicit user confirmation in the conversation, it MUST be tagged `[ASSUMPTION]` — even when it appears verbatim in `requirements.md`. The requirements doc is AI-authored and does not count as ground truth.
+- If a decision in the PRD cannot be traced to a direct quote in the original idea capture, the roadmap entry, or an explicit user confirmation in the conversation, it MUST be tagged `[ASSUMPTION]`.
 - `## Success Metrics` MUST contain at least one quantitative primary metric with a target value, AND at least one counter-metric or explicit `[NEEDS CLARIFICATION: counter-metric]` tag. Bare bullets like "users complete without confusion" are not metrics.
 - For internal tools or single-operator features, omit `User Personas` and `User Flows` rather than write trivial placeholders to satisfy a structural check
 - Only include `Dependencies` when downstream planning or implementation genuinely depends on them

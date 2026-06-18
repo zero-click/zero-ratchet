@@ -1,6 +1,6 @@
 ---
 name: woos-requirement-contract
-description: Produce the per-feature requirements contract used as the input to priority ranking and PRD authoring.
+description: 'DEPRECATED — BMAD-style single-PRD flow now embeds requirements directly in the PRD; retained only as a legacy compatibility marker.'
 version: 1.0.0
 author: Hermes Profile
 license: MIT
@@ -12,7 +12,7 @@ metadata:
       - woos-prd-authoring
 ---
 
-# Requirement Contract
+# DEPRECATED — Requirement Contract
 
 ## Output Language
 
@@ -29,66 +29,33 @@ metadata:
 - Code, file paths, IDs, and quoted PRD excerpts stay in their original form.
 
 
+This skill is deprecated.
+
+Hermes now follows the BMAD-style artifact boundary:
+
+```text
+idea capture / roadmap
+→ PRD (requirements live here)
+→ architecture
+→ epics / stories
+```
+
+New product-design flows MUST NOT create a parallel per-feature `*-requirements.md` file.
+
 ## Purpose
 
-Turn one selected roadmap feature into a structured requirements file before any ranking or PRD work begins.
+Retained only so older conversations or references can explain the historical workflow. New work should go directly to `woos-prd-authoring`.
 
-## Required Load Set (mandatory)
+## Behavior
 
-- `references/framework-requirements.md`
-- `templates/requirements-template.md`
-- **Standard / Strict:** `docs/product/<project>-roadmap.md`
-- **Lite:** the idea capture file (`ideas/<slug>.md` for Quick Note, or `ideas/<slug>/00-idea-capture.md` for Guided Interview) in place of the roadmap
+If invoked:
 
-If the required input file for the active mode is not loaded, return `BLOCKED`. In Lite mode the absence of `docs/product/<project>-roadmap.md` is expected and is not a BLOCK condition; the orchestrator MUST tell this skill which mode it is running in.
+1. Explain that the per-feature requirements contract has been merged into the PRD
+2. Point the caller to `woos-prd-authoring`
+3. Return `BLOCKED` unless the caller is explicitly migrating legacy docs
 
-## Conditional Load Set (upstream dependencies)
+## Migration Rule
 
-When the orchestrator identifies upstream dependencies (via Step 1.5), also load:
-
-- `docs/prd/<version>/<upstream-feature-id>-interface.md` for each declared upstream dependency
-
-These interface summaries define shared terminology, enums, data models, and API surfaces that this feature MUST align with. When writing requirements that reference shared concepts, use the exact names and definitions from the upstream interface summary.
-
-## Output
-
-- `docs/prd/<version>/<feature-id>-requirements.md`
-
-## Required Sections
-
-1. `## Problem Statement`
-2. `## Goals`
-3. `## User Stories`
-4. `## Non-Goals`
-5. `## Constraints`
-6. `## Risks & Unknowns`
-7. `## Priority Ranking`
-
-## Conditionally Required Sections
-
-- `## Assumptions Index` — **required** whenever any `[ASSUMPTION: ...]` tag appears inline anywhere in the document. Every inline tag must be surfaced for explicit confirmation. Omit only if no inline assumption tags are used.
-
-## Optional Sections
-
-Include only when they add real decision value:
-
-- `## Open Questions`
-
-## Authoring Rules
-
-- Follow the template structure exactly
-- Keep the file scoped to one feature only
-- Mark unresolved items as `[NEEDS CLARIFICATION: ...]`
-- Do not fold this output into the PRD
-- Include an explicit `P0 / P1 / P2` ranking and ship cut-line in `## Priority Ranking`
-- Write the actual problem in plain language before writing formal user stories
-- Separate **observable problem**, **root cause / mismatch** (if known), **current workaround**, and **user impact**
-- If a concrete channel / integration / environment exposed the issue, state whether it is **the problem itself** or merely **the current example that revealed the problem**
-- Do NOT turn deployment conventions, sample paths, or current operator habits into product requirements unless the feature explicitly depends on them
-- Each user story should express **one capability or relationship**; split stories that mix multiple decisions, precedence rules, observability requirements, and edge-case policy into separate stories
-- Each user story MUST include at least one `**Consequences (testable):**` bullet — an atomic, observable condition with a concrete threshold or outcome. Reject "system handles X gracefully" style phrasing; rewrite as concrete bounds
-- Use per-story `**Out of Scope:**` to draw boundaries when adjacent stories could be confused
-- Any inference made without explicit user confirmation MUST be tagged inline with `[ASSUMPTION: <one-line statement>]` and surfaced in `## Assumptions Index` at the end. Do not let inferences hide in prose
-- **The roadmap/idea-capture is the source of truth for "explicit user input".** Any decision in this requirements doc that cannot be traced to a direct quote in the roadmap entry (Standard/Strict) or the idea capture file (Lite) MUST be tagged `[ASSUMPTION]`. An inference is no less an inference just because it sounds reasonable.
-- For internal tools or single-operator features, prefer concrete capability wording over inflated persona theater
-- Only include `Open Questions` when there are real unresolved decisions that affect scope, sequencing, or acceptance
+- Move problem statement, goals, scope, and ranking into the PRD itself (`## Background`, `## Goals`, `## MVP Scope`, `## Non-Goals`, `## Success Metrics`)
+- Keep architecture in `docs/product/<project>-architecture.md`
+- Keep engineering decomposition downstream in the engineering workflow

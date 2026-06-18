@@ -17,7 +17,6 @@ metadata:
       - woos-architecture-overview
       - woos-architecture-review-gate
       - woos-product-design-flow
-      - woos-requirement-contract
       - woos-prd-authoring
       - woos-product-prd-review-gate
       - woos-ui-design-brief
@@ -122,7 +121,6 @@ idea-to-design entry skill
 │   ├── woos-architecture-overview
 │   └── woos-architecture-review-gate
 └── Phase 3: woos-product-design-flow
-    ├── woos-requirement-contract
     ├── woos-prd-authoring
     ├── woos-product-prd-review-gate
     ├── woos-ui-design-brief

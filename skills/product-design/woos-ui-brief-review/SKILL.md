@@ -31,7 +31,7 @@ metadata:
 
 ## Purpose
 
-Run Step 5R of `woos-product-design-flow` as a dedicated fresh-context review skill.
+Run Step 4R of `woos-product-design-flow` as a dedicated fresh-context review skill.
 
 This skill prevents the authoring context from self-certifying the UI brief.
 

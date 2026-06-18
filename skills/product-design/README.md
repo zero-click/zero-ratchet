@@ -36,9 +36,9 @@ Mode is inferred automatically, not chosen manually:
 
 | Mode | When | Phase 3 steps |
 |------|------|---------------|
-| Lite | Trivial, < 2 days | Requirements → PRD |
-| Standard | Single feature, moderate risk | Requirements → PRD → PRD Review |
-| Strict | Multi-feature, UX-heavy, high uncertainty | Full per-feature: Requirements → PRD → PRD Review → UI → UI Review → Analyze → Interface Summary → Integration |
+| Lite | Trivial, < 2 days | PRD |
+| Standard | Single feature, moderate risk | PRD → PRD Review |
+| Strict | Multi-feature, UX-heavy, high uncertainty | Full per-feature: PRD → PRD Review → UI → UI Review → Analyze → Interface Summary → Integration |
 
 ## Phase 1 — Capture
 
@@ -72,14 +72,13 @@ Steps in Strict mode:
 |------|----------------|--------|
 | 1 | Orchestrator selects version scope | — |
 | 1.5 | Orchestrator analyzes feature dependencies, sets execution order | — |
-| 2 | `woos-requirement-contract` | `<feature-id>-requirements.md` with P0/P1/P2 cut-line |
-| 3 | `woos-prd-authoring` | `<feature-id>.md` |
-| 4 | `woos-product-prd-review-gate` (fresh context) | PRD review verdict |
-| 5 | `woos-ui-design-brief` (when UI in scope) | `<feature-id>-ui-brief.md` |
-| 5R | `woos-ui-brief-review` (fresh context) | UI review verdict |
-| 6 | `woos-prd-consistency-audit` (fresh context) | Audit verdict |
-| 6.5 | Orchestrator extracts shared interface contract | `<feature-id>-interface.md` |
-| 7 | `woos-version-integration-audit` (fresh context, incremental from 2nd feature) | Integration verdict |
+| 2 | `woos-prd-authoring` | `<feature-id>.md` |
+| 3 | `woos-product-prd-review-gate` (fresh context) | PRD review verdict |
+| 4 | `woos-ui-design-brief` (when UI in scope) | `<feature-id>-ui-brief.md` |
+| 4R | `woos-ui-brief-review` (fresh context) | UI review verdict |
+| 5 | `woos-prd-consistency-audit` (fresh context) | Audit verdict |
+| 5.5 | Orchestrator extracts shared interface contract | `<feature-id>-interface.md` |
+| 6 | `woos-version-integration-audit` (fresh context, incremental from 2nd feature) | Integration verdict |
 
 Lite and Standard run a subset — see the [`woos-product-design-flow` SKILL](./woos-product-design-flow/SKILL.md) for the per-mode step list.
 
@@ -111,5 +110,6 @@ The product flow is built on the [BMAD](https://github.com/bmad-agent/bmad-agent
 - **Personas** injected into specific review steps (UX Designer "Sally" for UI brief review, PRD Validator for PRD and roadmap review)
 - **Frameworks** for PRD shaping, UX validation, market research, architecture coherence
 - **Templates** with `[NEEDS CLARIFICATION: …]` markers that block weak specs from passing
+- **Single-PRD artifact shape** — requirements live inside the PRD; architecture and story breakdown happen downstream rather than through a parallel per-feature `requirements.md`
 
 Authoritative details live inside each skill's `SKILL.md` and the framework files referenced from there.

@@ -2,7 +2,7 @@
 
 **Version**: <version>
 **Created**: <date>
-**Based on**: `docs/prd/<version>/<feature-id>-requirements.md`
+**Based on**: `docs/product/<project>-roadmap.md` (or Lite idea capture)
 **Status**: Draft | Reviewed | Approved
 
 ## Background
@@ -12,6 +12,11 @@
 Why this feature exists. Link to roadmap context and problem statement.
 
 [State the real problem in plain language before describing the solution shape. Separate: (1) observable problem, (2) root cause or mismatch if known, (3) current workaround, and (4) user/operator impact. If a concrete channel, environment, or path exposed the issue, clarify whether it is the problem itself or merely the example that revealed the general problem.]
+
+## Goals
+
+- [Goal 1 — measurable product outcome this feature should move]
+- [Goal 2 — measurable product outcome this feature should move]
 
 ## User Personas *(conditionally required — include when shape is `consumer-product` / `multi-stakeholder` or the feature has user-facing UI / multiple distinct user types; omit entirely for `internal-tool` / `single-operator` / `CLI` rather than write a one-row placeholder)*
 
@@ -56,6 +61,17 @@ Why this feature exists. Link to roadmap context and problem statement.
 - **Scale**: [expected load / data volume]
 - **Security**: [auth, data sensitivity, compliance]
 - **Accessibility**: [WCAG level or N/A]
+
+## MVP Scope
+
+### In Scope
+
+- [What is in for this version]
+
+### Out of Scope for MVP
+
+- [What is explicitly deferred]
+- [Cut-line / deferred adjacent work]
 
 ## User Flows *(conditionally required — same condition as `## User Personas`; omit entirely when shape is `internal-tool` / `single-operator` / `CLI`)*
 

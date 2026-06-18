@@ -1,8 +1,8 @@
-# Requirements Contract Authoring Framework (Per-Feature)
+# Legacy Requirement Contract Framework (Deprecated)
 
 ## Purpose
 
-Author the `<feature-id>-requirements.md` contract for a single roadmap feature. This is the structured requirements step that precedes PRD authoring — it captures the **problem, goals, user stories, non-goals, constraints, risks, and priority ranking** in their bare contract form. It is **NOT** a PRD; the PRD adds personas, flows, edge cases, and success metrics on top of this contract.
+Historical note only. Hermes no longer uses a standalone per-feature requirements contract in the active flow; BMAD-style single-PRD mode embeds requirements directly in the PRD. Keep this file only to explain older artifacts and migrations.
 
 ## Input
 
